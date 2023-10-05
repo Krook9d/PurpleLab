@@ -2,7 +2,7 @@
 
 # Installation de VirtualBox
 sudo apt update
-sudo apt install virtualbox
+sudo apt install -y virtualbox
 
 # Importation de la VM
 sudo VBoxManage import Virtual10.ova
