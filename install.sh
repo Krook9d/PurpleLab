@@ -1,6 +1,7 @@
 #!/bin/bash
 
 nice -n -10 install.sh
+sudo rm /var/lib/dpkg/lock-frontend
 
 # Installation du serveur Apache
 apt-get update
