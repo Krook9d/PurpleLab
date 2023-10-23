@@ -1,0 +1,8 @@
+
+LA VERSION DELK EST TROP VIELLE,CHANGER LE SCRIPT d'installation pour mettre un nouveau ELK
+
+
+mettre réseau (0.0.0.0) et port dans les fichiers elasticsearch.yml et kibana.yml
+
+
+Set-Location -Path "C:\Users\oem\Documents\winlogbeat-8.10.3\winlogbeat-8.10.3-windows-x86_64"
