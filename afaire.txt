@@ -2,6 +2,7 @@
 
 mettre réseau (0.0.0.0) et port dans les fichiers elasticsearch.yml 
 
+Récupérer le fingerprint :
 
-openssl x509 -fingerprint -sha256 -in config/certs/http_ca.crt
-mettre dans le fichier winlogbeat.yml
+openssl x509 -fingerprint -sha256 -in /etc/elasticsearch/certs/http_ca.crt 
+Le mettre dans le fichier winlogbeat.yml sans les ":"
