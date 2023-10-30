@@ -8,6 +8,7 @@ apt-get update
 apt-get install -y apache2
 apt install -y php libapache2-mod-php
 apt-get install -y php-mysqli
+phpenmod mysqli
 systemctl restart apache2
 apt install -y mysql-server
 systemctl start mysql
