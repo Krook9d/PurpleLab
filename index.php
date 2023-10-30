@@ -1,3 +1,4 @@
+  <!-- start Connexion -->
 <?php
 session_start();
 
@@ -34,13 +35,17 @@ $folders = scandir($directory);
 $folderCount = count($folders) - 2; // Soustraire 2 pour exclure les dossiers "." et ".."
 ?>
 
+  <!-- End Connexion -->
+
+
+
 <!DOCTYPE html>
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>LogHunter</title>
-    <link rel="stylesheet" href="styles.css?v=3.9" >
+    <link rel="stylesheet" href="styles.css?v=4" >
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="script.js"></script>
 </head>
