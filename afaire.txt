@@ -6,3 +6,5 @@ Récupérer le fingerprint :
 
 openssl x509 -fingerprint -sha256 -in /etc/elasticsearch/certs/http_ca.crt 
 Le mettre dans le fichier winlogbeat.yml sans les ":"
+
+ajouter le paquet git 
