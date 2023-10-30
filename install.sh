@@ -6,6 +6,8 @@ sudo rm /var/lib/dpkg/lock-frontend
 # Installation du serveur Apache
 apt-get update
 apt-get install -y apache2
+apt install -y php libapache2-mod-php
+systemctl restart apache2
 
 # Configuration du pare-feu pour permettre les connexions HTTP et HTTPS
 ufw allow in "Apache Full"
