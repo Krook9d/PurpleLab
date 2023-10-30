@@ -8,6 +8,10 @@ apt-get update
 apt-get install -y apache2
 apt install -y php libapache2-mod-php
 apt-get install -y php-mysqli
+apt install -y python3-pip
+apt-get -y install p7zip-full
+pip install pandas
+
 phpenmod mysqli
 systemctl restart apache2
 apt install -y mysql-server
