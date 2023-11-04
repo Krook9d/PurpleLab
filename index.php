@@ -1,5 +1,9 @@
   <!-- start Connexion -->
 <?php
+
+error_reporting(E_ALL);
+ini_set('display_errors', 1);
+
 session_start();
 
 if (!isset($_SESSION['email'])) {
@@ -7,7 +11,7 @@ if (!isset($_SESSION['email'])) {
     exit();
 }
 
-$conn = new mysqli('localhost', 'root', 'root', 'myDatabase');
+$conn = new mysqli('localhost', 'toor', 'root', 'myDatabase');
 
 if ($conn->connect_error) {
     die("Connection failed: " . $conn->connect_error);
@@ -30,7 +34,7 @@ $conn->close();
 ?>
 
 <?php
-$directory = 'C:\xampp\htdocs\Mittre\Technic';
+$directory = '/var/www/html/Mittre/Technic/';
 $folders = scandir($directory);
 $folderCount = count($folders) - 2; // Soustraire 2 pour exclure les dossiers "." et ".."
 ?>
@@ -45,20 +49,23 @@ $folderCount = count($folders) - 2; // Soustraire 2 pour exclure les dossiers ".
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>LogHunter</title>
-    <link rel="stylesheet" href="styles.css?v=4" >
+    <link rel="stylesheet" href="styles.css?v=4.1" >
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="script.js"></script>
 </head>
 <body>
-    <div class="nav-bar">
-        <ul>
-            <li><a href="index.php">Home</a></li>
-            <li><a href="mittre.php">Mitre Att&ck</a></li>
-            <li><a href="malware.php">Malware</a></li>
-            <li><a href="usecase.php">UseCase</a></li>
-            <li><a href="sharing.php">Sharing</a></li>
-        </ul>
-    </div>
+
+<div class="nav-bar">
+    <ul>
+        <li><a href="index.php"><i class="fas fa-home"></i> Home</a></li>
+        <li><a href="http://<?= $_SERVER['SERVER_ADDR'] ?>:5601" target="_blank"><i class="fas fa-crosshairs"></i> Hunting</a></li>
+        <li><a href="mittre.php"><i class="fas fa-book"></i> Mitre Att&ck</a></li>
+        <li><a href="malware.php"><i class="fas fa-virus"></i> Malware</a></li>
+        <li><a href="usecase.php"><i class="fas fa-lightbulb"></i> UseCase</a></li>
+        <li><a href="sharing.php"><i class="fas fa-pencil-alt"></i> Sharing</a></li>
+    </ul>
+</div>
 
     <div class="user-info-bar">
         <div class="avatar-info">

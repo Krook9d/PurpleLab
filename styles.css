@@ -1,0 +1,402 @@
+body {
+    font-family: Arial, sans-serif;
+    color: #333;
+    margin: 0;
+    padding: 0;
+    background-color: #f0f0f0;
+}
+
+
+.nav-bar {
+  width: 180px;
+  height: 100vh;
+  position: fixed;
+  left: 0;
+  top: 0;
+  background-color: #3498db;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: stretch;
+  padding-top: 20px;
+}
+
+.nav-bar ul {
+  list-style-type: none;
+  padding: 0;
+  margin: 0; /* Enlève toute marge par défaut du navigateur */
+}
+
+.nav-bar li {
+  margin: 0; 
+  padding: 0; 
+  align-items: center; /* Centre verticalement les éléments de la liste */
+}
+
+.nav-bar a {
+  text-decoration: none;
+  color: #fff;
+  background-color: rgba(255, 255, 255, 0.2);
+  padding: 10px 20px; 
+  border-radius: 5px;
+  transition: background-color 0.3s;
+  display: block;
+  text-align: left; 
+  line-height: 2; 
+  align-items: center; /* Centre verticalement les icônes et le texte dans le lien */
+}
+
+.nav-bar a:hover {
+  background-color: rgba(255, 255, 255, 0.4);
+}
+
+.nav-bar i {
+    width: 25px; /* Définissez une largeur fixe pour toutes les icônes */
+    text-align: center; /* Centre l'icône dans l'espace alloué */
+    margin-right: 2px; /* Ajoute un peu d'espace entre l'icône et le texte */
+}
+
+
+.content {
+    margin-left: 210px;
+    padding: 20px;
+}
+
+#t-button {
+    display: inline-block;
+    padding: 10px 20px;
+    background-color: #3498db;
+    color: #fff;
+    border-radius: 25px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+#t-button:hover {
+    background-color: #3498db;
+}
+
+
+
+
+
+form input[type="text"],
+form input[type="email"],
+form input[type="password"],
+form select {
+    padding: 10px;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+}
+
+form input[type="submit"] {
+    margin-top: 20px;
+    background-color: #006e3b;
+    color: #fff;
+    padding: 10px 20px;
+    border: none;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+form input[type="submit"]:hover {
+    background-color: #00cf34;
+}
+
+
+#show-password-button {
+    border: none;
+    background: none;
+    cursor: pointer;
+    position: relative;
+    top: -2px;
+  }
+
+  #show-password-button svg {
+    fill: #333;
+    transition: fill 0.2s ease-in-out;
+  }
+
+  #show-password-button:hover svg {
+    fill: #666;
+  }
+
+  #show-password-button:focus {
+    outline: none;
+  }
+
+  #show-password-button:focus svg {
+    fill: #666;
+  }
+
+  body.blank {
+    background-image: url(connexionbg.jpg);
+    background-size: cover;
+  }
+
+
+  #form-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+}
+
+.submit-button-orange {
+  margin-top: 20px;
+  background-color: #9fa100;
+  color: #fff;
+  padding: 10px 20px;
+  border: none;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.submit-button-orange:hover {
+  background-color: #b9ce00;
+}
+
+.user-info-bar {
+  position: fixed;
+  right: 0;
+  top: 0;
+  background-color: #3498db;
+  width: 15%;
+  height: 60px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  padding: 10px 80px 10px 10px;
+  border-radius: 0 0 0 20px;
+}
+
+.user-info-bar img {
+  height: 60px;
+  width: 60px;
+  border-radius: 50%;
+  object-fit: cover;
+  margin-right: 30px; /* Augmenter l'espace entre l'avatar et le bouton contenant les infos de l'utilisateur */
+  border: 3px solid #9bd3f8;
+  box-shadow: 0px 0px 10px #888;
+}
+
+.user-info-bar h2 {
+  color: white;
+  margin: 0;
+}
+
+.avatar-info {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.user-info-bar .user-button {
+  background-color: rgba(255, 255, 255, 0.2);
+  color: #fff;
+  padding: 10px 20px; /* Augmenter le padding du bouton d'information de l'utilisateur */
+  font-size: 18px; /* Augmenter la taille de police du bouton d'information de l'utilisateur */
+  border-radius: 5px;
+  border: none;
+  cursor: pointer;
+  position: relative;
+  display: inline-block;
+  transition: background-color 0.3s;
+}
+
+
+.dropdown-content {
+  display: none;
+  position: absolute;
+  background-color: #f9f9f9;
+  min-width: 160px;
+  box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+  z-index: 1;
+  top: 100%;
+  left: 0;
+}
+
+.dropdown-content a {
+  color: black;
+  padding: 12px 16px;
+  text-decoration: none;
+  display: block;
+}
+
+.user-button:hover .dropdown-content {
+  display: block;
+}
+
+.user-button:hover {
+  background-color: rgba(255, 255, 255, 0.4);
+}
+
+.dropdown-content a:hover {
+  background-color: #7ec1ff;
+  color: white;
+}
+
+.chart-container {
+  width: 300px;
+  height: 300px;
+  background-color: #fff;
+  border-radius: 20%;
+  overflow: hidden;
+}
+
+#connexionchart {
+  width: 70%;
+  height: 400px;
+}
+
+.sidebar {
+  position: fixed;
+  right: 0;
+  width: 20%;
+  height: 82vh; /* Modifier la valeur de height en fonction de vos besoins */
+  background-color: #3498db;
+  padding: 20px;
+  box-sizing: border-box;
+  overflow-y: auto;
+  transition: transform 0.3s ease-in-out;
+  transform: translateX(100%);
+  bottom: 0; /* Ajouter cette ligne pour positionner la sidebar en bas de la page */
+  border-radius: 20px 0 0 0; /* Ajouter cette ligne pour donner un bord arrondi uniquement à la partie gauche */
+}
+
+.sidebar.active {
+  transform: translateX(0);
+}
+
+.sidebar-section {
+  margin-bottom: 20px;
+}
+
+/* Styles pour le tableau Malware */
+.malwaretable {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 20px 0;
+    font-size: 16px;
+    text-align: left;
+}
+
+.malwaretable th, 
+.malwaretable td {
+    padding: 10px 12px;
+    border: 1px solid #e0e0e0; /* Définit les bordures des cellules du tableau */
+    background-color: #f5f5f5;
+}
+
+.malwaretable th {
+    background-color: #E1F9E8;
+    font-weight: bold;
+}
+
+/* Styles pour le bouton Run Malware */
+.runMalware {
+    background-color: #2ecc71; /* Vert */
+    color: #ffffff;
+    padding: 8px 12px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.runMalware:hover {
+    background-color: #27ae60; /* Vert plus foncé lors du survol */
+}
+
+.displaycsvcontent {
+    padding: 10px 20px;
+    background-color: #4CAF50; /* Vert */
+    border: none;
+    color: white;
+    font-size: 16px;
+    font-weight: bold;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.displaycsvcontent:hover {
+    background-color: #45a049; /* Vert foncé au survol */
+}
+
+.displaycsvcontent:disabled {
+    background-color: #ddd; /* Gris lorsque le bouton est désactivé */
+    cursor: not-allowed;
+}
+
+.separation {
+    border: 1px solid #ddd; /* Couleur et épaisseur de la ligne */
+    margin: 50px 0; /* Marge en haut et en bas de la séparation */
+}
+
+
+/* Style de base de la Dropzone */
+.dropzone {
+  border: 2px dashed #0087F7;
+  border-radius: 5px;
+  background: white;
+}
+
+/* Style du message par défaut */
+.dropzone .dz-message {
+  font-weight: 400;
+  font-size: 1.2em;
+  text-align: center;
+  margin: 2em 0;
+}
+
+/* Style lors du survol de la Dropzone */
+.dropzone .dz-message:hover {
+  color: #0087F7;
+  cursor: pointer;
+}
+
+/* Style des éléments de la Dropzone lors du glisser-déposer */
+.dropzone .dz-preview.dz-file-preview {
+  background: #f0f0f0;
+}
+
+/* Style des informations sur les fichiers */
+.dropzone .dz-preview .dz-details {
+  color: #333;
+}
+
+/* Style des barres de progression */
+.dropzone .dz-preview .dz-progress {
+  background: #0087F7;
+  height: 5px;
+  width: 100%;
+  margin-top: 10px;
+}
+
+/* Style du message de succès */
+.dropzone .dz-preview .dz-success-mark {
+  color: #3c763d;
+}
+
+/* Style du message d'erreur */
+.dropzone .dz-preview .dz-error-mark {
+  color: #a94442;
+}
+
+/* Style du texte d'erreur */
+.dropzone .dz-preview .dz-error-message {
+  color: #a94442;
+}
+
+.success {
+  color: #28a745; /* Vert */
+  font-size: 1em;
+  margin-top: 10px;
+}
+
+.error {
+  color: #dc3545; /* Rouge */
+  font-size: 1em;
+  margin-top: 10px;
+}

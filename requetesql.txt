@@ -1,0 +1,6 @@
+CREATE DATABASE myDatabase;
+CREATE USER 'toor'@'localhost' IDENTIFIED WITH mysql_native_password BY 'root';
+GRANT ALL ON myDatabase TO 'toor'@'localhost';
+ALTER USER 'toor'@'localhost' IDENTIFIED WITH 'caching_sha2_password' BY 'root';
+FLUSH PRIVILEGES;
+mysql -u toor -p myDatabase < database.sql
