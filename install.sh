@@ -12,7 +12,8 @@ apt-get install -y php-mysqli
 apt install -y python3-pip
 apt-get -y install p7zip-full
 pip install pandas
-
+pip install flask 
+pip install flask-cors
 phpenmod mysqli
 systemctl restart apache2
 apt install -y mysql-server
