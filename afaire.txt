@@ -12,3 +12,13 @@ ajouter le paquet git
 Mettre a jour le git
 
 Inclure le script extraction au script de telechargement
+
+
+
+ajouter dans filebeat.yml : 
+
+
+- type: log
+  enabled: true
+  paths:
+    - /var/www/html/Downloaded/Log_simulation/*.json
