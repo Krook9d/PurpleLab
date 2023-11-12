@@ -11,6 +11,7 @@ apt-get install -y php-curl
 apt-get install -y php-mysqli
 apt install -y python3-pip
 apt-get -y install p7zip-full
+apt-get -y install apt-transport-https
 pip install pandas
 pip install flask 
 pip install flask-cors
@@ -46,13 +47,15 @@ sudo apt-get install -y curl
 wget -qO - https://artifacts.elastic.co/GPG-KEY-elasticsearch | sudo apt-key add -
 
 # Ajout du repository Elasticsearch
-sudo echo "deb https://artifacts.elastic.co/packages/7.x/apt stable main" | sudo tee /etc/apt/sources.list.d/elastic-7.x.list
+sudo echo "deb https://artifacts.elastic.co/packages/8.x/apt stable main" | sudo tee /etc/apt/sources.list.d/elastic-8.x.list
 
 # Mise à jour des paquets disponibles pour inclure le repository Elasticsearch
 sudo apt-get update
 
 # Installation de Elasticsearch, Kibana et Logstash
 sudo apt-get install -y elasticsearch kibana logstash
+sudo apt-get install -y filebeat
+sudo systemctl enable filebeat
 
 # Configuration de Kibana pour qu'il écoute sur l'adresse IP de la machine
 sudo sed -i 's/#server.host: "localhost"/server.host: "0.0.0.0"/g' /etc/kibana/kibana.yml
