@@ -3,12 +3,33 @@
 nice -n -10 install.sh
 sudo rm /var/lib/dpkg/lock-frontend
 
+
+
+
+
 # Installation du serveur Apache
 apt-get update
 apt-get install -y apache2
 apt install -y php libapache2-mod-php
 apt-get install -y php-curl
 apt-get install -y php-mysqli
+
+EXPECTED_CHECKSUM="$(php -r 'copy("https://composer.github.io/installer.sig", "php://stdout");')"
+php -r "copy('https://getcomposer.org/installer', 'composer-setup.php');"
+ACTUAL_CHECKSUM="$(php -r "echo hash_file('sha384', 'composer-setup.php');")"
+
+if [ "$EXPECTED_CHECKSUM" != "$ACTUAL_CHECKSUM" ]
+then
+    >&2 echo 'ERROR: Invalid installer checksum'
+    rm composer-setup.php
+    exit 1
+fi
+
+php composer-setup.php --quiet
+RESULT=$?
+rm composer-setup.php
+exit $RESULT
+
 apt install -y python3-pip
 apt-get -y install p7zip-full
 apt-get -y install apt-transport-https
