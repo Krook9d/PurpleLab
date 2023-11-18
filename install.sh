@@ -40,6 +40,10 @@ done
 # Redémarrage du serveur Apache
 systemctl restart apache2
 
+DL LES FICHIERS WEB 
+
+python3 /var/www/html/scripts/attackToExcel.py
+
 # Installation de Java 11
 sudo apt-get install -y openjdk-11-jdk
 
