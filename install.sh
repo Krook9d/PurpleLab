@@ -15,6 +15,7 @@ apt-get -y install apt-transport-https
 pip install pandas
 pip install flask 
 pip install flask-cors
+pip install loguru
 phpenmod mysqli
 systemctl restart apache2
 apt install -y mysql-server
