@@ -17,6 +17,7 @@ pip install flask
 pip install flask-cors
 pip install loguru
 pip install stix2
+pip install mitreattack-python
 phpenmod mysqli
 systemctl restart apache2
 apt install -y mysql-server
