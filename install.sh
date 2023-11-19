@@ -135,6 +135,10 @@ service kibana restart
 
 sleep 3
 
+password=$(sed -n 's/^.*is : //p' /home/user/Documents/elk-password.txt) && echo "export ELASTIC_PASSWORD='$password'" | sudo tee -a /etc/apache2/envvars
+
+
+
 sudo apt install -y virtualbox
 
 # Importation de la VM
