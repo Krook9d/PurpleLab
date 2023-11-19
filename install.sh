@@ -134,10 +134,7 @@ sed -i "s/#elasticsearch.password: \"pass\"/elasticsearch.password: \"$kibana_sy
 service kibana restart
 
 sleep 3
-
-password=$(sed -n 's/^.*is : //p' /home/user/Documents/elk-password.txt) && echo "export ELASTIC_PASSWORD='$password'" | sudo tee -a /etc/apache2/envvars
-
-
+password=$(sed -n 's/^.*is : //p' /home/user/Documents/elk-password.txt | tr -d '\r') && echo "export ELASTIC_PASSWORD='$password'" | sudo tee -a /etc/apache2/envvars
 
 sudo apt install -y virtualbox
 
