@@ -5,8 +5,6 @@ sudo rm /var/lib/dpkg/lock-frontend
 
 
 
-
-
 # Installation du serveur Apache
 apt-get update
 apt-get install -y dialog
@@ -14,6 +12,9 @@ apt-get install -y apache2
 apt install -y php libapache2-mod-php
 apt-get install -y php-curl
 apt-get install -y php-mysqli
+
+
+-----Ca fout la merde cette partie------
 
 EXPECTED_CHECKSUM="$(php -r 'copy("https://composer.github.io/installer.sig", "php://stdout");')"
 php -r "copy('https://getcomposer.org/installer', 'composer-setup.php');"
@@ -25,6 +26,8 @@ then
     rm composer-setup.php
     exit 1
 fi
+
+-----Ca fout la merde cette partie------
 
 php composer-setup.php --quiet
 RESULT=$?
