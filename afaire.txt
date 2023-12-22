@@ -22,3 +22,6 @@ ajouter dans filebeat.yml :
   enabled: true
   paths:
     - /var/www/html/Downloaded/Log_simulation/*.json
+
+
+VERIFIER LES DROITS POUR ECRITURE DANS LA BASE DE DONNEE SQL, donnée bon droit au dossier /var/www/html 
