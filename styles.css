@@ -7,6 +7,7 @@ body {
 }
 
 
+
 .nav-bar {
   width: 180px;
   height: 100vh;
@@ -79,16 +80,71 @@ body {
 
 
 
+/* Conteneur global pour l'arrière-plan et le formulaire */
+.body-container {
+    display: flex; /* Utilisez flexbox pour la mise en page */
+    min-height: 100vh; /* Hauteur totale de la fenêtre de visualisation */
+    overflow: hidden; /* Cache tout débordement de contenu */
+}
 
+/* Section pour l'image de fond */
+.background-image-section {
+    flex-grow: 1; /* Permet à l'image de remplir l'espace disponible */
+    background-image: url('connexionbg.jpg');
+    background-size: cover; /* Couvre l'espace disponible */
+    background-position: center center; /* Centrer l'image dans le conteneur */
+    background-repeat: no-repeat; /* Ne pas répéter l'image */
+}
+
+/* Section pour le formulaire */
+.form-section {
+    flex-basis: 40%; /* Prend 40% de l'espace horizontal */
+    background-color: white; /* Fond blanc pour le formulaire */
+    display: flex;
+    align-items: center; /* Centrer le formulaire verticalement */
+    justify-content: center; /* Centrer le formulaire horizontalement */
+    padding: 2em; /* Espace autour du formulaire */
+}
+
+.input-container {
+    position: relative; /* Position relative pour positionner l'icône */
+    display: flex;
+    align-items: center; /* Aligner l'icône avec le champ de texte */
+    width: 100%; /* Utiliser toute la largeur disponible */
+    margin-bottom: 20px; /* Espace après le conteneur */
+}
+
+/* Style pour l'icône de l'input */
+.input-icon {
+    position: absolute;
+    left: 12px; /* Ajuster l'espacement à gauche */
+    fill: #333;
+    z-index: 10;
+    pointer-events: none; /* L'icône ne doit pas intercepter les clics */
+}
+
+/* Style pour l'input */
+input[type="email"],
+input[type="password"] {
+    padding: 10px 10px 10px 40px; /* Ajuster le padding pour faire de la place pour l'icône */
+    border-radius: 5px;
+    border: 1px solid #ccc;
+    width: 100%; /* Prendre toute la largeur du conteneur */
+    box-sizing: border-box; /* Inclure le padding et la bordure dans la largeur */
+}
+
+
+/* Styles pour les champs de formulaire */
 form input[type="text"],
-form input[type="email"],
-form input[type="password"],
 form select {
     padding: 10px;
     border-radius: 5px;
     border: 1px solid #ccc;
+    width: calc(100% - 20px); /* Ajustez en fonction du padding */
+    margin-bottom: 20px;
 }
 
+/* Styles pour le bouton de soumission */
 form input[type="submit"] {
     margin-top: 20px;
     background-color: #006e3b;
@@ -97,64 +153,37 @@ form input[type="submit"] {
     border: none;
     cursor: pointer;
     transition: background-color 0.3s;
+    width: auto; /* Ajustez la largeur selon vos besoins */
 }
 
+/* Styles pour le bouton de soumission lors du survol */
 form input[type="submit"]:hover {
     background-color: #00cf34;
 }
 
-
+/* Styles pour le bouton d'affichage du mot de passe */
 #show-password-button {
     border: none;
     background: none;
     cursor: pointer;
-    position: relative;
-    top: -2px;
-  }
+}
 
-  #show-password-button svg {
+/* Styles pour l'icône d'affichage du mot de passe */
+#show-password-button svg {
     fill: #333;
     transition: fill 0.2s ease-in-out;
-  }
+}
 
-  #show-password-button:hover svg {
+/* Styles pour l'icône d'affichage du mot de passe lors du survol et de la mise au point */
+#show-password-button:hover svg,
+#show-password-button:focus svg {
     fill: #666;
-  }
-
-  #show-password-button:focus {
-    outline: none;
-  }
-
-  #show-password-button:focus svg {
-    fill: #666;
-  }
-
-  body.blank {
-    background-image: url(connexionbg.jpg);
-    background-size: cover;
-  }
-
-
-  #form-container {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 100vh;
 }
 
-.submit-button-orange {
-  margin-top: 20px;
-  background-color: #9fa100;
-  color: #fff;
-  padding: 10px 20px;
-  border: none;
-  cursor: pointer;
-  transition: background-color 0.3s;
-}
+/* Suppression des styles de positionnement pour le conteneur du formulaire */
+/* Ils ne sont plus nécessaires car la mise en page est gérée par flexbox */
 
-.submit-button-orange:hover {
-  background-color: #b9ce00;
-}
+
 
 .user-info-bar {
   position: fixed;
@@ -236,13 +265,7 @@ form input[type="submit"]:hover {
   color: white;
 }
 
-.chart-container {
-  width: 300px;
-  height: 300px;
-  background-color: #fff;
-  border-radius: 20%;
-  overflow: hidden;
-}
+
 
 #connexionchart {
   width: 70%;
@@ -400,3 +423,488 @@ form input[type="submit"]:hover {
   font-size: 1em;
   margin-top: 10px;
 }
+
+
+.health-dashboard {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 20px;
+    padding: 20px;
+    margin-top: 100px;
+    transition: margin 0.3s;
+}
+
+.health-card {
+    background: white;
+    border: none;
+    border-radius: 15px;
+    padding: 20px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-between; /* Distribute space evenly */
+    transition: transform 0.3s ease, box-shadow 0.3s ease; /* Smooth transitions for hover effects */
+    
+}
+
+.health-card:hover {
+    transform: translateY(-5px); /* Slight lift effect on hover */
+    box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+}
+
+.health-card h2 {
+    margin: 0 0 15px 0; /* Add some space below the title */
+    color: #333;
+    font-size: 1.2em; /* Slightly larger font size for titles */
+}
+
+
+.health-status {
+    font-size: 1em; /* Adjust font size for status */
+    margin-bottom: 15px; /* Add some space below the status */
+    padding: 5px 10px; /* Padding for the status label */
+    border-radius: 5px; /* Rounded corners for the status label */
+    width: fit-content; /* Only take up the space it needs */
+}
+
+.health-status.running {
+    background-color: #C8E6C9; /* Light green background */
+    color: #256029; /* Dark green text */
+}
+
+.health-status.stopped {
+    background-color: #FFCDD2; /* Light red background */
+    color: #C63737; /* Dark red text */
+}
+
+.health-metric {
+    width: calc(100% - 240px); /* Réduisez la largeur pour prendre en compte la marge gauche */
+    background-color: #f0f0f0;
+    border-radius: 8px;
+    overflow: hidden;
+    margin-bottom: 10px;
+}
+
+.health-metric div {
+    height: 50px;
+    background-color: #2196F3;
+    text-align: center;
+    line-height: 35px;
+    color: white;
+    transition: width 0.5s ease;
+}
+
+.health-metric p {
+    color: #555;
+    margin: 0;
+    font-size: 0.9em;
+    text-align: center;
+}
+
+
+.health-section {
+    margin-bottom: 50px; /* Espace après chaque section */
+    margin-left: 200px; /* Ajoutez une marge à gauche pour décaler le contenu */
+
+   
+}
+
+.health-section-title {
+    font-size: 24px; /* Taille du titre */
+    color: #333; /* Couleur du texte */
+    margin-bottom: 10px; /* Espace après le titre */
+    text-align: center; /* Centre le texte horizontalement */
+ 
+}
+
+.health-section-separator {
+    height: 4px; /* Épaisseur de la barre de séparation */
+    background-color: #d9d9d9; /* Couleur de la barre de séparation */
+    margin-bottom: 20px; /* Espace après la barre de séparation */
+}
+
+#restoreButton {
+    background-color: #4CAF50; /* Green */
+    border: none;
+    color: white;
+    padding: 15px 32px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+    margin: 4px 2px;
+    cursor: pointer;
+    border-radius: 4px;
+    transition-duration: 0.4s;
+    box-shadow: 0 2px 2px 0 rgba(0,0,0,0.24), 0 5px 5px 0 rgba(0,0,0,0.19);
+}
+
+#restoreButton:hover {
+    background-color: #43a047; /* A very slightly lighter green */
+    box-shadow: 0 4px 8px 0 rgba(0,0,0,0.24), 0 6px 20px 0 rgba(0,0,0,0.19);
+}
+
+.health-card.no-hover:hover {
+    transform: none;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+}
+
+
+/* Styles pour le tableau dans malware.php*/
+.malwaretable {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 25px 0;
+    font-size: 0.9em;
+    font-family: sans-serif;
+    min-width: 400px;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.15);
+}
+
+.malwaretable thead tr {
+    background-color: #009879;
+    color: #024638;
+    text-align: left;
+}
+
+.malwaretable th,
+.malwaretable td {
+    padding: 12px 15px;
+}
+
+.malwaretable tbody tr {
+    border-bottom: 1px solid #dddddd;
+}
+
+.malwaretable tbody tr:nth-of-type(even) {
+    background-color: #f3f3f3;
+}
+
+
+.malwaretable tbody tr.active-row {
+    font-weight: bold;
+    color: #009879;
+}
+
+
+/* Styles de base pour la simulation de logs */
+.log_simulation_container {
+    background-color: #ffffff; /* Couleur de fond */
+    padding: 20px;
+    border-radius: 5px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    max-width: 600px;
+    margin: 2em auto; /* Centre le formulaire dans la page */
+    font-family: 'Arial', sans-serif; /* La police doit correspondre à votre design global */
+}
+
+.log_simulation_container h2 {
+    color: #333333; /* Couleur du texte pour les titres */
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+.log_simulation_field {
+    margin-bottom: 20px;
+    display: flex;
+    flex-direction: column;
+}
+
+.log_simulation_field label {
+    font-size: 1em;
+    color: #333333;
+    margin-bottom: 5px;
+}
+
+.log_simulation_field {
+    margin-bottom: 25px;
+}
+.log_simulation_field input,
+.log_simulation_field select {
+    padding: 12px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 1.1em;
+}
+
+/* Styles appliqués aux champs de saisie et aux sélections lorsqu'ils sont sélectionnés (focus) */
+.log_simulation_field input:focus,
+.log_simulation_field select:focus {
+    border-color: #007BFF;
+    box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+}
+
+#logSimulationForm button {
+    background-color: #007BFF; /* Choisissez une couleur qui correspond à votre design */
+    color: white;
+    padding: 15px 20px;
+    border: none;
+    border-radius: 4px;
+    font-size: 1em;
+    margin-top: 20px;
+    transition: background-color 0.3s ease;
+}
+
+#logSimulationForm button:hover {
+    background-color: #0056b3; /* Assombrir la couleur au survol */
+}
+
+
+
+.search-container-mittre {
+    margin: 20px auto;
+    max-width: 500px;
+    position: relative;
+}
+
+#searchInput {
+    width: 100%;
+    padding: 10px 20px 10px 40px;
+    font-size: 1em;
+    border: 1px solid #ccc;
+    border-radius: 20px;
+    box-sizing: border-box;
+}
+
+.search-icon {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    color: #ccc;
+}
+
+
+.search-results-mittre {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+}
+
+.search-results-mittre th,
+.search-results-mittre td {
+    border: 1px solid #ddd;
+    padding: 8px;
+    text-align: left;
+}
+
+.search-results-mittre th {
+    background-color: #f2f2f2;
+    color: #333;
+}
+
+.search-results-mittre tr:nth-child(even) {
+    background-color: #f9f9f9;
+}
+
+.search-results-mittre tr:hover {
+    background-color: #eaeaea;
+}
+
+.details-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+}
+
+.details-table th, .details-table td {
+    border: 1px solid #ddd;
+    padding: 8px;
+    text-align: left;
+}
+
+.details-table th {
+    background-color: #f2f2f2;
+    color: #333;
+}
+
+.details-table tr:nth-child(even) {
+    background-color: #f9f9f9;
+}
+
+.details-table tr:hover {
+    background-color: #eaeaea;
+}
+
+.details-table button {
+    padding: 5px 10px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.details-table button:hover {
+    background-color: #0056b3;
+}
+
+.update-btn {
+    padding: 10px 20px;
+    background-color: #28a745;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.update-btn .fa-sync {
+    margin-right: 5px;
+}
+
+.update-btn:hover {
+    background-color: #218838;
+}
+
+.fa-spin {
+    animation: spin 1s infinite linear;
+}
+
+@keyframes spin {
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
+
+
+/* Page usecase*/
+
+.usecase-content {
+    font-family: 'Arial', sans-serif;
+    line-height: 1.6;
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px;
+    background-color: #f9f9f9;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+.usecase-h1 {
+    color: #333;
+    text-align: center;
+}
+
+.usecase-p {
+    text-align: justify;
+    color: #666;
+}
+
+/* Styles pour le formulaire et les boutons */
+.usecase-select {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 20px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    box-sizing: border-box; /* Assure que le padding ne change pas la largeur */
+}
+
+.usecase-buttons {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.usecase-button {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    background-color: #5C9ACF;
+    color: white;
+    cursor: pointer;
+    margin-right: 10px;
+    transition: background-color 0.3s ease;
+}
+
+.usecase-button:hover {
+    background-color: #3b7ba9;
+}
+
+/* Styles pour les détails du use case */
+.usecase-details {
+    background-color: white;
+    padding: 15px;
+    border-radius: 5px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    display: none; /* Caché par défaut, sera affiché par jQuery */
+}
+
+.usecase-details h3 {
+    color: #333;
+    margin-bottom: 10px;
+}
+
+.usecase-details p {
+    margin-bottom: 10px;
+    color: #555;
+}
+
+.usecase-details span {
+    color: #222;
+    font-weight: bold;
+}
+
+
+
+
+
+
+
+
+
+
+
+/* Page index KPI */
+
+
+.index-dashboard {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 20px;
+    padding: 20px;
+    margin-top: 100px;
+    transition: margin 0.3s;
+}
+
+.index-card {
+    background: white;
+    border: none;
+    border-radius: 15px;
+    padding: 20px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-between; /* Distribute space evenly */
+    transition: transform 0.3s ease, box-shadow 0.3s ease; /* Smooth transitions for hover effects */
+    
+}
+
+.index-card:hover {
+    transform: translateY(-5px); /* Slight lift effect on hover */
+    box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+}
+
+.index-card h2 {
+    margin: 0 0 15px 0; /* Add some space below the title */
+    color: #333;
+    font-size: 1.2em; /* Slightly larger font size for titles */
+}
+
+
+
+.kpi-number {
+            font-size: 48px;
+            color: #4a4a4a; /* Couleur de texte foncée pour le contraste */
+            font-weight: bold;
+            margin: 10px 0;
+        }
+.kpi-title {
+            font-size: 18px;
+            color: #6e6e6e; /* Couleur de texte plus légère */
+            margin-bottom: 5px;
+        }
+
+
