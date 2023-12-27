@@ -3,22 +3,31 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>LogHunter</title>
-    <link rel="stylesheet" href="styles.css?v=2.1">
+    <link rel="stylesheet" href="styles.css?v=2.8">
 </head>
 <body class="blank">
-    
-<div id="form-container">
-    <form action="authenticate.php" method="post">
-        <h1>Connexion</h1>
-        <label for="email">Email:</label><br><br>
-        <input type="email" id="email" name="email" required><br><br>
-        <label for="password">Mot de passe:</label><br><br>
-        <input type="password" id="password" name="password" required><br><br>
-        <input type="submit" value="Se connecter">
-        <button type="button" id="create-account-button" class="submit-button-orange">Inscription</button>
-    </form>
-</div>
-
+    <div class="body-container">
+        <div class="background-image-section">
+            <!-- L'image de fond sera ici -->
+        </div>
+        <div class="form-section">
+            <div id="form-container">
+                <form action="authenticate.php" method="post">
+                    <h1>Connexion</h1>
+                    <div class="input-container">
+                        <svg class="input-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M12,2A10,10,0,1,0,22,12,10,10,0,0,0,12,2Zm0,3a3,3,0,1,1-3,3A3,3,0,0,1,12,5Zm0,14.2a7.2,7.2,0,0,1-6-3.1,5.61,5.61,0,0,1,12,0A7.2,7.2,0,0,1,12,19.2Z"/>
+                        </svg>
+                        <input type="email" id="email" name="email" required placeholder="admin@thehive.local">
+                    </div>
+                    <label for="password">Mot de passe:</label>
+                    <input type="password" id="password" name="password" required>
+                    <input type="submit" value="Se connecter">
+                    <button type="button" id="create-account-button" class="submit-button-orange">Inscription</button>
+                </form>
+            </div>
+        </div>
+    </div>
 <script>
     const createAccountButton = document.getElementById('create-account-button');
     const formContainer = document.getElementById('form-container');
