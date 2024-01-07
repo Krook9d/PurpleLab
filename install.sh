@@ -140,6 +140,17 @@ service kibana restart
 sleep 3
 password=$(sed -n 's/^.*is : //p' /home/user/Documents/elk-password.txt | tr -d '\r') && echo "export ELASTIC_PASSWORD='$password'" | sudo tee -a /etc/apache2/envvars
 
+# Download the PurpleLab.tar file from the given link
+wget -O /var/www/html/PurpleLab.tar "https://drive.google.com/uc?export=download&id=1qRTzyLFM-3cXhqhDI49X_m6fvT0UrgnQ"
+
+# Extract the contents of PurpleLab.tar to /var/www/html
+tar -xf /var/www/html/PurpleLab.tar -C /var/www/html
+
+# Move app.py from the extracted archive to the home directory of the active user
+mv /var/www/html/app.py ~/app.py
+
+
+
 sudo apt install -y virtualbox
 
 # Importation de la VM
@@ -178,6 +189,9 @@ if VBoxManage showvminfo sandbox | grep -q "running (since"; then
 else
     echo "La machine sandbox n'est pas en marche"
 fi
+
+
+
 
 # Affichage de l'adresse IP de la machine
 echo "Connectez-vous à Kibana sur http://$(hostname -I | cut -d' ' -f1):5601"
