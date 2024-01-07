@@ -141,7 +141,7 @@ sleep 3
 password=$(sed -n 's/^.*is : //p' /home/user/Documents/elk-password.txt | tr -d '\r') && echo "export ELASTIC_PASSWORD='$password'" | sudo tee -a /etc/apache2/envvars
 
 # Download the PurpleLab.tar file from the given link
-wget -O /var/www/html/PurpleLab.tar "https://drive.google.com/uc?export=download&id=1qRTzyLFM-3cXhqhDI49X_m6fvT0UrgnQ"
+wget --load-cookies /tmp/cookies.txt "https://docs.google.com/uc?export=download&confirm=$(wget --quiet --save-cookies /tmp/cookies.txt --keep-session-cookies --no-check-certificate 'https://docs.google.com/uc?export=download&id=1qRTzyLFM-3cXhqhDI49X_m6fvT0UrgnQ' -O- | sed -rn 's/.*confirm=([0-9A-Za-z_]+).*/\1\n/p')&id=1qRTzyLFM-3cXhqhDI49X_m6fvT0UrgnQ" -O purplelab.tar && rm -rf /tmp/cookies.txt
 
 # Extract the contents of PurpleLab.tar to /var/www/html
 tar -xf /var/www/html/PurpleLab.tar -C /var/www/html
