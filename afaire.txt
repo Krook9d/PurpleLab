@@ -1,6 +1,10 @@
 
 
-ACTIVER LA VIRTUALISATION DANS VMWARE OU VIRTUALBOX
+Activer la Virtualisation Matérielle :
+
+Recherchez une option nommée Virtualize Intel VT-x/EPT or AMD-V/RVI (ou une option similaire)
+
+
 
 mettre réseau (0.0.0.0) et port dans les fichiers elasticsearch.yml 
 
