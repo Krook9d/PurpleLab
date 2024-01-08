@@ -1,5 +1,7 @@
 
 
+ACTIVER LA VIRTUALISATION DANS VMWARE OU VIRTUALBOX
+
 mettre réseau (0.0.0.0) et port dans les fichiers elasticsearch.yml 
 
 Récupérer le fingerprint :
