@@ -31,3 +31,11 @@ ajouter dans filebeat.yml :
 
 
 VERIFIER LES DROITS POUR ECRITURE DANS LA BASE DE DONNEE SQL, donnée bon droit au dossier /var/www/html 
+
+
+commande pour token et vérification : 
+
+token : /usr/share/elasticsearch/bin/elasticsearch-create-enrollment-token --scope kibana
+
+
+Faire un snapshot de la vm -> 
