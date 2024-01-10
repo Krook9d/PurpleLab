@@ -38,4 +38,4 @@ commande pour token et vérification :
 token : /usr/share/elasticsearch/bin/elasticsearch-create-enrollment-token --scope kibana
 
 
-Faire un snapshot de la vm -> 
+Faire un snapshot de la vm -> nommé : "Snapshot1"
