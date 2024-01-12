@@ -129,7 +129,6 @@ sudo systemctl restart apache2
 # Move app.py from the extracted archive to the home directory of the active user
 mv /var/www/html/app.py /home/$(logname)/app.py
 
-exit
 
 sudo apt install -y virtualbox
 
