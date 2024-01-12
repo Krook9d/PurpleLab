@@ -14,8 +14,8 @@ apt install -y python3-pip
 apt-get -y install p7zip-full
 apt-get -y install apt-transport-https
 pip install pandas
-pip install flask 
-pip install flask-cors
+pip install --user --break-system-packages flask
+pip install --user --break-system-packages flask-cors
 pip install loguru
 pip install stix2
 pip install mitreattack-python
