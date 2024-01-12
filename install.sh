@@ -1,38 +1,14 @@
 #!/bin/bash
 
-nice -n -10 install.sh
-sudo rm /var/lib/dpkg/lock-frontend
-
-
 
 # Installation du serveur Apache
 apt-get update
 apt-get install -y dialog
+apt-get -y install megatools
 apt-get install -y apache2
 apt install -y php libapache2-mod-php
 apt-get install -y php-curl
 apt-get install -y php-mysqli
-
-
------Ca fout la merde cette partie------
-
-EXPECTED_CHECKSUM="$(php -r 'copy("https://composer.github.io/installer.sig", "php://stdout");')"
-php -r "copy('https://getcomposer.org/installer', 'composer-setup.php');"
-ACTUAL_CHECKSUM="$(php -r "echo hash_file('sha384', 'composer-setup.php');")"
-
-if [ "$EXPECTED_CHECKSUM" != "$ACTUAL_CHECKSUM" ]
-then
-    >&2 echo 'ERROR: Invalid installer checksum'
-    rm composer-setup.php
-    exit 1
-fi
-
------Ca fout la merde cette partie------
-
-php composer-setup.php --quiet
-RESULT=$?
-rm composer-setup.php
-exit $RESULT
 
 apt install -y python3-pip
 apt-get -y install p7zip-full
@@ -44,6 +20,7 @@ pip install loguru
 pip install stix2
 pip install mitreattack-python
 phpenmod mysqli
+apt-get -y install php-xml php-gd php-mbstring php-zip
 systemctl restart apache2
 apt install -y mysql-server
 systemctl start mysql
@@ -56,18 +33,9 @@ ufw allow in "Apache Full"
 IP=$(hostname -I | awk '{print $1}')
 echo "ServerName $IP" >> /etc/apache2/apache2.conf
 
-# Création de 5 pages web dans /var/www/html/
-for i in {1..5}
-do
-    echo "<html><head><title>Page $i</title></head><body><h1>Page $i</h1></body></html>" > /var/www/html/page$i.html
-done
 
 # Redémarrage du serveur Apache
 systemctl restart apache2
-
-DL LES FICHIERS WEB 
-
-python3 /var/www/html/scripts/attackToExcel.py
 
 # Installation de Java 11
 sudo apt-get install -y openjdk-11-jdk
@@ -85,7 +53,11 @@ sudo echo "deb https://artifacts.elastic.co/packages/8.x/apt stable main" | sudo
 sudo apt-get update
 
 # Installation de Elasticsearch, Kibana et Logstash
-sudo apt-get install -y elasticsearch kibana logstash
+sudo apt-get install -y elasticsearch kibana logstash | tee temp.txt
+grep 'The generated password for the elastic built-in' temp.txt >> admin.txt
+rm temp.txt
+
+
 sudo apt-get install -y filebeat
 sudo systemctl enable filebeat
 
@@ -96,9 +68,8 @@ sudo sed -i 's/#server.host: "localhost"/server.host: "0.0.0.0"/g' /etc/kibana/k
 sudo sed -i 's/#http.host: "127.0.0.1"/http.host: "0.0.0.0"/g' /etc/logstash/logstash.yml
 
 # ajout des ligne xpacksecurity dans le fichier elasticsearch.yml
-sed -i '$a xpack.security.enabled: true' /etc/elasticsearch/elasticsearch.yml
+
 sed -i '$a xpack.security.authc.api_key.enabled: true' /etc/elasticsearch/elasticsearch.yml
-sed -i '$a discovery.type: single-node' /etc/elasticsearch/elasticsearch.yml
 
 
 # Démarrage des services Elasticsearch, Kibana et Logstash
@@ -110,51 +81,60 @@ sudo systemctl start kibana.service
 sudo systemctl start logstash.service
 
 
-# Ajout du lien vers Kibana dans le code Apache
-sudo sed -i "s|<a href=\"\" class=\"nav-item nav-link\"><i class=\"fa fa-chart-bar me-2\"></i>Hunting</a>|<a href=\"http://$(hostname -I | cut -d' ' -f1):5601\" class=\"nav-item nav-link\"><i class=\"fa fa-chart-bar me-2\"></i>Hunting</a>|g" /var/www/html/index.html
+# Exécution de la commande pour créer le jeton d'enrôlement pour Kibana
+# et ajout de la sortie dans admin.txt
+/usr/share/elasticsearch/bin/elasticsearch-create-enrollment-token -s kibana >> admin.txt
 
 
-sleep 3
 
-echo "Lancement de la génération des mots de passe ELK..."
+sleep 2
 
-# Exécute la commande pour générer les mots de passe et stocke le résultat dans une variable
-result=$(echo -ne 'y\n' | /usr/share/elasticsearch/bin/elasticsearch-setup-passwords auto)
-
-# Enregistre le résultat dans un fichier texte
-echo "$result" > elk-passwords.txt
-
-echo "Les mots de passe ont été enregistrés dans le fichier ~/Documents/elk-passwords.txt."
 
 
 
 # Extraction du mot de passe kibana_system du fichier elk-passwords.txt
-kibana_system_password=$(grep -oP '(?<=PASSWORD kibana_system = ).*' elk-passwords.txt)
+# kibana_system_password=$(grep -oP '(?<=PASSWORD kibana_system = ).*' admin.txt.txt)
 
 # Modification du fichier /etc/kibana/kibana.yml
-sed -i "s/#elasticsearch.username: \"kibana_system\"/elasticsearch.username: \"kibana_system\"/" /etc/kibana/kibana.yml
-sed -i "s/#elasticsearch.password: \"pass\"/elasticsearch.password: \"$kibana_system_password\"/" /etc/kibana/kibana.yml
+# sed -i "s/#elasticsearch.username: \"kibana_system\"/elasticsearch.username: \"kibana_system\"/" /etc/kibana/kibana.yml
+# sed -i "s/#elasticsearch.password: \"pass\"/elasticsearch.password: \"$kibana_system_password\"/" /etc/kibana/kibana.yml
 
-service kibana restart
+# service kibana restart
 
-sleep 3
-password=$(sed -n 's/^.*is : //p' /home/user/Documents/elk-password.txt | tr -d '\r') && echo "export ELASTIC_PASSWORD='$password'" | sudo tee -a /etc/apache2/envvars
+# sleep 3
+# password=$(sed -n 's/^.*is : //p' /home/user/Documents/elk-password.txt | tr -d '\r') && echo "export ELASTIC_PASSWORD='$password'" | sudo tee -a /etc/apache2/envvars
 
-# Download the PurpleLab.tar file from the given link
-wget --load-cookies /tmp/cookies.txt "https://docs.google.com/uc?export=download&confirm=$(wget --quiet --save-cookies /tmp/cookies.txt --keep-session-cookies --no-check-certificate 'https://docs.google.com/uc?export=download&id=1qRTzyLFM-3cXhqhDI49X_m6fvT0UrgnQ' -O- | sed -rn 's/.*confirm=([0-9A-Za-z_]+).*/\1\n/p')&id=1qRTzyLFM-3cXhqhDI49X_m6fvT0UrgnQ" -O purplelab.tar && rm -rf /tmp/cookies.txt
+# Télécharger le fichier PurpleLab.tar
+
+
+megadl 'https://mega.nz/file/Eucl3YqC#qtUba2LFIJpzSCLJYFXVoM86-ualrsCyvZOUpu0NuBo'
+# Vérifier si le téléchargement a réussi
+
+mv PurpleLab.tar /var/www/html/
 
 # Extract the contents of PurpleLab.tar to /var/www/html
 tar -xf /var/www/html/PurpleLab.tar -C /var/www/html
 
+sleep 1
+rm /var/www/html/PurpleLab.tar
+
+echo "<VirtualHost *:80>
+
+    DirectoryIndex index.php
+
+</VirtualHost>" | sudo tee /etc/apache2/sites-available/000-default.conf
+
+sudo systemctl restart apache2
+
 # Move app.py from the extracted archive to the home directory of the active user
-mv /var/www/html/app.py ~/app.py
+mv /var/www/html/app.py /home/$(logname)/app.py
 
-
+exit
 
 sudo apt install -y virtualbox
 
 # Importation de la VM
-sudo VBoxManage import Virtual10.ova
+sudo VBoxManage import /var/www/html/sandbox.ova
 
 # Configuration de la VM
 VM_NAME="Virtual10"
@@ -191,7 +171,85 @@ else
 fi
 
 
+# ---------- SQL PART ---------#
+
+# Variables pour la connexion MySQL
+MYSQL_USER="root" # Remplacez par votre utilisateur MySQL
+MYSQL_PASS="password" # Remplacez par votre mot de passe MySQL
+DB_NAME="myDatabase"
+
+# Commandes SQL pour créer la base de données et l'utilisateur
+SQL_COMMANDS="
+CREATE DATABASE IF NOT EXISTS $DB_NAME;
+CREATE USER IF NOT EXISTS 'toor'@'localhost' IDENTIFIED WITH mysql_native_password BY 'root';
+GRANT ALL ON $DB_NAME.* TO 'toor'@'localhost';
+FLUSH PRIVILEGES;
+"
+
+# Commandes SQL pour créer la table users
+SQL_CREATE_TABLE="
+USE $DB_NAME;
+CREATE TABLE IF NOT EXISTS users (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    first_name VARCHAR(100) NOT NULL,
+    last_name VARCHAR(100) NOT NULL,
+    email VARCHAR(100) NOT NULL UNIQUE,
+    analyst_level VARCHAR(50) NOT NULL,
+    avatar VARCHAR(255) NOT NULL,
+    password VARCHAR(255) NOT NULL
+);
+"
+
+# Exécution des commandes SQL pour la base de données et l'utilisateur
+echo "$SQL_COMMANDS" | mysql 
+
+# Exécution des commandes pour créer la table
+echo "$SQL_CREATE_TABLE" | mysql 
 
 
-# Affichage de l'adresse IP de la machine
-echo "Connectez-vous à Kibana sur http://$(hostname -I | cut -d' ' -f1):5601"
+# Extraire le mot de passe et le stocker dans une variable
+ELASTIC_PASSWORD=$(grep "The generated password for the elastic built-in superuser is :" admin.txt | sed 's/.*: \([^ ]*\).*/\1/')
+
+# Ajouter la variable d'environnement à envvars
+echo "export ELASTIC_PASSWORD=\"$ELASTIC_PASSWORD\"" | sudo tee -a /etc/apache2/envvars
+
+
+# Elasticsearch configuration file path
+elasticsearch_config_path="/etc/elasticsearch/jvm.options.d/custom.options"
+
+# Configuration content to be inserted into the Elasticsearch configuration file
+elasticsearch_config_content="# ELK Stack JVM Heap Size - see /etc/elasticsearch/jvm.options
+-Xms4g
+-Xmx4g"
+
+# Create the Elasticsearch configuration file and write the content
+echo "$elasticsearch_config_content" | sudo tee "$elasticsearch_config_path" > /dev/null
+
+# Restart the Elasticsearch service
+sudo systemctl restart elasticsearch
+
+
+
+# Emplacement du projet PHP
+PROJECT_DIR="/var/www/html" # Mettez à jour avec le chemin de votre projet PHP
+
+# Installer Composer s'il n'est pas déjà installé
+if ! command -v composer &> /dev/null
+then
+    echo "Composer n'est pas installé. Installation en cours..."
+    cd /tmp
+    curl -sS https://getcomposer.org/installer | php
+    sudo mv composer.phar /usr/local/bin/composer
+    echo "Composer a été installé."
+else
+    echo "Composer est déjà installé."
+fi
+
+# Se déplacer dans le répertoire du projet
+cd "$PROJECT_DIR"
+
+# Installer PhpSpreadsheet avec Composer
+echo "Installation de PhpSpreadsheet en cours..."
+composer require phpoffice/phpspreadsheet
+
+echo "PhpSpreadsheet a été installé.
