@@ -173,8 +173,7 @@ fi
 # ---------- SQL PART ---------#
 
 # Variables pour la connexion MySQL
-MYSQL_USER="root" # Remplacez par votre utilisateur MySQL
-MYSQL_PASS="password" # Remplacez par votre mot de passe MySQL
+MYSQL_USER="root" # 
 DB_NAME="myDatabase"
 
 # Commandes SQL pour créer la base de données et l'utilisateur
@@ -199,11 +198,23 @@ CREATE TABLE IF NOT EXISTS users (
 );
 "
 
+# Commandes SQL pour créer la table contents
+SQL_CREATE_TABLE_CONTENTS="
+USE $DB_NAME;
+CREATE TABLE IF NOT EXISTS contents (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    content TEXT NOT NULL
+);
+"
+
+
 # Exécution des commandes SQL pour la base de données et l'utilisateur
 echo "$SQL_COMMANDS" | mysql 
 
 # Exécution des commandes pour créer la table
 echo "$SQL_CREATE_TABLE" | mysql 
+
+echo "$SQL_CREATE_TABLE_CONTENTS" | mysql 
 
 
 # Extraire le mot de passe et le stocker dans une variable
