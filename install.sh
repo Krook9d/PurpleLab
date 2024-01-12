@@ -263,3 +263,5 @@ echo "Installation de PhpSpreadsheet en cours..."
 composer require phpoffice/phpspreadsheet
 
 echo "PhpSpreadsheet a été installé."
+
+sudo chmod -R 775 /var/www/html/
