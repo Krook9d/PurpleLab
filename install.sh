@@ -252,11 +252,6 @@ composer require phpoffice/phpspreadsheet
 
 echo "PhpSpreadsheet a été installé."
 
-
-
-
-#!/bin/bash
-
 # Définir le chemin du répertoire source contenant les données à déplacer
 source_directory_path="/home/purplelab/PurpleLab"
 
