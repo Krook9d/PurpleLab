@@ -85,24 +85,7 @@ sudo systemctl start logstash.service
 # et ajout de la sortie dans admin.txt
 /usr/share/elasticsearch/bin/elasticsearch-create-enrollment-token -s kibana >> admin.txt
 
-
-
 sleep 2
-
-
-
-
-# Extraction du mot de passe kibana_system du fichier elk-passwords.txt
-# kibana_system_password=$(grep -oP '(?<=PASSWORD kibana_system = ).*' admin.txt.txt)
-
-# Modification du fichier /etc/kibana/kibana.yml
-# sed -i "s/#elasticsearch.username: \"kibana_system\"/elasticsearch.username: \"kibana_system\"/" /etc/kibana/kibana.yml
-# sed -i "s/#elasticsearch.password: \"pass\"/elasticsearch.password: \"$kibana_system_password\"/" /etc/kibana/kibana.yml
-
-# service kibana restart
-
-# sleep 3
-# password=$(sed -n 's/^.*is : //p' /home/user/Documents/elk-password.txt | tr -d '\r') && echo "export ELASTIC_PASSWORD='$password'" | sudo tee -a /etc/apache2/envvars
 
 # Télécharger le fichier PurpleLab.tar
 
