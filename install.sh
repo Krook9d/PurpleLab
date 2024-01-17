@@ -85,7 +85,9 @@ sudo systemctl start logstash.service
 # et ajout de la sortie dans admin.txt
 /usr/share/elasticsearch/bin/elasticsearch-create-enrollment-token -s kibana >> admin.txt
 
+
 sleep 2
+
 
 # Télécharger le fichier PurpleLab.tar
 
@@ -202,6 +204,9 @@ echo "$SQL_CREATE_TABLE_CONTENTS" | mysql
 
 # Extraire le mot de passe et le stocker dans une variable
 ELASTIC_PASSWORD=$(grep "The generated password for the elastic built-in superuser is :" admin.txt | sed 's/.*: \([^ ]*\).*/\1/')
+
+# Supprimer les retours chariot Windows (CR) si présents
+ELASTIC_PASSWORD=$(echo "$ELASTIC_PASSWORD" | tr -d '\r')
 
 # Ajouter la variable d'environnement à envvars
 echo "export ELASTIC_PASSWORD=\"$ELASTIC_PASSWORD\"" | sudo tee -a /etc/apache2/envvars
