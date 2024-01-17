@@ -1,0 +1,1 @@
+This folder will contain the csv information of the downloaded malware.
