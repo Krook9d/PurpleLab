@@ -264,4 +264,30 @@ composer require phpoffice/phpspreadsheet
 
 echo "PhpSpreadsheet a été installé."
 
+
+
+
+#!/bin/bash
+
+# Définir le chemin du répertoire source contenant les données à déplacer
+source_directory_path="/home/purplelab/PurpleLab"
+
+# Définir le chemin du répertoire de destination où les données doivent être déplacées
+destination_directory_path="/var/www/html"
+
+# Utiliser rsync pour déplacer les fichiers du répertoire source vers le répertoire de destination
+# L'option '-a' est pour 'archive' et préserve les permissions et autres attributs de fichier
+# L'option '-v' est pour 'verbose' et affiche les détails du processus de transfert
+# L'option '--remove-source-files' indique à rsync de supprimer les fichiers source après leur copie
+sudo rsync -av --remove-source-files "$source_directory_path/" "$destination_directory_path"
+
+# Trouver et supprimer les répertoires vides restants dans le répertoire source
+# '-type d' indique à find de chercher uniquement les répertoires
+# '-empty' filtre pour ne trouver que les répertoires vides
+# '-delete' supprime les répertoires trouvés par la commande find
+find "$source_directory_path" -type d -empty -delete
+
+# Afficher un message de confirmation une fois le processus terminé
+echo "Le contenu a été déplacé de $source_directory_path vers $destination_directory_path."
+
 sudo chmod -R 775 /var/www/html/
