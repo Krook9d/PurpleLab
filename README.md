@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="https://raw.githubusercontent.com/Krook9d/PurpleLab/main/MD_image/logo.png" alt="Logo PurpleLab"/>
+  <img src="https://github.com/Krook9d/PurpleLab/blob/main/MD_image/logo.png" alt="Logo PurpleLab"/>
 </p>
 
 
