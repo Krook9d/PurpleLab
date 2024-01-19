@@ -1,12 +1,11 @@
 <?php
 
-$servername = "localhost";
-$username = "toor";
-$password = "root";
-$dbname = "myDatabase";
-
-// Création de la connexion
-$conn = new mysqli($servername, $username, $password, $dbname);
+$conn = new mysqli(
+    getenv('DB_HOST'), 
+    getenv('DB_USER'), 
+    getenv('DB_PASS'), 
+    getenv('DB_NAME')
+);
 
 // Vérification de la connexion
 if ($conn->connect_error) {
@@ -15,9 +14,6 @@ if ($conn->connect_error) {
 
 // Vérification que le formulaire a été soumis
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-
-    echo "Form submitted<br>";
-
     // Nettoyage et validation des entrées de l'utilisateur
     $firstName = filter_input(INPUT_POST, 'firstName', FILTER_SANITIZE_STRING);
     $lastName = filter_input(INPUT_POST, 'lastName', FILTER_SANITIZE_STRING);
@@ -37,8 +33,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
     // Vérification que le champ "avatar" existe
     if (isset($_FILES["avatar"])) {
-        echo "Avatar field exists<br>";
-
         // Upload de l'avatar
         $targetDir = "uploads/";
         $avatarFile = $targetDir . basename($_FILES["avatar"]["name"]);
@@ -53,7 +47,30 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 if ($imageFileType == "jpg" || $imageFileType == "png" || $imageFileType == "jpeg") {
                     // Déplacer le fichier dans le dossier de destination
                     if (move_uploaded_file($_FILES["avatar"]["tmp_name"], $avatarFile)) {
-                        echo "The file " . basename($_FILES["avatar"]["name"]) . " has been uploaded.<br>";
+                        // Utiliser des déclarations préparées pour éviter les injections SQL
+                        $stmt = $conn->prepare("INSERT INTO users (first_name, last_name, email, analyst_level, avatar, password) VALUES (?, ?, ?, ?, ?, ?)");
+
+                        // Vérifier si la préparation de la requête a réussi
+                        if ($stmt === false) {
+                            die("Error in prepared statement<br>");
+                        }
+
+                        $stmt->bind_param("ssssss", $firstName, $lastName, $email, $analystLevel, $avatarFile, $hashedPassword);
+
+                        // Exécuter la requête d'insertion
+                        if ($stmt->execute()) {
+                            // Imprimer le code JavaScript pour afficher le popup
+                            echo "<script type='text/javascript'>
+                                    alert('User successfully created');
+                                    if (confirm('User successfully created. Do you want to go to the login page?')) {
+                                        window.location.href = 'connexion.html';
+                                    }
+                                  </script>";
+                        } else {
+                            echo "Error: " . $stmt->error . "<br>";
+                        }
+
+                        $stmt->close();
                     } else {
                         die("Sorry, there was an error uploading your file.");
                     }
@@ -66,26 +83,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         } else {
             die("Error uploading file.");
         }
-
-        // Utiliser des déclarations préparées pour éviter les injections SQL
-        $stmt = $conn->prepare("INSERT INTO users (first_name, last_name, email, analyst_level, avatar, password) VALUES (?, ?, ?, ?, ?, ?)");
-        
-        // Vérifier si la préparation de la requête a réussi
-        if ($stmt === false) {
-            die("Error in prepared statement<br>");
-        }
-
-        $stmt->bind_param("ssssss", $firstName, $lastName, $email, $analystLevel, $avatarFile, $hashedPassword);
-
-        // Exécuter la requête d'insertion
-        if ($stmt->execute()) {
-            echo "New record created successfully<br>";
-        } else {
-            echo "Error: " . $stmt->error . "<br>";
-        }
-
-        $stmt->close();
-
     } else {
         die("Avatar field is required.");
     }
@@ -96,4 +93,3 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 $conn->close();
 
 ?>
-
