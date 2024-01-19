@@ -14,13 +14,13 @@
 		- [VM logs configuration](#VM logs configuration)
 - [Usage](#Usage)
 	- [Home Page](#home-page-)
-	- [Hunting Page](#Hunting Page 🎯)
-	- [Mitre Att&ck Page](#Mitre Att&ck Page 🛡️)
-	- [Malware Page](#Malware Page 🦠)
-	- [Log simulation Page](#Log simulation Page 📊)
-	- [Usage Case Page](#Usage Case Page 🧩)
-	- [Sharing Page](#Sharing Page  ✏️)
-	- [Health Pag](#Health Page  🩺)
+	- [Hunting Page](#hunting-page-)
+	- [Mitre Att&ck Page](#mitre-attck-page-)
+	- [Malware Page](#malware-page-)
+	- [Log simulation Page](#log-simulation-page-)
+	- [Usage Case Page](#usage-case-page-)
+	- [Sharing Page](#sharing-page-)
+	- [Health Page](#health-page-)
 
 
 # What is PurpleLab ?
