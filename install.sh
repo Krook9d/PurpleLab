@@ -211,6 +211,24 @@ ELASTIC_PASSWORD=$(echo "$ELASTIC_PASSWORD" | tr -d '\r')
 # Ajouter la variable d'environnement à envvars
 echo "export ELASTIC_PASSWORD=\"$ELASTIC_PASSWORD\"" | sudo tee -a /etc/apache2/envvars
 
+# Remplacez ces valeurs par les informations de votre base de données
+DB_HOST="localhost"
+DB_USER="toor"
+DB_PASS="root"
+DB_NAME="myDatabase"
+
+# Échapper les caractères spéciaux dans le mot de passe
+ESCAPED_DB_PASS=$(printf '%s\n' "$DB_PASS" | sed -e 's/[\/&]/\\&/g')
+
+# Ajouter les variables d'environnement au fichier /etc/apache2/envvars
+echo "export DB_HOST='$DB_HOST'" | sudo tee -a /etc/apache2/envvars
+echo "export DB_USER='$DB_USER'" | sudo tee -a /etc/apache2/envvars
+echo "export DB_PASS='$ESCAPED_DB_PASS'" | sudo tee -a /etc/apache2/envvars
+echo "export DB_NAME='$DB_NAME'" | sudo tee -a /etc/apache2/envvars
+
+# Redémarrer Apache pour que les changements prennent effet
+sudo systemctl restart apache2
+
 
 # Elasticsearch configuration file path
 elasticsearch_config_path="/etc/elasticsearch/jvm.options.d/custom.options"
