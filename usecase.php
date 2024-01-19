@@ -102,7 +102,7 @@ $conn->close();
 
 <div class="content">
 <div class="usecase-content">
-    <h1 class="usecase-h1">Usage Case</h1>
+    <h1 class="usecase-h1">🧩 Usage Case</h1>
     <p class="usecase-p">On this page, you will find several use cases to play out, each of which triggers a sequence of actions that you will need to analyze and reconstruct in order to determine what actually happened on the machine</p>
     
     <select id="useCaseSelect" class="usecase-select">
