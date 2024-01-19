@@ -13,7 +13,7 @@
 		- [Accounts](#Accounts)
 		- [VM logs configuration](#VM logs configuration)
 - [Usage](#Usage)
-	- [Home Page](#Home Page 🏠)
+	- [Home Page](#home-page-)
 	- [Hunting Page](#Hunting Page 🎯)
 	- [Mitre Att&ck Page](#Mitre Att&ck Page 🛡️)
 	- [Malware Page](#Malware Page 🦠)
