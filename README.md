@@ -1,6 +1,7 @@
 <p align="center">
-  <img src="" alt="/MD_image/logo.png"/>
+  <img src="https://raw.githubusercontent.com/Krook9d/PurpleLab/main/MD_image/logo.png" alt="Logo PurpleLab"/>
 </p>
+
 
 # Table of content
 
