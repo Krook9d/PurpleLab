@@ -146,7 +146,7 @@ $data = json_encode([
     "aggs" => [
         "original_filenames" => [
             "terms" => [
-                "field" => "winlog.event_data.OriginalFileName", 
+                "field" => "winlog.event_data.NewProcessName", 
                 "size" => 10000 // Adjust according to the number of distinct values expected
             ]
         ]
