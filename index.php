@@ -119,19 +119,16 @@ if (curl_errno($ch2)) {
 } else {
     // Parse the JSON response to get the aggregation data
     $response_data = json_decode($NbIp, true);
-    $unique_source_ips = $response_data['aggregations']['unique_source_ips']['value'];
-    $unique_destination_ips = $response_data['aggregations']['unique_destination_ips']['value'];
-    
 
+    // Utilisez l'opérateur de coalescence nulle pour éviter les erreurs si les clés n'existent pas
+    $unique_source_ips = $response_data['aggregations']['unique_source_ips']['value'] ?? 0;
+    $unique_destination_ips = $response_data['aggregations']['unique_destination_ips']['value'] ?? 0;
 }
 
 // Close the connection
 curl_close($ch2);
-$unique_ip = $unique_source_ips + $unique_destination_ips
+$unique_ip = $unique_source_ips + $unique_destination_ips;
 
-?>
-
-<?php
 // Query for distinct values of winlog.event_data.OriginalFileName
 $ch4 = curl_init();
 
