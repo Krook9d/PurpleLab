@@ -102,7 +102,7 @@ $conn->close();
 
 
     <div class="mitre-attack-content">
-        <h1>Mitre ATT&CK FRAMEWORK</h1>
+        <h1>Mitre ATT&CK FRAMEWORK 🛡️</h1>
         <button id="updateDatabaseBtn" class="update-btn" onclick="updateDatabase()">
             <i id="updateIcon" class="fas fa-sync"></i> Mitre ATT&CK update database
         </button> 
