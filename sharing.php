@@ -204,8 +204,8 @@ $conn->close();
             <button class="user-button">
                 <span><?= $first_name ?> <?= $last_name ?></span>
                 <div class="dropdown-content">
-                    <a href="sharing.php" id="settings-link">Paramètres</a>
-                    <a href="logout.php">Déconnexion</a>
+                    <a href="sharing.php" id="settings-link">Settings</a>
+                    <a href="logout.php">Logout</a>
                 </div>
             </button>
         </div>
