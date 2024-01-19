@@ -101,7 +101,7 @@ $conn->close();
 
     <div class="content">
 <div class="log_simulation_container">
-    <h2>Log simulation</h2>
+    <h2> 📊 Log simulation</h2>
     <form id="logSimulationForm">
         <div class="log_simulation_field">
             <label for="logType">Log type:</label>
