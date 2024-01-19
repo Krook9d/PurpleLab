@@ -6,7 +6,7 @@
 # Table of content
 
 - [Table of content](#table-of-content)
-- [test](#What is PurpleLab ?)
+- [What is PurpleLab ?](#What is PurpleLab ?)
 - [Installation procedure](#installation)
 	- [Requirements](#Requirements)
 	- [Configuration](#configuration)
