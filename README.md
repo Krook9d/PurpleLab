@@ -11,7 +11,7 @@
 	- [Requirements](#Requirements)
 	- [Configuration](#configuration)
 		- [Accounts](#Accounts)
-		- [VM logs configuration](#VM-logs-configuration)
+		- [VM logs configuration](#VM-logs-configuration-)
 - [Usage](#Usage)
 	- [Home Page](#home-page-)
 	- [Hunting Page](#hunting-page-)
