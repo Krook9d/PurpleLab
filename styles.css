@@ -9,7 +9,7 @@ body {
 
 
 .nav-bar {
-  width: 180px;
+  width: 200px;
   height: 100vh;
   position: fixed;
   left: 0;
@@ -23,9 +23,10 @@ body {
 }
 
 .nav-bar ul {
-  list-style-type: none;
-  padding: 0;
-  margin: 0; /* Enlève toute marge par défaut du navigateur */
+    list-style-type: none;
+    padding: 0;
+    margin: 0;
+    margin-top: 20px; /* Ajoute un espace au-dessus */
 }
 
 .nav-bar li {
@@ -57,6 +58,51 @@ body {
     margin-right: 2px; /* Ajoute un peu d'espace entre l'icône et le texte */
 }
 
+.nav-logo {
+    /* Assurez-vous que le logo ne crée pas d'espace inutile en dessous */
+    margin-bottom: 0; 
+    padding-bottom: 0;
+}
+
+.nav-logo img {
+    display: block; 
+    width: 100%; 
+    height: auto;
+    /* Si vous aviez un padding ou une marge ici, assurez-vous de les ajuster ou de les supprimer si nécessaire */
+}
+
+.software-version {
+    color: #e4e4e4; /* Gris foncé pour le texte */
+    background-color: transparent; 
+    padding: 0 20px; /* Ajustez ou supprimez le padding vertical si nécessaire */
+    text-align: center; 
+    font-size: 0.8em; 
+    font-style: italic; 
+    border-bottom: none; 
+    margin-top: 0; /* Supprimez toute marge supérieure pour coller au logo */
+    margin-bottom: 20px; /* Ajoute un espace en dessous */
+}
+
+.nav-footer {
+    position: absolute;
+    bottom: 0;
+    width: 100%; /* Assurez-vous que le footer s'étend sur toute la largeur de la barre de navigation */
+}
+
+.credit-link {
+    color: #4a4a4a;
+    text-decoration: none;
+    font-size: 16px;
+    padding: 10px 20px; /* Ajustez le padding si nécessaire */
+    display: flex;
+    align-items: center; /* Centre verticalement le texte et l'icône */
+}
+
+.github-icon {
+    height: 25px;
+    vertical-align: middle;
+    margin-right: 5px;
+}
 
 .content {
     margin-left: 210px;
@@ -117,16 +163,17 @@ body {
 /* Style pour l'icône de l'input */
 .input-icon {
     position: absolute;
-    left: 12px; /* Ajuster l'espacement à gauche */
+    right: 700px; /* Ajusté pour positionner l'icône à l'intérieur du champ */
     fill: #333;
     z-index: 10;
-    pointer-events: none; /* L'icône ne doit pas intercepter les clics */
+    pointer-events: none;
 }
 
 /* Style pour l'input */
 input[type="email"],
 input[type="password"] {
-    padding: 10px 10px 10px 40px; /* Ajuster le padding pour faire de la place pour l'icône */
+    padding: 12px 20px 0px 70px; /* Augmenter le padding pour élargir les champs */
+    font-size: 55px; /* Augmenter la taille de la police pour les inputs */
     border-radius: 5px;
     border: 1px solid #ccc;
     width: 100%; /* Prendre toute la largeur du conteneur */
@@ -140,26 +187,48 @@ form select {
     padding: 10px;
     border-radius: 5px;
     border: 1px solid #ccc;
-    width: calc(100% - 20px); /* Ajustez en fonction du padding */
     margin-bottom: 20px;
 }
 
-/* Styles pour le bouton de soumission */
-form input[type="submit"] {
+/* Style spécifique pour le bouton de connexion */
+.login-button {
     margin-top: 20px;
-    background-color: #006e3b;
+    margin-right: 10px; 
+    background-color: #006e3b; /* Vert */
     color: #fff;
-    padding: 10px 20px;
+    padding: 15px 30px;
     border: none;
+    border-radius: 5px;
     cursor: pointer;
-    transition: background-color 0.3s;
-    width: auto; /* Ajustez la largeur selon vos besoins */
+    transition: background-color 0.3s, box-shadow 0.3s;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    display: inline-block;
 }
 
-/* Styles pour le bouton de soumission lors du survol */
-form input[type="submit"]:hover {
-    background-color: #00cf34;
+.login-button:hover {
+    background-color: #00cf34; /* Vert plus clair */
+    box-shadow: 0 4px 8px rgba(0,0,0,0.3);
 }
+
+/* Style spécifique pour le bouton d'inscription */
+.register-button {
+    margin-top: 20px;
+    background-color: #ff8c00; /* Orange */
+    color: #fff;
+    padding: 15px 30px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s, box-shadow 0.3s;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    display: inline-block;
+}
+
+.register-button:hover {
+    background-color: #ffa500; /* Orange plus clair */
+    box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+}
+
 
 /* Styles pour le bouton d'affichage du mot de passe */
 #show-password-button {
@@ -180,8 +249,37 @@ form input[type="submit"]:hover {
     fill: #666;
 }
 
-/* Suppression des styles de positionnement pour le conteneur du formulaire */
-/* Ils ne sont plus nécessaires car la mise en page est gérée par flexbox */
+
+/* Positionnement du logo */
+#logo-container {
+    position: absolute;
+    top: -1%;
+    left: 70%;
+}
+
+/* Positionnement du crédit */
+#credit-container {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    text-align: right;
+}
+
+#credit-link {
+    color: #ffffff; /* Ou la couleur que vous souhaitez pour le texte */
+    text-decoration: none; /* Supprime le soulignement du lien */
+    font-size: 16px; /* Ou la taille que vous souhaitez pour le texte */
+}
+
+#credit-link:hover {
+    text-decoration: underline; /* Ajoute un soulignement au survol si désiré */
+}
+
+#github-icon {
+    width: 20px; /* Ou la taille que vous souhaitez pour l'icône */
+    vertical-align: middle; /* Aligner l'icône avec le texte */
+    margin-right: 5px; /* Espace entre l'icône et le texte */
+}
 
 
 
@@ -205,7 +303,7 @@ form input[type="submit"]:hover {
   border-radius: 50%;
   object-fit: cover;
   margin-right: 30px; /* Augmenter l'espace entre l'avatar et le bouton contenant les infos de l'utilisateur */
-  border: 3px solid #9bd3f8;
+  border: 3px solid #3498db;
   box-shadow: 0px 0px 10px #888;
 }
 
@@ -316,6 +414,25 @@ form input[type="submit"]:hover {
     font-weight: bold;
 }
 
+
+.malwarebazarbutton {
+    padding: 10px 20px;
+    background-color: #4CAF50; /* Vert */
+    border: none;
+    color: white;
+    font-size: 16px;
+    font-weight: bold;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.malwarebazarbutton:hover {
+    background-color: #45a049; /* Vert foncé au survol */
+}
+
+
+
 /* Styles pour le bouton Run Malware */
 .runMalware {
     background-color: #2ecc71; /* Vert */
@@ -358,36 +475,55 @@ form input[type="submit"]:hover {
 }
 
 
-/* Style de base de la Dropzone */
+/* Style de base de la Dropzone avec des ombres et un léger effet de gradient */
 .dropzone {
-  border: 2px dashed #0087F7;
-  border-radius: 5px;
-  background: white;
+    border: 2px dashed #0087F7;
+    border-radius: 5px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    transition: all 0.2s ease-in-out;
+    width: 50%;
 }
 
-/* Style du message par défaut */
-.dropzone .dz-message {
-  font-weight: 400;
-  font-size: 1.2em;
-  text-align: center;
-  margin: 2em 0;
-}
-
-/* Style lors du survol de la Dropzone */
-.dropzone .dz-message:hover {
-  color: #0087F7;
-  cursor: pointer;
-}
-
-/* Style des éléments de la Dropzone lors du glisser-déposer */
-.dropzone .dz-preview.dz-file-preview {
-  background: #f0f0f0;
-}
-
-/* Style des informations sur les fichiers */
-.dropzone .dz-preview .dz-details {
-  color: #333;
-}
+  
+  /* Style du message par défaut avec une typographie moderne et de l'espace */
+  .dropzone .dz-message {
+    font-family: 'Roboto Slab', serif; /* Utilise la police Roboto Slab de Google Fonts */
+    font-weight: 700; /* Rend le texte un peu plus gras */
+    font-size: 1.5em; /* Augmente la taille de la police */
+    color: #4a4a4a; /* Couleur du texte, à ajuster selon vos préférences */
+    margin: 2em 0;
+    text-align: center;
+  }
+  
+  
+  
+  /* Style subtil lors du survol de la Dropzone avec une transition en douceur */
+  .dropzone:hover {
+    background: linear-gradient(to bottom, #f8f8f8 0%, #f0f0f0 100%);
+    border-color: #0056b3;
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.15);
+  }
+  
+  .dropzone .dz-message:hover {
+    color: #0056b3;
+    cursor: pointer;
+  }
+  
+  /* Style des éléments de la Dropzone lors du glisser-déposer avec un effet visuel de soulèvement */
+  .dropzone .dz-preview.dz-file-preview {
+    background: #ffffff;
+    border: 1px solid #e0e0e0;
+    border-radius: 5px;
+    box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.2);
+  }
+  
+  /* Style des informations sur les fichiers avec une meilleure hiérarchie visuelle */
+  .dropzone .dz-preview .dz-details {
+    color: #333;
+    font-size: 0.9em;
+    line-height: 1.3;
+  }
+  
 
 /* Style des barres de progression */
 .dropzone .dz-preview .dz-progress {
@@ -650,7 +786,23 @@ form input[type="submit"]:hover {
     background-color: #0056b3; /* Assombrir la couleur au survol */
 }
 
+.mitre-attack-image {
+    text-align: center; /* Centre l'image horizontalement */
+    margin-top: 20px; /* Ajoute un peu d'espace en haut, ajustez selon vos besoins */
+}
+.mitre-attack-image img {
+    max-width: 30%; /* Assurez-vous que l'image ne dépasse pas la largeur de l'écran */
+    height: auto; /* Maintient le ratio de l'image */
+}
 
+.atomic-image {
+    text-align: center;
+    margin-top: 20px; /* Ajustez cette marge pour contrôler l'espace entre les deux images */
+}
+.atomic-image img {
+    max-width: 18%; /* Ajustez la largeur selon vos besoins */
+    height: auto;
+}
 
 .search-container-mittre {
     margin: 20px auto;
@@ -769,7 +921,7 @@ form input[type="submit"]:hover {
 
 
 
-/* Page usecase*/
+/* usecase Page */
 
 .usecase-content {
     font-family: 'Arial', sans-serif;
@@ -846,13 +998,29 @@ form input[type="submit"]:hover {
     font-weight: bold;
 }
 
+.usecase-table {
+    width: 100%;
+    border-collapse: collapse;
+}
 
+.usecase-table th,
+.usecase-table td {
+    border: 1px solid #ddd;
+    padding: 8px;
+}
 
+.usecase-table th {
+    background-color: #f2f2f2;
+    text-align: left;
+}
 
+.usecase-table td {
+    background-color: #ffffff;
+}
 
-
-
-
+.usecase-table tr:hover {
+    background-color: #f5f5f5;
+}
 
 
 
@@ -908,3 +1076,34 @@ form input[type="submit"]:hover {
         }
 
 
+
+/* sharing Page */
+
+.textarea-container {
+    position: relative;
+    margin-top: 10px;
+}
+
+#sharing-textarea {
+    width: 100%;
+    height: 150px;
+    padding: 10px 40px 10px 10px; /* L'espace supplémentaire à droite pour l'icône de copie */
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-size: 14px;
+    resize: vertical;
+}
+
+.copy-button {
+    position: absolute;
+    top: 5px; /* Ajustez selon votre besoin */
+    right: 5px; /* Ajustez selon votre besoin */
+    background: transparent;
+    border: none;
+    color: #4CAF50;
+    cursor: pointer;
+}
+
+.copy-button i {
+    font-size: 20px; /* Taille de l'icône */
+}
