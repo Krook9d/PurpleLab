@@ -291,4 +291,21 @@ find "$source_directory_path" -type d -empty -delete
 # Afficher un message de confirmation une fois le processus terminé
 echo "Le contenu a été déplacé de $source_directory_path vers $destination_directory_path."
 
+# Liste des fichiers à supprimer
+files_to_delete=(
+    "/var/www/html/index.html"
+    "/var/www/html/dropzone.png"
+    "/var/www/html/database.sql"
+)
+
+# Parcourir la liste des fichiers et les supprimer
+for file in "${files_to_delete[@]}"; do
+    if [[ -f "$file" ]]; then
+        sudo rm "$file"
+        echo "Supprimé: $file"
+    else
+        echo "Le fichier n'existe pas et ne peut pas être supprimé: $file"
+    fi
+done
+
 sudo chmod -R 775 /var/www/html/
