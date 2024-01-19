@@ -214,6 +214,20 @@ $resulthostip = json_decode($responseOriginalFileNames, true);
 if (isset($resulthostip['aggregations']['host.ip']['buckets'])) {
     $host_ip = array_slice($resulthostip['aggregations']['host.ip']['buckets'], 0, 25); 
 
+    // Iterate through the $host_ip array and remove IPv6 addresses
+    foreach ($host_ip as $key => $value) {
+        // Assuming the IP address is in $value['key'], adjust according to your data structure
+        $ip = $value['key']; 
+
+        // Check if the IP address is an IPv6 address
+        if (filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_IPV6)) {
+            // If it's an IPv6 address, remove it from the array
+            unset($host_ip[$key]);
+        }
+    }
+
+    // Re-index the array after removing elements
+    $host_ip = array_values($host_ip);
 }
 
 ?>
