@@ -50,7 +50,7 @@ Before the migration, you should backup your instances information using a:
 
 ```bash
 git clone https://github.com/Krook9d/PurpleLab.gi
-
+mv PurpleLab/install.sh .
 ```
 
 ## installation
