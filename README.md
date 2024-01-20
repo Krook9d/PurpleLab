@@ -44,8 +44,14 @@ The lab contains :
 
 A clean installation of Ubuntu server 22.04 available : [Here](https://ubuntu.com/download/server?ref=linuxhandbook.com)
 
-> ⚠️ If you use Ubuntu server 23.10 you will have issues with python library installation
+> ⚠️ If you use Ubuntu server 23.10 you will have issues with python library installation 
 
+
+⚠️ Enable Hardware Virtualization ⚠️ :
+
+In VM Ware workstation -> Go to the settings of the VM -> Processors -> Virtualization engine -> enable "Virtualize Intel VT-x/EPT or AMD-V/RVI" 
+In Virtualbox -> 
+In physical machine -> Set your mother board to allow Hardware Virtualization
 
 In your home folder, Download repo :
 ```bash
