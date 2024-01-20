@@ -9,7 +9,7 @@
 - [What is PurpleLab ?](#what-is-purplelab-)
 - [Installation procedure](#installation)
 	- [Requirements](#Requirements)
-	- [Configuration](#Configuration)
+	- [Installation](#installation)
 		- [Accounts](#Accounts)
 		- [VM logs configuration](#VM-logs-configuration)
 - [Usage](#Usage)
