@@ -267,9 +267,10 @@ cd "$PROJECT_DIR"
 
 # Installer PhpSpreadsheet avec Composer
 echo "Installation de PhpSpreadsheet en cours..."
-composer require phpoffice/phpspreadsheet
+yes | composer require phpoffice/phpspreadsheet
 
 echo "PhpSpreadsheet a été installé."
+
 
 # Trouver et supprimer les répertoires vides restants dans le répertoire source
 # '-type d' indique à find de chercher uniquement les répertoires
