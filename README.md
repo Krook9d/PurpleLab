@@ -67,7 +67,7 @@ mv PurpleLab/install.sh .
 run : 
 
 ```bash
-bash install.sh
+sudo bash install.sh
 ```
 
 ### Accounts
