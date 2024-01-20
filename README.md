@@ -46,7 +46,8 @@ A clean installation of Ubuntu server 22.04 available : [Here](https://ubuntu.co
 
 > ⚠️ If you use Ubuntu server 23.10 you will have issues with python library installation
 
-Download repo :
+
+In your home folder, Download repo :
 ```bash
 git clone https://github.com/Krook9d/PurpleLab.gi
 ```
