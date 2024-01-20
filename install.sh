@@ -14,11 +14,11 @@ apt install -y python3-pip
 apt-get -y install p7zip-full
 apt-get -y install apt-transport-https
 pip install pandas
-pip install --break-system-packages flask
-pip install --break-system-packages flask-cors
-pip install --break-system-packages loguru
-pip install --break-system-packages stix2
-pip install --break-system-packages mitreattack-python
+pip install flask
+pip install flask-cors
+pip install loguru
+pip install stix2
+pip install mitreattack-python
 phpenmod mysqli
 apt-get -y install php-xml php-gd php-mbstring php-zip
 systemctl restart apache2
