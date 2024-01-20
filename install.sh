@@ -302,7 +302,7 @@ sudo chmod -R 775 /var/www/html/
 FILEBEAT_CONFIG="/etc/filebeat/filebeat.yml"
 
 # Chemin vers le fichier admin.txt (dans le même répertoire que le script)
-ADMIN_FILE="./admin.txt"
+ADMIN_FILE="admin.txt"
 
 # Extraire le mot de passe du fichier admin.txt
 # Extraire le mot de passe du fichier admin.txt
