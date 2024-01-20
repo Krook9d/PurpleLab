@@ -12,6 +12,7 @@
 	- [Installation](#installation)
 		- [Accounts](#Accounts)
 		- [VM logs configuration](#VM-logs-configuration)
+    		- [ELK Configuration](#ELK-Configuration)
 - [Usage](#Usage)
 	- [Home Page](#home-page-)
 	- [Hunting Page](#hunting-page-)
@@ -27,7 +28,7 @@
 
 This solution will allow you to easily deploy an entire lab to create/test your detection rules, simulate logs, play tests, download and run malware and mitre attack techniques, restore the sandbox and many other features.
 
-The lab contains : 
+The lab contains : ### ELK Configuration
 
 - A web interface with a complete front end to control features
 - The Virtualbox tool with a ready-to-use Windows 10 VM
