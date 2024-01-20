@@ -48,15 +48,17 @@ A clean installation of Ubuntu server 22.04 available : [Here](https://ubuntu.co
 
 Before the migration, you should backup your instances information using a:
 
-``` bash
-git clone repo ```
+```bash
+git clone repo
+```
 
 ## installation
 
 run : 
 
 ```bash
-bash install.sh ```
+bash install.sh
+```
 
 ### Accounts
 
