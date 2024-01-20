@@ -12,7 +12,7 @@
 	- [Installation](#installation)
 		- [Accounts](#Accounts)
 		- [VM logs configuration](#VM-logs-configuration)
-  - [ELK Configuration](#ELK-Configuration)		
+                - [ELK Configuration](#ELK-Configuration)		
 - [Usage](#Usage)
 	- [Home Page](#home-page-)
 	- [Hunting Page](#hunting-page-)
