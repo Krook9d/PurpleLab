@@ -309,3 +309,48 @@ for file in "${files_to_delete[@]}"; do
 done
 
 sudo chmod -R 775 /var/www/html/
+
+
+# Chemin vers le fichier filebeat.yml
+FILEBEAT_CONFIG="/etc/filebeat/filebeat.yml"
+
+# Chemin vers le fichier admin.txt (dans le même répertoire que le script)
+ADMIN_FILE="./admin.txt"
+
+# Extraire le mot de passe du fichier admin.txt
+# Extraire le mot de passe du fichier admin.txt
+PASSWORD=$(grep "The generated password for the elastic built-in superuser is :" $ADMIN_FILE | awk -F': ' '{print $2}' | tr -d '\r')
+
+# Vérifier si le mot de passe a été trouvé
+if [ -z "$PASSWORD" ]; then
+    echo "Le mot de passe n'a pas pu être trouvé dans $ADMIN_FILE."
+    exit 1
+fi
+
+# Partie 1: Modification de la section 'Elasticsearch Output'
+# Supprimer les commentaires des lignes spécifiées
+sed -i '/#output.logstash:/ s/#//' $FILEBEAT_CONFIG
+sed -i '/#hosts: \["localhost:9200"\]/ s/#//' $FILEBEAT_CONFIG
+sed -i '/#protocol: "https"/ s/#//' $FILEBEAT_CONFIG
+sed -i '/#username:/ s/#//' $FILEBEAT_CONFIG
+
+# Remplacer la ligne du mot de passe avec le mot de passe extrait
+sed -i "s/#password: .*/password: \"$PASSWORD\"/" $FILEBEAT_CONFIG
+
+# Ajouter 'ssl.verification_mode: "none"' en dessous de 'hosts: ["localhost:9200"]'
+sed -i '/hosts: \["localhost:9200"\]/a \ \ ssl.verification_mode: "none"' $FILEBEAT_CONFIG
+
+# Commenter la configuration de Logstash
+sed -i '/output.logstash:/,/^[^#]/ s/^/#/' $FILEBEAT_CONFIG
+
+# Construction de la configuration à ajouter pour le type 'log'
+LOG_CONFIG="- type: log\n  enabled: true\n  paths:\n    - /var/www/html/Downloaded/Log_simulation/*.json\n  json.keys_under_root: true\n  json.add_error_key: true\n  json.message_key: log\n  fields_under_root: true\n  fields:\n    timestamp: date\n  date_formats:\n    - 'MMM dd HH:mm:ss'"
+
+# Ajouter la configuration après la ligne spécifiée
+awk -v log_config="$LOG_CONFIG" '/#- c:\\programdata\\elasticsearch\\logs\\*/{print; print log_config; next}1' $FILEBEAT_CONFIG > temp.yml && mv temp.yml $FILEBEAT_CONFIG
+
+# Redémarrer le service Filebeat pour appliquer les changements
+systemctl restart filebeat
+
+# Afficher un message indiquant la fin du script et le redémarrage de Filebeat
+echo "Filebeat a été redémarré pour appliquer les changements de configuration."
