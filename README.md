@@ -49,7 +49,7 @@ A clean installation of Ubuntu server 22.04 available : [Here](https://ubuntu.co
 Before the migration, you should backup your instances information using a:
 
 ```bash
-git clone repo
+git clone repo https://github.com/Krook9d/PurpleLab.git
 ```
 
 ## installation
