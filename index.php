@@ -83,7 +83,7 @@ curl_close($ch);
 //request KPI 2
 $ch2 = curl_init();
 // Set the URL
-curl_setopt($ch2, CURLOPT_URL, 'https://localhost:9200/filebeat-8.11.0/_search');
+curl_setopt($ch2, CURLOPT_URL, 'https://localhost:9200/filebeat*/_search');
 curl_setopt($ch2, CURLOPT_RETURNTRANSFER, true);
 curl_setopt($ch2, CURLOPT_USERPWD, $username . ':' . $elasticPassword);
 curl_setopt($ch2, CURLOPT_HTTPHEADER, array('Content-Type: application/json'));
