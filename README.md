@@ -42,6 +42,10 @@ The lab contains :
 
 ## Requirements
 
+Hardware resources : 
+- 2 processors
+- 13GB RAM
+
 A clean installation of Ubuntu server 22.04 available : [Here](https://ubuntu.com/download/server?ref=linuxhandbook.com)
 
 > ⚠️ If you use Ubuntu server 23.10 you will have issues with python library installation 
