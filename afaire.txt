@@ -1,44 +1,6 @@
+faire la partie kibana avant la partie LOG windows et avant le Compte 
+mettre la commande tr et mettre la commande pour avoir l'ip 
 
+| tr -d ':'
 
-Activer la Virtualisation Matérielle :
-
-Recherchez une option nommée Virtualize Intel VT-x/EPT or AMD-V/RVI (ou une option similaire)
-
-
-
-mettre réseau (0.0.0.0) et port dans les fichiers elasticsearch.yml 
-
-Récupérer le fingerprint :
-
-openssl x509 -fingerprint -sha256 -in /etc/elasticsearch/certs/http_ca.crt 
-Le mettre dans le fichier winlogbeat.yml sans les ":"
-
-ajouter le paquet git 
-
-Mettre a jour le git
-
-Inclure le script extraction au script de telechargement
-
-
-
-ajouter dans filebeat.yml : 
-
-
-- type: log
-  enabled: true
-  paths:
-    - /var/www/html/Downloaded/Log_simulation/*.json
-
-
-VERIFIER LES DROITS POUR ECRITURE DANS LA BASE DE DONNEE SQL, donnée bon droit au dossier /var/www/html 
-
-
-commande pour token et vérification : 
-
-token : /usr/share/elasticsearch/bin/elasticsearch-create-enrollment-token --scope kibana
-verification :
-/usr/share/kibana/bin/kibana-verification-code
-Si ca ne marche pas -> restart la machine 
-
-Faire un snapshot de la vm -> nommé : "Snapshot1" -> VBoxManage snapshot "sandbox" take "Snapshot1" --description "snapshot before the mess"
-
+sudo VBoxManage guestproperty enumerate sandbox | grep "IP" | awk -F ', value: ' '{print $2}' | awk -F ',' '{print $1}'
