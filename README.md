@@ -121,7 +121,10 @@ cd 'C:\Program Files\winlogbeat'
 .\winlogbeat.exe setup -e
 ```
 
-6. restart the VM:
+6. Start the Winlobeat Service :
+```bash
+ Start-Service winlogbeat
+```
 7. ⚠️ Make a snapshot of the vm -> named: "Snapshot1"
 
 ```bash
