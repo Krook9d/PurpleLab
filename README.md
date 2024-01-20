@@ -126,7 +126,23 @@ VBoxManage snapshot "sandbox" take "Snapshot1" --description "snapshot before th
 > ⚠️ After that, check if the service is running, go to kibana (Hunting page on Purplelab), click on the Discover tab, normally, you will see the Windows event from the VM. 
 Indicators in the home page  should be fed
 
+### ELK Configuration
 
+1. To begin, restart the elastic search service
+```bash
+service elasticsearch restart
+```
+
+2. In the admin.txt folder, copy the enrolment token 
+The token is located below the line "he generated password for the elastic built-in superuser is". 
+Then go to the "Hunting" page to open ELK and copy it when prompted.
+
+3. After pasting the enrolment token, you'll be asked for a verification code. Here's how to obtain it
+```bash
+sudo /usr/share/kibana/bin/kibana-verification-code
+```
+
+> Note: To regenerate the token you can use this command : '/usr/share/elasticsearch/bin/elasticsearch-create-enrollment-token --scope kibana'
 # Usage
 
 Once the application is fully configured lets explain all the page and the features
