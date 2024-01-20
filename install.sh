@@ -297,7 +297,7 @@ for file in "${files_to_delete[@]}"; do
 done
 
 sudo chmod -R 775 /var/www/html/
-
+sudo chmod -R 77 /var/www/html/uploads/
 
 # Chemin vers le fichier filebeat.yml
 FILEBEAT_CONFIG="/etc/filebeat/filebeat.yml"
