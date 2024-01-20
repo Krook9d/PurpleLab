@@ -125,7 +125,7 @@ cd 'C:\Program Files\winlogbeat'
 ```bash
  Start-Service winlogbeat
 ```
-7. ⚠️ Make a snapshot of the vm -> named: "Snapshot1"
+7. ⚠️ On the purplelab server, Make a snapshot of the vm -> named: "Snapshot1"
 
 ```bash
 VBoxManage snapshot "sandbox" take "Snapshot1" --description "snapshot before the mess"
