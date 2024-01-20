@@ -55,7 +55,7 @@ In physical machine -> Set your mother board to allow Hardware Virtualization
 
 In your home folder, Download repo :
 ```bash
-git clone https://github.com/Krook9d/PurpleLab.gi
+git clone https://github.com/Krook9d/PurpleLab.git
 ```
 Preparing files : 
 ```bash
