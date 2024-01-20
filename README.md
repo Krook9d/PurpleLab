@@ -123,7 +123,7 @@ cd 'C:\Program Files\winlogbeat'
 VBoxManage snapshot "sandbox" take "Snapshot1" --description "snapshot before the mess"
 ```
 
-> ⚠️ After that, check if the service is running, go to kibana (Hunting page on Purplelab), click on the Discover tab, normally, you will see the Windows event from the VM. 
+> ⚠️ After that, and once you've finished configuring the elastic search server, check if the service is running, go to kibana (Hunting page on Purplelab), click on the Discover tab, normally, you will see the Windows event from the VM. 
 Indicators in the home page  should be fed
 
 ### ELK Configuration
