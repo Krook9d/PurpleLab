@@ -89,19 +89,19 @@ sudo systemctl start logstash.service
 sleep 2
 
 
-# Télécharger le fichier PurpleLab.tar
+# Télécharger le fichier sandbox.ova
 
+curl -L -o sandbox.ova -H "User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3" "https://dl-wj4hmh39.swisstransfer.com/api/download/aaa9c64a-0cdf-4007-ab02-a5d7bb43fef9/be3589b9-2984-45f9-b8e4-40d72d0219bf"
 
-megadl 'https://mega.nz/file/Eucl3YqC#qtUba2LFIJpzSCLJYFXVoM86-ualrsCyvZOUpu0NuBo'
 # Vérifier si le téléchargement a réussi
 
-mv PurpleLab.tar /var/www/html/
+mv sandbox.ova /var/www/html/
 
-# Extract the contents of PurpleLab.tar to /var/www/html
-tar -xf /var/www/html/PurpleLab.tar -C /var/www/html
+mv PurpleLab/* /var/www/html/
+
+rm -R PurpleLab
 
 sleep 1
-rm /var/www/html/PurpleLab.tar
 
 echo "<VirtualHost *:80>
 
