@@ -46,10 +46,12 @@ A clean installation of Ubuntu server 22.04 available : [Here](https://ubuntu.co
 
 > ⚠️ If you use Ubuntu server 23.10 you will have issues with python library installation
 
-Before the migration, you should backup your instances information using a:
-
+Download repo :
 ```bash
 git clone https://github.com/Krook9d/PurpleLab.gi
+```
+Preparing files : 
+```bash
 mv PurpleLab/install.sh .
 ```
 
