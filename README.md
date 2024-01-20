@@ -128,7 +128,7 @@ cd 'C:\Program Files\winlogbeat'
 7. ⚠️ On the purplelab server, Make a snapshot of the vm -> named: "Snapshot1"
 
 ```bash
-VBoxManage snapshot "sandbox" take "Snapshot1" --description "snapshot before the mess"
+sudo VBoxManage snapshot "sandbox" take "Snapshot1" --description "snapshot before the mess"
 ```
 
 > ⚠️ After that, and once you've finished configuring the elastic search server, check if the service is running, go to kibana (Hunting page on Purplelab), click on the Discover tab, normally, you will see the Windows event from the VM. 
