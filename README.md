@@ -114,7 +114,8 @@ sudo /usr/share/kibana/bin/kibana-verification-code
 
 You have to connect to the VM, edit the winlogbeats.yml and do some commands 
 
-1. Connecte to the VM (you have the IP adress on the health.php page)
+1. Connecte to the VM (you have the IP adress on the health.php page or you can do `VBoxManage guestproperty get sandbox "/VirtualBox/GuestInfo/Net/0/V4/IP"
+`)
 
 2. Open an Administrator Powershell Prompt and stop the Winlogbeat Service :
 
