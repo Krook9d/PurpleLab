@@ -1,6 +1,0 @@
-faire la partie kibana avant la partie LOG windows et avant le Compte 
-mettre la commande tr et mettre la commande pour avoir l'ip 
-
-| tr -d ':'
-
-sudo VBoxManage guestproperty enumerate sandbox | grep "IP" | awk -F ', value: ' '{print $2}' | awk -F ',' '{print $1}'
