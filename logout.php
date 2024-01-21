@@ -2,6 +2,6 @@
 session_start();
 session_unset();
 session_destroy();
-header('Location: blank.html');
+header('Location: connexion.html');
 exit;
 ?>
