@@ -126,7 +126,7 @@ You have to connect to the VM, edit the winlogbeats.yml and do some commands
 Change :
  the password at "password:" (put the password you have in admin.txt)
  Replace All the Ip that corresponding to 192.168.142.130 with your adress of your ELK server 
-the ca_trusted_fingerprint: (to have it, run this command in the purplelab server : `openssl x509 -fingerprint -sha256 -in /etc/elasticsearch/certs/http_ca.crt` and REMOVE THE ":" characters)
+the ca_trusted_fingerprint: (to have it, run this command in the purplelab server : `openssl x509 -fingerprint -sha256 -in /etc/elasticsearch/certs/http_ca.crt` and REMOVE THE ":" characters with this command `echo "$Yourfingerprint" | tr -d ':'` )
  
 
 4. test the configuration with : 
