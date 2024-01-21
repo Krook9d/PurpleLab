@@ -10,9 +10,9 @@
 - [Installation procedure](#installation)
 	- [Requirements](#Requirements)
 	- [Installation](#installation)
-		- [Accounts](#Accounts)
-		- [VM logs configuration](#VM-logs-configuration)
                 - [ELK Configuration](#ELK-Configuration)
+                - [Accounts](#Accounts)
+                - [VM logs configuration](#VM-logs-configuration)
 - [Usage](#Usage)
 	- [Home Page](#home-page-)
 	- [Hunting Page](#hunting-page-)
@@ -89,6 +89,26 @@ You have to set up your accounts. after installation :
 - **Password**: The password field must be filled with **a valid API key** to use for authentification
 
 > ⚠️Avatar have to be light (< 1mo)
+> On the welcome page after a connection, there will be a php error, this is normal, we'll configure VM log collection in the next step
+
+### ELK Configuration
+
+1. To begin, restart the elastic search service
+```bash
+service elasticsearch restart
+```
+
+2. In the admin.txt folder, copy the enrolment token 
+The token is located below the line "he generated password for the elastic built-in superuser is". 
+Then go to the "Hunting" page to open ELK and copy it when prompted.
+
+3. After pasting the enrolment token, you'll be asked for a verification code. Here's how to obtain it
+```bash
+sudo /usr/share/kibana/bin/kibana-verification-code
+```
+
+> Note: To regenerate the token you can use this command : `/usr/share/elasticsearch/bin/elasticsearch-create-enrollment-token --scope kibana`
+
 
 ### VM logs configuration
 
@@ -134,23 +154,6 @@ sudo VBoxManage snapshot "sandbox" take "Snapshot1" --description "snapshot befo
 > ⚠️ After that, and once you've finished configuring the elastic search server, check if the service is running, go to kibana (Hunting page on Purplelab), click on the Discover tab, normally, you will see the Windows event from the VM. 
 Indicators in the home page  should be fed
 
-### ELK Configuration
-
-1. To begin, restart the elastic search service
-```bash
-service elasticsearch restart
-```
-
-2. In the admin.txt folder, copy the enrolment token 
-The token is located below the line "he generated password for the elastic built-in superuser is". 
-Then go to the "Hunting" page to open ELK and copy it when prompted.
-
-3. After pasting the enrolment token, you'll be asked for a verification code. Here's how to obtain it
-```bash
-sudo /usr/share/kibana/bin/kibana-verification-code
-```
-
-> Note: To regenerate the token you can use this command : `/usr/share/elasticsearch/bin/elasticsearch-create-enrollment-token --scope kibana`
 # Usage
 
 Once the application is fully configured lets explain all the page and the features
