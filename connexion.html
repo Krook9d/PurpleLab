@@ -3,8 +3,8 @@
     <link rel="icon" href="logo.png" type="image/png">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Purplelab</title>
-    <link rel="stylesheet" href="styles.css?v=3.3">
+    <title>LogHunter</title>
+    <link rel="stylesheet" href="styles.css?v=3.4">
 </head>
 <body class="blank">
     <div id="logo-container">
@@ -53,22 +53,22 @@
             // Change le contenu de formContainer pour afficher le formulaire d'inscription
             formContainer.innerHTML = `
             <form action="register.php" method="post" enctype="multipart/form-data">
-                <h1>Inscription</h1>
-                <label for="firstName">Prénom:</label><br>
+                <h1>📝 Registration</h1>
+                <label for="firstName">👤 FirstName:</label><br><br>
                 <input type="text" id="firstName" name="firstName" required><br><br>
-                <label for="lastName">Nom:</label><br>
+                <label for="lastName">👥 LastName:</label><br><br>
                 <input type="text" id="lastName" name="lastName" required><br><br>
-                <label for="email">Email:</label><br>
+                <label for="email">📧 Email:</label><br>
                 <input type="email" id="email" name="email" required><br><br>
-                <label for="analystLevel">Niveau d'analyste:</label><br>
+                <label for="analystLevel">📊 Analyst level:</label><br><br>
                 <select id="analystLevel" name="analystLevel" required>
                     <option value="N1">N1</option>
                     <option value="N2">N2</option>
                     <option value="N3">N3</option>
                 </select><br><br>
-                <label for="avatar">Avatar:</label><br>
+                <label for="avatar">🖼️ Avatar:</label><br><br>
                 <input type="file" id="avatar" name="avatar" accept="image/png, image/jpeg, image/jpg" required><br><br>
-                <label for="password">Mot de passe:</label><br>
+                <label for="password">🔒 Password:</label><br><br>
                 <input type="password" id="password" name="password" required>
                 <button type="button" id="show-password-button" class="password-icon">
                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 30 30" width="30" height="30">
@@ -77,14 +77,14 @@
                     </svg>
                 </button><br>
                 <span id="password-message"></span>
-                <br><br><input type="submit" value="S'inscrire">
+                <br><br><input type="submit" value="Register" class="register-button">
             `;
             // Ajoutez ici tout autre script nécessaire pour le formulaire d'inscription
             const passwordInput = document.getElementById('password');
             const passwordMessage = document.getElementById('password-message');
             const showPasswordButton = document.getElementById('show-password-button');
             showPasswordButton.addEventListener('mouseover', () => {
-                showPasswordButton.title = 'Afficher le mot de passe';
+                showPasswordButton.title = 'Show password';
             });
             showPasswordButton.addEventListener('click', () => {
                 if (passwordInput.type === 'password') {
@@ -97,10 +97,10 @@
                 const password = passwordInput.value;
                 const regex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
                 if (regex.test(password)) {
-                    passwordMessage.textContent = 'Le mot de passe est valide';
+                    passwordMessage.textContent = 'Password is valid';
                     passwordMessage.style.color = 'green';
                 } else {
-                    passwordMessage.textContent = 'Le mot de passe doit comporter au moins 8 caractères, dont au moins une lettre majuscule, une lettre minuscule, un chiffre et un caractère spécial';
+                    passwordMessage.textContent = 'The password must contain at least 8 characters, including at least one uppercase letter, one lowercase letter, one number and one special character';
                     passwordMessage.style.color = 'red';
                 }
             });
@@ -109,7 +109,7 @@
 </script>
 <div id="credit-container" style="position: fixed; bottom: 20px; right: 20px; text-align: right;">
     <a href="https://github.com/Krook9d" target="_blank" id="credit-link" style="color: #4a4a4a; text-decoration: none; font-size: 16px;">
-        <img src="https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png" alt="GitHub Icon" style="height: 25px; vertical-align: middle; margin-right: 5px;"/> <!-- Augmenter la taille de l'icône -->
+        <img src="https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png" alt="GitHub Icon" style="height: 25px; vertical-align: middle; margin-right: 5px;"/> 
         Made by Krook9d
     </a>
 </div>
