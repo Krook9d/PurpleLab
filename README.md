@@ -159,11 +159,11 @@ Indicators in the home page  should be fed
 
 Make sure that de VM is running :
 ```bash
-VBoxManage showvminfo sandbox --machinereadable | grep "VMState=" | awk -F'"' '{print $2}'
+sudo VBoxManage showvminfo sandbox --machinereadable | grep "VMState=" | awk -F'"' '{print $2}'
 ```
 If not, do :
 ```bash
-VBoxManage startvm sandbox --type headless
+sudo VBoxManage startvm sandbox --type headless
 ```
 
 Open a new prompt on the PurpleLab server and start the flask server on : 
