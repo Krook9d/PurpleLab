@@ -156,6 +156,19 @@ Indicators in the home page  should be fed
 
 # Usage
 
+Make sure that de VM is running :
+```bash
+VBoxManage showvminfo sandbox --machinereadable | grep "VMState=" | awk -F'"' '{print $2}'
+```
+If not, do :
+```bash
+VBoxManage startvm sandbox --type headless
+```
+
+Open a new prompt on the PurpleLab server and start the flask server : 
+```bash
+sudo python3 app.py
+```
 Once the application is fully configured lets explain all the page and the features
 
 ## Home Page 🏠
