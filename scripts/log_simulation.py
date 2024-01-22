@@ -8,7 +8,7 @@ import json
 
 
 def random_date(start, end):
-    """Génère une date aléatoire entre start et end."""
+    """Generates a random date between start and end."""
     delta = end - start
     int_delta = (delta.days * 24 * 60 * 60) + delta.seconds
     random_second = random.randrange(int_delta)
@@ -53,7 +53,7 @@ def generate_firewall_log(date):
 
 def generate_log(log_type, count, time_range, output_dir):
     if count > 5000:
-        print("Le nombre de logs ne doit pas dépasser 5000.")
+        print("The number of logs must not exceed 5000.")
         return
 
     end_date = datetime.now()
@@ -69,7 +69,7 @@ def generate_log(log_type, count, time_range, output_dir):
             elif log_type == "firewall":
                 log_message = generate_firewall_log(log_date)
             else:
-                print(f"Type de log inconnu : {log_type}")
+                print(f"Log type unknown : {log_type}")
                 return
             file.write(json.dumps(log_message) + "\n")
 
