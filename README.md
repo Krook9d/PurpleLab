@@ -21,7 +21,7 @@
 	- [Log simulation Page](#log-simulation-page-)
 	- [Usage Case Page](#usage-case-page-)
 	- [Sharing Page](#sharing-page-)
-	- [Health Page](#health-page-)
+	- [Health Page](#health-page)
 
 
 # What is PurpleLab ?
