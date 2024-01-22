@@ -26,13 +26,13 @@ body {
     list-style-type: none;
     padding: 0;
     margin: 0;
-    margin-top: 20px; /* Ajoute un espace au-dessus */
+    margin-top: 20px; 
 }
 
 .nav-bar li {
   margin: 0; 
   padding: 0; 
-  align-items: center; /* Centre verticalement les éléments de la liste */
+  align-items: center; 
 }
 
 .nav-bar a {
@@ -45,7 +45,7 @@ body {
   display: block;
   text-align: left; 
   line-height: 2; 
-  align-items: center; /* Centre verticalement les icônes et le texte dans le lien */
+  align-items: center; 
 }
 
 .nav-bar a:hover {
@@ -53,13 +53,13 @@ body {
 }
 
 .nav-bar i {
-    width: 25px; /* Définissez une largeur fixe pour toutes les icônes */
-    text-align: center; /* Centre l'icône dans l'espace alloué */
-    margin-right: 2px; /* Ajoute un peu d'espace entre l'icône et le texte */
+    width: 25px; 
+    text-align: center; 
+    margin-right: 2px; 
 }
 
 .nav-logo {
-    /* Assurez-vous que le logo ne crée pas d'espace inutile en dessous */
+
     margin-bottom: 0; 
     padding-bottom: 0;
 }
@@ -68,34 +68,34 @@ body {
     display: block; 
     width: 100%; 
     height: auto;
-    /* Si vous aviez un padding ou une marge ici, assurez-vous de les ajuster ou de les supprimer si nécessaire */
+
 }
 
 .software-version {
-    color: #e4e4e4; /* Gris foncé pour le texte */
+    color: #e4e4e4; 
     background-color: transparent; 
-    padding: 0 20px; /* Ajustez ou supprimez le padding vertical si nécessaire */
+    padding: 0 20px; 
     text-align: center; 
     font-size: 0.8em; 
     font-style: italic; 
     border-bottom: none; 
-    margin-top: 0; /* Supprimez toute marge supérieure pour coller au logo */
-    margin-bottom: 20px; /* Ajoute un espace en dessous */
+    margin-top: 0; 
+    margin-bottom: 20px; 
 }
 
 .nav-footer {
     position: absolute;
     bottom: 0;
-    width: 100%; /* Assurez-vous que le footer s'étend sur toute la largeur de la barre de navigation */
+    width: 100%; 
 }
 
 .credit-link {
     color: #4a4a4a;
     text-decoration: none;
     font-size: 16px;
-    padding: 10px 20px; /* Ajustez le padding si nécessaire */
+    padding: 10px 20px; 
     display: flex;
-    align-items: center; /* Centre verticalement le texte et l'icône */
+    align-items: center; 
 }
 
 .github-icon {
@@ -124,64 +124,61 @@ body {
 }
 
 
-
-
-/* Conteneur global pour l'arrière-plan et le formulaire */
 .body-container {
-    display: flex; /* Utilisez flexbox pour la mise en page */
-    min-height: 100vh; /* Hauteur totale de la fenêtre de visualisation */
-    overflow: hidden; /* Cache tout débordement de contenu */
+    display: flex; 
+    min-height: 100vh; 
+    overflow: hidden; 
 }
 
-/* Section pour l'image de fond */
+/* Section for background image */
 .background-image-section {
-    flex-grow: 1; /* Permet à l'image de remplir l'espace disponible */
+    flex-grow: 1; 
     background-image: url('connexionbg.jpg');
-    background-size: cover; /* Couvre l'espace disponible */
-    background-position: center center; /* Centrer l'image dans le conteneur */
-    background-repeat: no-repeat; /* Ne pas répéter l'image */
+    background-size: cover; 
+    background-position: center center; 
+    background-repeat: no-repeat; 
 }
 
-/* Section pour le formulaire */
+/* Section for the form */
 .form-section {
-    flex-basis: 40%; /* Prend 40% de l'espace horizontal */
-    background-color: white; /* Fond blanc pour le formulaire */
+    flex-basis: 40%; 
+    background-color: white; 
     display: flex;
-    align-items: center; /* Centrer le formulaire verticalement */
-    justify-content: center; /* Centrer le formulaire horizontalement */
-    padding: 2em; /* Espace autour du formulaire */
+    align-items: center; 
+    justify-content: center; 
+    padding: 2em; 
 }
 
 .input-container {
-    position: relative; /* Position relative pour positionner l'icône */
+    position: relative; 
     display: flex;
-    align-items: center; /* Aligner l'icône avec le champ de texte */
-    width: 100%; /* Utiliser toute la largeur disponible */
-    margin-bottom: 20px; /* Espace après le conteneur */
+    align-items: center; 
+    width: 100%; 
+    margin-bottom: 20px; 
 }
 
-/* Style pour l'icône de l'input */
+/* Style for input icon */
 .input-icon {
     position: absolute;
-    right: 700px; /* Ajusté pour positionner l'icône à l'intérieur du champ */
+    right: 700px; 
     fill: #333;
     z-index: 10;
     pointer-events: none;
 }
 
-/* Style pour l'input */
+/* Style for input */
 input[type="email"],
 input[type="password"] {
-    padding: 12px 20px 0px 70px; /* Augmenter le padding pour élargir les champs */
-    font-size: 55px; /* Augmenter la taille de la police pour les inputs */
+    padding: 12px 20px 0px 70px; 
+    font-size: 55px; 
     border-radius: 5px;
     border: 1px solid #ccc;
-    width: 100%; /* Prendre toute la largeur du conteneur */
-    box-sizing: border-box; /* Inclure le padding et la bordure dans la largeur */
+    width: 100%; 
+    box-sizing: border-box; 
 }
 
 
-/* Styles pour les champs de formulaire */
+/* Styles for form fields */
 form input[type="text"],
 form select {
     padding: 10px;
@@ -190,11 +187,11 @@ form select {
     margin-bottom: 20px;
 }
 
-/* Style spécifique pour le bouton de connexion */
+/* Specific style for the connection button */
 .login-button {
     margin-top: 20px;
     margin-right: 10px; 
-    background-color: #006e3b; /* Vert */
+    background-color: #006e3b; 
     color: #fff;
     padding: 15px 30px;
     border: none;
@@ -206,14 +203,14 @@ form select {
 }
 
 .login-button:hover {
-    background-color: #00cf34; /* Vert plus clair */
+    background-color: #00cf34; 
     box-shadow: 0 4px 8px rgba(0,0,0,0.3);
 }
 
-/* Style spécifique pour le bouton d'inscription */
+/* Specific style for registration button */
 .register-button {
     margin-top: 20px;
-    background-color: #ff8c00; /* Orange */
+    background-color: #ff8c00; 
     color: #fff;
     padding: 15px 30px;
     border: none;
@@ -225,39 +222,38 @@ form select {
 }
 
 .register-button:hover {
-    background-color: #ffa500; /* Orange plus clair */
+    background-color: #ffa500; 
     box-shadow: 0 4px 8px rgba(0,0,0,0.3);
 }
 
 
-/* Styles pour le bouton d'affichage du mot de passe */
+/* Styles for password display button */
 #show-password-button {
     border: none;
     background: none;
     cursor: pointer;
 }
 
-/* Styles pour l'icône d'affichage du mot de passe */
+/* Styles for password display icon */
 #show-password-button svg {
     fill: #333;
     transition: fill 0.2s ease-in-out;
 }
 
-/* Styles pour l'icône d'affichage du mot de passe lors du survol et de la mise au point */
+/* Styles for password display icon on hover and focus */
 #show-password-button:hover svg,
 #show-password-button:focus svg {
     fill: #666;
 }
 
-
-/* Positionnement du logo */
+/* Logo positioning */
 #logo-container {
     position: absolute;
     top: -1%;
     left: 70%;
 }
 
-/* Positionnement du crédit */
+/* Credit positioning */
 #credit-container {
     position: fixed;
     bottom: 20px;
@@ -266,19 +262,19 @@ form select {
 }
 
 #credit-link {
-    color: #ffffff; /* Ou la couleur que vous souhaitez pour le texte */
-    text-decoration: none; /* Supprime le soulignement du lien */
-    font-size: 16px; /* Ou la taille que vous souhaitez pour le texte */
+    color: #ffffff; 
+    text-decoration: none; 
+    font-size: 16px; 
 }
 
 #credit-link:hover {
-    text-decoration: underline; /* Ajoute un soulignement au survol si désiré */
+    text-decoration: underline; 
 }
 
 #github-icon {
-    width: 20px; /* Ou la taille que vous souhaitez pour l'icône */
-    vertical-align: middle; /* Aligner l'icône avec le texte */
-    margin-right: 5px; /* Espace entre l'icône et le texte */
+    width: 20px; 
+    vertical-align: middle; 
+    margin-right: 5px; 
 }
 
 
@@ -302,7 +298,7 @@ form select {
   width: 60px;
   border-radius: 50%;
   object-fit: cover;
-  margin-right: 30px; /* Augmenter l'espace entre l'avatar et le bouton contenant les infos de l'utilisateur */
+  margin-right: 30px; 
   border: 3px solid #3498db;
   box-shadow: 0px 0px 10px #888;
 }
@@ -321,8 +317,8 @@ form select {
 .user-info-bar .user-button {
   background-color: rgba(255, 255, 255, 0.2);
   color: #fff;
-  padding: 10px 20px; /* Augmenter le padding du bouton d'information de l'utilisateur */
-  font-size: 18px; /* Augmenter la taille de police du bouton d'information de l'utilisateur */
+  padding: 10px 20px; 
+  font-size: 18px; 
   border-radius: 5px;
   border: none;
   cursor: pointer;
@@ -374,15 +370,15 @@ form select {
   position: fixed;
   right: 0;
   width: 20%;
-  height: 82vh; /* Modifier la valeur de height en fonction de vos besoins */
+  height: 82vh; 
   background-color: #3498db;
   padding: 20px;
   box-sizing: border-box;
   overflow-y: auto;
   transition: transform 0.3s ease-in-out;
   transform: translateX(100%);
-  bottom: 0; /* Ajouter cette ligne pour positionner la sidebar en bas de la page */
-  border-radius: 20px 0 0 0; /* Ajouter cette ligne pour donner un bord arrondi uniquement à la partie gauche */
+  bottom: 0; 
+  border-radius: 20px 0 0 0; 
 }
 
 .sidebar.active {
@@ -393,7 +389,7 @@ form select {
   margin-bottom: 20px;
 }
 
-/* Styles pour le tableau Malware */
+/* Styles for the Malware table */
 .malwaretable {
     width: 100%;
     border-collapse: collapse;
@@ -405,7 +401,7 @@ form select {
 .malwaretable th, 
 .malwaretable td {
     padding: 10px 12px;
-    border: 1px solid #e0e0e0; /* Définit les bordures des cellules du tableau */
+    border: 1px solid #e0e0e0; 
     background-color: #f5f5f5;
 }
 
@@ -417,7 +413,7 @@ form select {
 
 .malwarebazarbutton {
     padding: 10px 20px;
-    background-color: #4CAF50; /* Vert */
+    background-color: #4CAF50; 
     border: none;
     color: white;
     font-size: 16px;
@@ -428,14 +424,14 @@ form select {
 }
 
 .malwarebazarbutton:hover {
-    background-color: #45a049; /* Vert foncé au survol */
+    background-color: #45a049; 
 }
 
 
 
-/* Styles pour le bouton Run Malware */
+/* Styles for the Run Malware button */
 .runMalware {
-    background-color: #2ecc71; /* Vert */
+    background-color: #2ecc71; 
     color: #ffffff;
     padding: 8px 12px;
     border: none;
@@ -445,12 +441,12 @@ form select {
 }
 
 .runMalware:hover {
-    background-color: #27ae60; /* Vert plus foncé lors du survol */
+    background-color: #27ae60; 
 }
 
 .displaycsvcontent {
     padding: 10px 20px;
-    background-color: #4CAF50; /* Vert */
+    background-color: #4CAF50; 
     border: none;
     color: white;
     font-size: 16px;
@@ -461,21 +457,21 @@ form select {
 }
 
 .displaycsvcontent:hover {
-    background-color: #45a049; /* Vert foncé au survol */
+    background-color: #45a049; 
 }
 
 .displaycsvcontent:disabled {
-    background-color: #ddd; /* Gris lorsque le bouton est désactivé */
+    background-color: #ddd; 
     cursor: not-allowed;
 }
 
 .separation {
-    border: 1px solid #ddd; /* Couleur et épaisseur de la ligne */
-    margin: 50px 0; /* Marge en haut et en bas de la séparation */
+    border: 1px solid #ddd; 
+    margin: 50px 0; 
 }
 
 
-/* Style de base de la Dropzone avec des ombres et un léger effet de gradient */
+/* Basic Dropzone style with shadows and a slight gradient effect */
 .dropzone {
     border: 2px dashed #0087F7;
     border-radius: 5px;
@@ -485,19 +481,19 @@ form select {
 }
 
   
-  /* Style du message par défaut avec une typographie moderne et de l'espace */
+ /* Default message style with modern typography and space */
   .dropzone .dz-message {
-    font-family: 'Roboto Slab', serif; /* Utilise la police Roboto Slab de Google Fonts */
-    font-weight: 700; /* Rend le texte un peu plus gras */
-    font-size: 1.5em; /* Augmente la taille de la police */
-    color: #4a4a4a; /* Couleur du texte, à ajuster selon vos préférences */
+    font-family: 'Roboto Slab', serif; 
+    font-weight: 700; 
+    font-size: 1.5em; 
+    color: #4a4a4a; 
     margin: 2em 0;
     text-align: center;
   }
   
   
-  
-  /* Style subtil lors du survol de la Dropzone avec une transition en douceur */
+
+/* Style when flying over the Dropzone with a smooth transition */
   .dropzone:hover {
     background: linear-gradient(to bottom, #f8f8f8 0%, #f0f0f0 100%);
     border-color: #0056b3;
@@ -509,7 +505,7 @@ form select {
     cursor: pointer;
   }
   
-  /* Style des éléments de la Dropzone lors du glisser-déposer avec un effet visuel de soulèvement */
+/* Style Dropzone elements when dragging and dropping with a visual lifting effect */
   .dropzone .dz-preview.dz-file-preview {
     background: #ffffff;
     border: 1px solid #e0e0e0;
@@ -517,7 +513,7 @@ form select {
     box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.2);
   }
   
-  /* Style des informations sur les fichiers avec une meilleure hiérarchie visuelle */
+/* File information style with improved visual hierarchy */
   .dropzone .dz-preview .dz-details {
     color: #333;
     font-size: 0.9em;
@@ -525,7 +521,7 @@ form select {
   }
   
 
-/* Style des barres de progression */
+/* Progress bar style */
 .dropzone .dz-preview .dz-progress {
   background: #0087F7;
   height: 5px;
@@ -533,29 +529,29 @@ form select {
   margin-top: 10px;
 }
 
-/* Style du message de succès */
+/* Success message style */
 .dropzone .dz-preview .dz-success-mark {
   color: #3c763d;
 }
 
-/* Style du message d'erreur */
+/* Error message style */
 .dropzone .dz-preview .dz-error-mark {
   color: #a94442;
 }
 
-/* Style du texte d'erreur */
+/* Error text style */
 .dropzone .dz-preview .dz-error-message {
   color: #a94442;
 }
 
 .success {
-  color: #28a745; /* Vert */
+  color: #28a745; 
   font-size: 1em;
   margin-top: 10px;
 }
 
 .error {
-  color: #dc3545; /* Rouge */
+  color: #dc3545; 
   font-size: 1em;
   margin-top: 10px;
 }
@@ -579,43 +575,43 @@ form select {
     display: flex;
     flex-direction: column;
     align-items: center;
-    justify-content: space-between; /* Distribute space evenly */
-    transition: transform 0.3s ease, box-shadow 0.3s ease; /* Smooth transitions for hover effects */
+    justify-content: space-between; 
+    transition: transform 0.3s ease, box-shadow 0.3s ease; 
     
 }
 
 .health-card:hover {
-    transform: translateY(-5px); /* Slight lift effect on hover */
+    transform: translateY(-5px); 
     box-shadow: 0 10px 20px rgba(0,0,0,0.2);
 }
 
 .health-card h2 {
-    margin: 0 0 15px 0; /* Add some space below the title */
+    margin: 0 0 15px 0; 
     color: #333;
-    font-size: 1.2em; /* Slightly larger font size for titles */
+    font-size: 1.2em; 
 }
 
 
 .health-status {
-    font-size: 1em; /* Adjust font size for status */
-    margin-bottom: 15px; /* Add some space below the status */
-    padding: 5px 10px; /* Padding for the status label */
-    border-radius: 5px; /* Rounded corners for the status label */
-    width: fit-content; /* Only take up the space it needs */
+    font-size: 1em; 
+    margin-bottom: 15px; 
+    padding: 5px 10px; 
+    border-radius: 5px; 
+    width: fit-content; 
 }
 
 .health-status.running {
-    background-color: #C8E6C9; /* Light green background */
-    color: #256029; /* Dark green text */
+    background-color: #C8E6C9; 
+    color: #256029; 
 }
 
 .health-status.stopped {
-    background-color: #FFCDD2; /* Light red background */
-    color: #C63737; /* Dark red text */
+    background-color: #FFCDD2; 
+    color: #C63737; 
 }
 
 .health-metric {
-    width: calc(100% - 240px); /* Réduisez la largeur pour prendre en compte la marge gauche */
+    width: calc(100% - 240px); 
     background-color: #f0f0f0;
     border-radius: 8px;
     overflow: hidden;
@@ -640,28 +636,28 @@ form select {
 
 
 .health-section {
-    margin-bottom: 50px; /* Espace après chaque section */
-    margin-left: 200px; /* Ajoutez une marge à gauche pour décaler le contenu */
+    margin-bottom: 50px; 
+    margin-left: 200px; 
 
    
 }
 
 .health-section-title {
-    font-size: 24px; /* Taille du titre */
-    color: #333; /* Couleur du texte */
-    margin-bottom: 10px; /* Espace après le titre */
-    text-align: center; /* Centre le texte horizontalement */
+    font-size: 24px; 
+    color: #333; 
+    margin-bottom: 10px; 
+    text-align: center; 
  
 }
 
 .health-section-separator {
-    height: 4px; /* Épaisseur de la barre de séparation */
-    background-color: #d9d9d9; /* Couleur de la barre de séparation */
-    margin-bottom: 20px; /* Espace après la barre de séparation */
+    height: 4px; 
+    background-color: #d9d9d9; 
+    margin-bottom: 20px; 
 }
 
 #restoreButton {
-    background-color: #4CAF50; /* Green */
+    background-color: #4CAF50; 
     border: none;
     color: white;
     padding: 15px 32px;
@@ -677,7 +673,7 @@ form select {
 }
 
 #restoreButton:hover {
-    background-color: #43a047; /* A very slightly lighter green */
+    background-color: #43a047; 
     box-shadow: 0 4px 8px 0 rgba(0,0,0,0.24), 0 6px 20px 0 rgba(0,0,0,0.19);
 }
 
@@ -687,7 +683,7 @@ form select {
 }
 
 
-/* Styles pour le tableau dans malware.php*/
+/* Styles for the table in malware.php*/
 .malwaretable {
     width: 100%;
     border-collapse: collapse;
@@ -724,19 +720,19 @@ form select {
 }
 
 
-/* Styles de base pour la simulation de logs */
+/* Basic styles for log simulation */
 .log_simulation_container {
-    background-color: #ffffff; /* Couleur de fond */
+    background-color: #ffffff; 
     padding: 20px;
     border-radius: 5px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
     max-width: 600px;
-    margin: 2em auto; /* Centre le formulaire dans la page */
-    font-family: 'Arial', sans-serif; /* La police doit correspondre à votre design global */
+    margin: 2em auto; 
+    font-family: 'Arial', sans-serif; 
 }
 
 .log_simulation_container h2 {
-    color: #333333; /* Couleur du texte pour les titres */
+    color: #333333; 
     text-align: center;
     margin-bottom: 30px;
 }
@@ -764,7 +760,7 @@ form select {
     font-size: 1.1em;
 }
 
-/* Styles appliqués aux champs de saisie et aux sélections lorsqu'ils sont sélectionnés (focus) */
+/* Styles applied to input fields and selections when selected (focus) */
 .log_simulation_field input:focus,
 .log_simulation_field select:focus {
     border-color: #007BFF;
@@ -772,7 +768,7 @@ form select {
 }
 
 #logSimulationForm button {
-    background-color: #007BFF; /* Choisissez une couleur qui correspond à votre design */
+    background-color: #007BFF; 
     color: white;
     padding: 15px 20px;
     border: none;
@@ -783,24 +779,24 @@ form select {
 }
 
 #logSimulationForm button:hover {
-    background-color: #0056b3; /* Assombrir la couleur au survol */
+    background-color: #0056b3; 
 }
 
 .mitre-attack-image {
-    text-align: center; /* Centre l'image horizontalement */
-    margin-top: 20px; /* Ajoute un peu d'espace en haut, ajustez selon vos besoins */
+    text-align: center; 
+    margin-top: 20px; 
 }
 .mitre-attack-image img {
-    max-width: 30%; /* Assurez-vous que l'image ne dépasse pas la largeur de l'écran */
-    height: auto; /* Maintient le ratio de l'image */
+    max-width: 30%; 
+    height: auto; 
 }
 
 .atomic-image {
     text-align: center;
-    margin-top: 20px; /* Ajustez cette marge pour contrôler l'espace entre les deux images */
+    margin-top: 20px; 
 }
 .atomic-image img {
-    max-width: 18%; /* Ajustez la largeur selon vos besoins */
+    max-width: 18%; 
     height: auto;
 }
 
@@ -944,14 +940,14 @@ form select {
     color: #666;
 }
 
-/* Styles pour le formulaire et les boutons */
+/* Form and button styles */
 .usecase-select {
     width: 100%;
     padding: 10px;
     margin-bottom: 20px;
     border: 1px solid #ddd;
     border-radius: 5px;
-    box-sizing: border-box; /* Assure que le padding ne change pas la largeur */
+    box-sizing: border-box; 
 }
 
 .usecase-buttons {
@@ -974,13 +970,13 @@ form select {
     background-color: #3b7ba9;
 }
 
-/* Styles pour les détails du use case */
+/* Styles for use case details */
 .usecase-details {
     background-color: white;
     padding: 15px;
     border-radius: 5px;
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-    display: none; /* Caché par défaut, sera affiché par jQuery */
+    display: none; 
 }
 
 .usecase-details h3 {
@@ -1023,9 +1019,7 @@ form select {
 }
 
 
-
-/* Page index KPI */
-
+/* KPI page index */
 
 .index-dashboard {
     display: grid;
@@ -1045,33 +1039,33 @@ form select {
     display: flex;
     flex-direction: column;
     align-items: center;
-    justify-content: space-between; /* Distribute space evenly */
-    transition: transform 0.3s ease, box-shadow 0.3s ease; /* Smooth transitions for hover effects */
+    justify-content: space-between; 
+    transition: transform 0.3s ease, box-shadow 0.3s ease; 
     
 }
 
 .index-card:hover {
-    transform: translateY(-5px); /* Slight lift effect on hover */
+    transform: translateY(-5px); 
     box-shadow: 0 10px 20px rgba(0,0,0,0.2);
 }
 
 .index-card h2 {
-    margin: 0 0 15px 0; /* Add some space below the title */
+    margin: 0 0 15px 0; 
     color: #333;
-    font-size: 1.2em; /* Slightly larger font size for titles */
+    font-size: 1.2em; 
 }
 
 
 
 .kpi-number {
             font-size: 48px;
-            color: #4a4a4a; /* Couleur de texte foncée pour le contraste */
+            color: #4a4a4a; 
             font-weight: bold;
             margin: 10px 0;
         }
 .kpi-title {
             font-size: 18px;
-            color: #6e6e6e; /* Couleur de texte plus légère */
+            color: #6e6e6e; 
             margin-bottom: 5px;
         }
 
@@ -1087,7 +1081,7 @@ form select {
 #sharing-textarea {
     width: 100%;
     height: 150px;
-    padding: 10px 40px 10px 10px; /* L'espace supplémentaire à droite pour l'icône de copie */
+    padding: 10px 40px 10px 10px; 
     border: 1px solid #ccc;
     border-radius: 5px;
     font-size: 14px;
@@ -1096,8 +1090,8 @@ form select {
 
 .copy-button {
     position: absolute;
-    top: 5px; /* Ajustez selon votre besoin */
-    right: 5px; /* Ajustez selon votre besoin */
+    top: 5px; 
+    right: 5px; 
     background: transparent;
     border: none;
     color: #4CAF50;
@@ -1105,61 +1099,59 @@ form select {
 }
 
 .copy-button i {
-    font-size: 20px; /* Taille de l'icône */
+    font-size: 20px; 
 }
 
-/* Style général du bouton d'upload */
+/* General style of upload button */
 .input-file-container {
     position: relative;
-    width: 250px; /* Largeur du bouton */
-    height: 40px; /* Hauteur du bouton */
+    width: 250px; 
+    height: 40px; 
     overflow: hidden;
     display: inline-block;
     cursor: pointer;
-    background-color: #4CAF50; /* Couleur de fond */
-    border-radius: 5px; /* Arrondir les coins */
+    background-color: #4CAF50; 
+    border-radius: 5px;
     text-align: center;
-    line-height: 40px; /* Alignement vertical du texte */
-    color: white; /* Couleur du texte */
-    font-weight: bold; /* Mettre le texte en gras */
-    transition: background-color 0.3s; /* Transition pour l'effet au survol */
+    line-height: 40px; 
+    color: white; 
+    font-weight: bold; 
+    transition: background-color 0.3s; 
 }
 
-/* Style du texte à l'intérieur du bouton */
+/* Text style inside button */
 .input-file-trigger {
     display: block;
-    padding: 0 20px; /* Espacement à l'intérieur du bouton */
+    padding: 0 20px; 
 }
 
-/* Masquer l'input type file réel mais le garder fonctionnel */
 .input-file {
     position: absolute;
     top: 0; left: 0;
     width: 100%; height: 100%;
-    opacity: 0; /* Rendre l'input invisible */
+    opacity: 0; 
     cursor: pointer;
 }
 
-/* Effet au survol du bouton */
 .input-file-container:hover {
-    background-color: #45a049; /* Couleur de fond au survol */
+    background-color: #45a049; 
 }
 
-/* Responsive : ajuster la taille du bouton sur petits écrans */
+
 @media (max-width: 480px) {
     .input-file-container {
-        width: 100%; /* Pleine largeur sur petits écrans */
-        margin-bottom: 15px; /* Espacement avec les autres éléments */
+        width: 100%; 
+        margin-bottom: 15px; 
     }
 }
 
 .file-name {
     display: inline-block;
     vertical-align: middle;
-    max-width: 150px; /* Limiter la largeur pour les noms de fichier longs */
+    max-width: 150px; 
     white-space: nowrap;
     overflow: hidden;
-    text-overflow: ellipsis; /* Ajoute des points de suspension si le texte est trop long */
-    margin-left: 10px; /* Espacement entre le texte et le nom du fichier */
+    text-overflow: ellipsis; 
+    margin-left: 10px; 
 }
 
