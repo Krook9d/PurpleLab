@@ -11,10 +11,10 @@ function countExcelRows($filePath) {
         $spreadsheet = $reader->load($filePath);
         $worksheet = $spreadsheet->getActiveSheet();
 
-        // Lire uniquement la première colonne de la première feuille
+        // Read only the first column of the first sheet
         $columnValues = $worksheet->rangeToArray('A1:A' . $worksheet->getHighestRow(), null, true, true, false);
 
-        // Compter les lignes non vides
+        // Count non-empty lines
         $rowCount = 0;
         foreach ($columnValues as $cell) {
             if (!empty($cell[0])) {
@@ -22,33 +22,31 @@ function countExcelRows($filePath) {
             }
         }
 
-        return $rowCount - 1; // Retirez 1 pour l'en-tête
+        return $rowCount - 1; 
     } catch (\PhpOffice\PhpSpreadsheet\Reader\Exception $e) {
         die('Error loading file: ' . $e->getMessage());
     }
 }
 
 function getCachedCount($cacheFile, $excelFile, $cacheLifetime = 86400) {
-    // Vérifier si le fichier de cache existe et est assez récent
+    
     if (file_exists($cacheFile) && (time() - filemtime($cacheFile)) < $cacheLifetime) {
-        // Lire la valeur depuis le cache
+        
         return file_get_contents($cacheFile);
     } else {
-        // Lire le fichier Excel et mettre à jour le cache
+        
         $count = countExcelRows($excelFile);
         file_put_contents($cacheFile, $count);
         return $count;
     }
 }
 
-// Chemins de fichiers
+// File paths
 $filePath = '/var/www/html/enterprise-attack/enterprise-attack-techniques.xlsx';
 $cacheFile = '/var/www/html/cache/technique_count.cache';
 
-// Obtenir le nombre de techniques, avec cache
 $numberOfTechniques = getCachedCount($cacheFile, $filePath);
 
-// Renvoyer le nombre de techniques au client
 echo $numberOfTechniques;
 
 ?>
