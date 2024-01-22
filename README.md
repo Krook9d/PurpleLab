@@ -238,7 +238,6 @@ This page is a simple sharing platform. When you have found a good query or dete
 
 ## Health Page  🩺
 
-![Health Page](/MD_image/health_page.png)
 This page allows you to monitor all the components and resources of the PurpleLab tool.
 
 First, you will see the status of the following components:
