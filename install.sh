@@ -1,7 +1,6 @@
 #!/bin/bash
 
 apt remove -y needrestart
-# Installation du serveur Apache
 apt-get update
 apt-get install -y dialog
 apt-get -y install megatools
