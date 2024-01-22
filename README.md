@@ -121,10 +121,10 @@ You have to connect to the VM, edit the winlogbeats.yml and do some commands
 1. Connecte to the VM (you have the IP adress on the health.php page or you can do `sudo VBoxManage guestproperty get sandbox "/VirtualBox/GuestInfo/Net/0/V4/IP"
 `)
 
-2. Open an Administrator Powershell Prompt and stop the Winlogbeat Service :
+2. Open an Administrator Powershell Prompt and go to this folder :
 
 ```bash
- Stop-Service winlogbeat
+cd 'C:\Program Files\winlogbeat'
 ```
 
 3. Open the file `C:\Program Files\winlogbeat` with notepadd or other
@@ -142,7 +142,6 @@ the ca_trusted_fingerprint: (to have it, run this command in the purplelab serve
 
 5. If the configuration is OK, set up assets with the following command : 
 ```bash
-cd 'C:\Program Files\winlogbeat'
 .\winlogbeat.exe setup -e
 ```
 
