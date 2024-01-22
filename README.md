@@ -102,7 +102,7 @@ You have to set up your accounts. after installation :
 service elasticsearch restart
 ```
 
-2. In the admin.txt folder, copy the enrolment token 
+2. In the admin.txt file on your home directory, copy the enrolment token 
 The token is located below the line "he generated password for the elastic built-in superuser is". 
 Then go to the "Hunting" page to open ELK and copy it when prompted.
 
