@@ -256,3 +256,4 @@ Finally, there is a button to restore the VM.
 
 > ⚠️ Sometimes, the restoration of the VM snapshot is reported with an error even though it is successfully completed. Please confirm this by connecting to the VM.
 
+<img src="/MD_image/health_page.png" width="500" alt="Health Page">
