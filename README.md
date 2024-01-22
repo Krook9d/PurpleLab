@@ -20,8 +20,8 @@
 	- [Malware Page](#malware-page-)
 	- [Log simulation Page](#log-simulation-page-)
 	- [Usage Case Page](#usage-case-page-)
-	- [Sharing Page](#sharing-page-)
-	- [Health Page](#health-page)
+	- [Sharing Page](#Sharing-page-)
+	- [Health Page](#Health-page-)
 
 
 # What is PurpleLab ?
