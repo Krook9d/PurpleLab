@@ -1107,3 +1107,59 @@ form select {
 .copy-button i {
     font-size: 20px; /* Taille de l'icône */
 }
+
+/* Style général du bouton d'upload */
+.input-file-container {
+    position: relative;
+    width: 250px; /* Largeur du bouton */
+    height: 40px; /* Hauteur du bouton */
+    overflow: hidden;
+    display: inline-block;
+    cursor: pointer;
+    background-color: #4CAF50; /* Couleur de fond */
+    border-radius: 5px; /* Arrondir les coins */
+    text-align: center;
+    line-height: 40px; /* Alignement vertical du texte */
+    color: white; /* Couleur du texte */
+    font-weight: bold; /* Mettre le texte en gras */
+    transition: background-color 0.3s; /* Transition pour l'effet au survol */
+}
+
+/* Style du texte à l'intérieur du bouton */
+.input-file-trigger {
+    display: block;
+    padding: 0 20px; /* Espacement à l'intérieur du bouton */
+}
+
+/* Masquer l'input type file réel mais le garder fonctionnel */
+.input-file {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    opacity: 0; /* Rendre l'input invisible */
+    cursor: pointer;
+}
+
+/* Effet au survol du bouton */
+.input-file-container:hover {
+    background-color: #45a049; /* Couleur de fond au survol */
+}
+
+/* Responsive : ajuster la taille du bouton sur petits écrans */
+@media (max-width: 480px) {
+    .input-file-container {
+        width: 100%; /* Pleine largeur sur petits écrans */
+        margin-bottom: 15px; /* Espacement avec les autres éléments */
+    }
+}
+
+.file-name {
+    display: inline-block;
+    vertical-align: middle;
+    max-width: 150px; /* Limiter la largeur pour les noms de fichier longs */
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis; /* Ajoute des points de suspension si le texte est trop long */
+    margin-left: 10px; /* Espacement entre le texte et le nom du fichier */
+}
+
