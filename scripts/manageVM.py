@@ -3,22 +3,22 @@ import sys
 import time
 
 def poweroff_vm():
-    # Commande pour éteindre la machine virtuelle
+    # Command to shut down the virtual machine
     command = 'VBoxManage controlvm "sandbox" poweroff'
     subprocess.run(command, shell=True)
 
 def restore_snapshot():
-    # Commande pour restaurer le Snapshot1
+    # Command to restore Snapshot1
     command = 'VBoxManage snapshot "sandbox" restore "Snapshot1"'
     subprocess.run(command, shell=True)
 
 def start_vm_headless():
-    # Commande pour démarrer la machine virtuelle
+    # Command to start the virtual machine
     command = 'VBoxManage startvm "sandbox" --type headless'
     subprocess.run(command, shell=True)
 
 def show_vm_info():
-    # Commande pour afficher les informations de la machine virtuelle
+    # Command to display virtual machine information
     command = 'VBoxManage showvminfo "sandbox" | grep -E "Snapshots:|Name:|State:"'
     subprocess.run(command, shell=True)
 
@@ -29,7 +29,7 @@ def get_vm_ip():
 
 
 def upload_to_vm():
-    # Commande pour copier des fichiers vers la machine virtuelle
+    # Command to copy files to the virtual machine
     command = (
         'sudo VBoxManage guestcontrol "sandbox" copyto '
         '--username oem --password oem --target-directory '
@@ -38,30 +38,27 @@ def upload_to_vm():
     )
     subprocess.run(command, shell=True)
 
-# Vérifier le nombre d'arguments
 if len(sys.argv) != 2:
     print("Utilisation: python manageVM.py <commande>")
     sys.exit(1)
 
-# Récupérer l'argument de la ligne de commande
 command_name = sys.argv[1]
 
 if command_name == "restore":
-    # Éteindre la machine virtuelle
     poweroff_vm()
-    # Restaurer le snapshot après l'avoir éteinte
+
     restore_snapshot()
-    # Attendre 1 seconde
+   
     time.sleep(1)
-    # Démarrer la machine virtuelle en mode headless
+    
     start_vm_headless()
 elif command_name == "state":
-    # Afficher les informations de la machine virtuelle
+    # Display virtual machine information
     show_vm_info()
 elif command_name == "upload":
-    # Copier des fichiers vers la machine virtuelle
+    # Copy files to the virtual machine
     upload_to_vm()
 elif command_name == "ip":
     get_vm_ip()
 else:
-    print("Commande non reconnue. Utilisation: python manageVM.py <commande>")
+    print("Command not recognized. Utilisation: python manageVM.py <commande>")
