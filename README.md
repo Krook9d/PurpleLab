@@ -177,7 +177,7 @@ Once the application is fully configured lets explain all the page and the featu
 This is the home page, she is composed of several KPI that are retreiving from the elasticsearch server
 From this page you can saw the number of event from the Windows machine, the number of Unique IP detected from the log, the number of Mitre Attack technique/subtechnique, the repartition of your log that is collected from the VM
 
-<img src="/MD_image/home_page.png" width="500" alt="Health Page">
+<img src="/MD_image/home_page.png" width="800" alt="Health Page">
 
 ## Hunting Page 🎯
 
@@ -195,7 +195,7 @@ The "Mitre ATT&CK update database" button allows you to update the MITRE ATT&CK 
 
 > ⚠️ The loading time to display a technique is not instantaneous (2-3 seconds).
 
-<img src="/MD_image/mitre.png" width="500" alt="Health Page">
+<img src="/MD_image/mitre.png" width="800" alt="Health Page">
 
 ## Malware Page 🦠
 
@@ -212,7 +212,7 @@ The submitted executable is uploaded to the VM, and you can then click on "List 
 
 > Note: Malware is downloaded to the VM from the /var/www/html/Downloaded/malware_upload/ directory.
 
-<img src="/MD_image/malware.png" width="500" alt="Health Page">
+<img src="/MD_image/malware.png" width="800" alt="Health Page">
 
 ## Log simulation Page 📊
 
@@ -230,7 +230,7 @@ Once the fields are filled and the button is clicked, the logs will be generated
 
 > Note : The logs are generated in JSON format with names like firewall.json or ubuntu.json and are located at path = `/var/www/html/Downloaded/Log_simulation`
 
-<img src="/MD_image/log_simulation.png" width="500" alt="Health Page">
+<img src="/MD_image/log_simulation.png" width="800" alt="Health Page">
 
 ## Usage Case Page 🧩
 
@@ -240,13 +240,13 @@ Once a use case is selected, there are two buttons: one to execute the use case 
 
 The details will provide you with a step-by-step scenario of the use case, the actions taken, and any IOCs (Indicators of Compromise). For an added challenge, try to trace the entire compromise path by analyzing the logs before displaying the details 😊
 
-<img src="/MD_image/usecase.png" width="500" alt="Health Page">
+<img src="/MD_image/usecase.png" width="800" alt="Health Page">
 
 ## Sharing Page  ✏️
 
 This page is a simple sharing platform. When you have found a good query or detection rule, you can publish it on this shared page to benefit other analysts, and vice versa.
 
-<img src="/MD_image/sharing.png" width="500" alt="Health Page">
+<img src="/MD_image/sharing.png" width="800" alt="Health Page">
 
 ## Health Page  🩺
 
