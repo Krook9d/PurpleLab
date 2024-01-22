@@ -37,6 +37,9 @@ The lab contains :
 - A pfsense (coming soon)
 - A linux VM (coming soon)
 
+
+> ⚠️ NOTE: This lab has not been hardened in any way and runs with basic credentials. Please do not connect or bridge it to any networks you care about, or secure it yourself with a PKI, better authentication systems, etc.
+
 # Installation procedure
 
 > ⚠️ To have a fully clean installation, you have to follow all the chapiter of the installation procedure from requirements to account
