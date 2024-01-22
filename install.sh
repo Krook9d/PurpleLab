@@ -26,33 +26,33 @@ apt install -y mysql-server
 systemctl start mysql
 systemctl enable mysql
 
-# Configuration du pare-feu pour permettre les connexions HTTP et HTTPS
+# Configure firewall to allow HTTP and HTTPS connections
 ufw allow in "Apache Full"
 
-# Configuration d'Apache pour qu'il utilise l'adresse IP de la machine
+# Configure Apache to use the machine's IP address
 IP=$(hostname -I | awk '{print $1}')
 echo "ServerName $IP" >> /etc/apache2/apache2.conf
 
 
-# Redémarrage du serveur Apache
+# Restart Apache server
 systemctl restart apache2
 
-# Installation de Java 11
+# Installing Java 11
 sudo apt-get install -y openjdk-11-jdk
 
-# Installation de curl
+# Installing curl
 sudo apt-get install -y curl
 
-# Ajout de la clé GPG Elasticsearch
+# Add Elasticsearch GPG key
 wget -qO - https://artifacts.elastic.co/GPG-KEY-elasticsearch | sudo apt-key add -
 
-# Ajout du repository Elasticsearch
+# Add Elasticsearch repository
 sudo echo "deb https://artifacts.elastic.co/packages/8.x/apt stable main" | sudo tee /etc/apt/sources.list.d/elastic-8.x.list
 
-# Mise à jour des paquets disponibles pour inclure le repository Elasticsearch
+# Update available packages to include the Elasticsearch repository
 sudo apt-get update
 
-# Installation de Elasticsearch, Kibana et Logstash
+# Installing Elasticsearch, Kibana and Logstash
 sudo apt-get install -y elasticsearch kibana logstash | tee temp.txt
 grep 'The generated password for the elastic built-in' temp.txt >> admin.txt
 rm temp.txt
@@ -61,18 +61,18 @@ rm temp.txt
 sudo apt-get install -y filebeat
 sudo systemctl enable filebeat
 
-# Configuration de Kibana pour qu'il écoute sur l'adresse IP de la machine
+# Configure Kibana to listen on the machine's IP address
 sudo sed -i 's/#server.host: "localhost"/server.host: "0.0.0.0"/g' /etc/kibana/kibana.yml
 
-# Configuration de Logstash pour qu'il écoute sur l'adresse IP de la machine
+# Configure Logstash to listen on the machine's IP address
 sudo sed -i 's/#http.host: "127.0.0.1"/http.host: "0.0.0.0"/g' /etc/logstash/logstash.yml
 
-# ajout des ligne xpacksecurity dans le fichier elasticsearch.yml
+# add xpacksecurity lines to the elasticsearch.yml file
 
 sed -i '$a xpack.security.authc.api_key.enabled: true' /etc/elasticsearch/elasticsearch.yml
 
 
-# Démarrage des services Elasticsearch, Kibana et Logstash
+# Start Elasticsearch, Kibana and Logstash services
 sudo systemctl enable elasticsearch.service
 sudo systemctl enable kibana.service
 sudo systemctl enable logstash.service
@@ -81,19 +81,14 @@ sudo systemctl start kibana.service
 sudo systemctl start logstash.service
 
 
-# Exécution de la commande pour créer le jeton d'enrôlement pour Kibana
-# et ajout de la sortie dans admin.txt
+# Execute command to create enrolment token for Kibana and add output to admin.txt
 /usr/share/elasticsearch/bin/elasticsearch-create-enrollment-token -s kibana >> admin.txt
-
 
 sleep 2
 
-
-# Télécharger le fichier sandbox.ova
+# Download the sandbox.ova file
 
 curl -L -o sandbox.ova -H "User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3" "https://dl-wj4hmh39.swisstransfer.com/api/download/aaa9c64a-0cdf-4007-ab02-a5d7bb43fef9/be3589b9-2984-45f9-b8e4-40d72d0219bf"
-
-# Vérifier si le téléchargement a réussi
 
 mv sandbox.ova /var/www/html/
 
@@ -118,25 +113,25 @@ echo 'W10 "sandbox" VM credentials: user = oem password = oem' >> admin.txt
 
 sudo apt install -y virtualbox
 
-# Importation de la VM
+# VM import
 sudo VBoxManage import /var/www/html/sandbox.ova
 
-# Configuration de la VM
+# VM configuration
 VM_NAME="Virtual10"
 VM_MEMORY=4096
 VM_CPUS=2
 VM_PASSWORD="oem"
 
 
-# Modification du nombre de processeurs et de la mémoire vive
+# Changing the number of processors and RAM
 sudo VBoxManage modifyvm "sandbox" --memory "$VM_MEMORY" --cpus "$VM_CPUS"
 
 VBoxManage modifyvm sandbox --nic1 bridged --bridgeadapter1 ens33
 
-# Démarrage de la VM
+# VM startup
 sudo VBoxManage startvm "sandbox" --type headless
 
-# Attente que la VM soit démarrée
+# Wait for VM to be started
 echo "Waiting for VM to start..."
 while ! VBoxManage showvminfo "sandbox" | grep -q "State.*running"; do
   sleep 1s
@@ -145,24 +140,23 @@ done
 
 sleep 15s
 
-
-# Vérifier si la machine sandbox est en marche
+# Check if the sandbox machine is running
 if VBoxManage showvminfo sandbox | grep -q "running (since"; then
-    # Récupérer l'adresse IP de la machine sandbox
+    # Recover the IP address of the sandbox machine
     ip=$(VBoxManage guestproperty get sandbox "/VirtualBox/GuestInfo/Net/0/V4/IP" | awk '{print $2}')
-    echo "La machine sandbox est bien démarrée et son adresse IP est accessible via RDP à : $ip"
+    echo "The sandbox machine is successfully booted and its IP address is accessible via RDP at : $ip"
 else
-    echo "La machine sandbox n'est pas en marche"
+    echo "Sandbox machine not running"
 fi
 
 
 # ---------- SQL PART ---------#
 
-# Variables pour la connexion MySQL
-MYSQL_USER="root" # 
+# Variables for MySQL connection
+
 DB_NAME="myDatabase"
 
-# Commandes SQL pour créer la base de données et l'utilisateur
+# SQL commands to create database and user
 SQL_COMMANDS="
 CREATE DATABASE IF NOT EXISTS $DB_NAME;
 CREATE USER IF NOT EXISTS 'toor'@'localhost' IDENTIFIED WITH mysql_native_password BY 'root';
@@ -170,7 +164,7 @@ GRANT ALL ON $DB_NAME.* TO 'toor'@'localhost';
 FLUSH PRIVILEGES;
 "
 
-# Commandes SQL pour créer la table users
+# SQL commands to create the users table
 SQL_CREATE_TABLE="
 USE $DB_NAME;
 CREATE TABLE IF NOT EXISTS users (
@@ -184,7 +178,7 @@ CREATE TABLE IF NOT EXISTS users (
 );
 "
 
-# Commandes SQL pour créer la table contents
+# SQL commands to create table contents
 SQL_CREATE_TABLE_CONTENTS="
 USE $DB_NAME;
 CREATE TABLE IF NOT EXISTS contents (
@@ -193,43 +187,38 @@ CREATE TABLE IF NOT EXISTS contents (
 );
 "
 
-
-# Exécution des commandes SQL pour la base de données et l'utilisateur
 echo "$SQL_COMMANDS" | mysql 
 
-# Exécution des commandes pour créer la table
 echo "$SQL_CREATE_TABLE" | mysql 
 
 echo "$SQL_CREATE_TABLE_CONTENTS" | mysql 
 
-
-# Extraire le mot de passe et le stocker dans une variable
+# Extract the password and store it in a variable
 ELASTIC_PASSWORD=$(grep "The generated password for the elastic built-in superuser is :" admin.txt | sed 's/.*: \([^ ]*\).*/\1/')
 
-# Supprimer les retours chariot Windows (CR) si présents
+# Delete Windows carriage returns (CR) if present
 ELASTIC_PASSWORD=$(echo "$ELASTIC_PASSWORD" | tr -d '\r')
 
-# Ajouter la variable d'environnement à envvars
+# Add environment variable to envvars
 echo "export ELASTIC_PASSWORD=\"$ELASTIC_PASSWORD\"" | sudo tee -a /etc/apache2/envvars
 
-# Remplacez ces valeurs par les informations de votre base de données
+# Replace these values with information from your database
 DB_HOST="localhost"
 DB_USER="toor"
 DB_PASS="root"
 DB_NAME="myDatabase"
 
-# Échapper les caractères spéciaux dans le mot de passe
+# Escape special characters in password
 ESCAPED_DB_PASS=$(printf '%s\n' "$DB_PASS" | sed -e 's/[\/&]/\\&/g')
 
-# Ajouter les variables d'environnement au fichier /etc/apache2/envvars
+# Add environment variables to /etc/apache2/envvars
 echo "export DB_HOST='$DB_HOST'" | sudo tee -a /etc/apache2/envvars
 echo "export DB_USER='$DB_USER'" | sudo tee -a /etc/apache2/envvars
 echo "export DB_PASS='$ESCAPED_DB_PASS'" | sudo tee -a /etc/apache2/envvars
 echo "export DB_NAME='$DB_NAME'" | sudo tee -a /etc/apache2/envvars
 
-# Redémarrer Apache pour que les changements prennent effet
+# Restart Apache for changes to take effect
 sudo systemctl restart apache2
-
 
 # Elasticsearch configuration file path
 elasticsearch_config_path="/etc/elasticsearch/jvm.options.d/custom.options"
@@ -245,100 +234,92 @@ echo "$elasticsearch_config_content" | sudo tee "$elasticsearch_config_path" > /
 # Restart the Elasticsearch service
 sudo systemctl restart elasticsearch
 
+# PHP project location
+PROJECT_DIR="/var/www/html" 
 
-
-# Emplacement du projet PHP
-PROJECT_DIR="/var/www/html" # Mettez à jour avec le chemin de votre projet PHP
-
-# Installer Composer s'il n'est pas déjà installé
+# Install Composer if not already installed
 if ! command -v composer &> /dev/null
 then
-    echo "Composer n'est pas installé. Installation en cours..."
+    echo "Composer is not installed. Installation in progress..."
     cd /tmp
     curl -sS https://getcomposer.org/installer | php
     sudo mv composer.phar /usr/local/bin/composer
-    echo "Composer a été installé."
+    echo "Composer has been installed."
 else
-    echo "Composer est déjà installé."
+    echo "Composer is already installed."
 fi
 
-# Se déplacer dans le répertoire du projet
+# Move to project directory
 cd "$PROJECT_DIR"
 
-# Installer PhpSpreadsheet avec Composer
-echo "Installation de PhpSpreadsheet en cours..."
+# Installing PhpSpreadsheet with Composer
+echo "PhpSpreadsheet installation in progress..."
 yes | composer require phpoffice/phpspreadsheet
 
-echo "PhpSpreadsheet a été installé."
+echo "PhpSpreadsheet has been installed."
 
-
-# Trouver et supprimer les répertoires vides restants dans le répertoire source
-# '-type d' indique à find de chercher uniquement les répertoires
-# '-empty' filtre pour ne trouver que les répertoires vides
-# '-delete' supprime les répertoires trouvés par la commande find
 find "$source_directory_path" -type d -empty -delete
 
-# Afficher un message de confirmation une fois le processus terminé
-echo "Le contenu a été déplacé de $source_directory_path vers $destination_directory_path."
+echo "The content has been moved from $source_directory_path to $destination_directory_path."
 
-# Liste des fichiers à supprimer
+# List of files to delete
 files_to_delete=(
     "/var/www/html/index.html"
 )
 
-# Parcourir la liste des fichiers et les supprimer
+# Browse the list of files and delete them
 for file in "${files_to_delete[@]}"; do
     if [[ -f "$file" ]]; then
         sudo rm "$file"
-        echo "Supprimé: $file"
+        echo "Deleted: $file"
     else
-        echo "Le fichier n'existe pas et ne peut pas être supprimé: $file"
+        echo "File does not exist and cannot be deleted: $file"
     fi
 done
 
 sudo chmod -R 775 /var/www/html/
 sudo chmod -R 77 /var/www/html/uploads/
 
-# Chemin vers le fichier filebeat.yml
+# Path to filebeat.yml file
 FILEBEAT_CONFIG="/etc/filebeat/filebeat.yml"
 
-# Chemin vers le fichier admin.txt (dans le même répertoire que le script)
+# Path to admin.txt file (in the same directory as the script)
 ADMIN_FILE="/home/$(logname)/admin.txt"
 
-# Extraire le mot de passe du fichier admin.txt
-# Extraire le mot de passe du fichier admin.txt
+# Extract password from admin.txt file
+
 PASSWORD=$(grep "The generated password for the elastic built-in superuser is :" $ADMIN_FILE | awk -F': ' '{print $2}' | tr -d '\r')
 
-# Vérifier si le mot de passe a été trouvé
+# Check if the password has been found
 if [ -z "$PASSWORD" ]; then
-    echo "Le mot de passe n'a pas pu être trouvé dans $ADMIN_FILE."
+    echo "The password could not be found in $ADMIN_FILE."
     exit 1
 fi
 
-# Partie 1: Modification de la section 'Elasticsearch Output'
-# Supprimer les commentaires des lignes spécifiées
+# Part 1: Modifying the 'Elasticsearch Output' section
+# Remove comments from specified lines
 sed -i '/#output.logstash:/ s/#//' $FILEBEAT_CONFIG
 sed -i '/#hosts: \["localhost:9200"\]/ s/#//' $FILEBEAT_CONFIG
 sed -i '/#protocol: "https"/ s/#//' $FILEBEAT_CONFIG
 sed -i '/#username:/ s/#//' $FILEBEAT_CONFIG
 
-# Remplacer la ligne du mot de passe avec le mot de passe extrait
+# Replace the password line with the extracted password
 sed -i "s/#password: .*/password: \"$PASSWORD\"/" $FILEBEAT_CONFIG
 
-# Ajouter 'ssl.verification_mode: "none"' en dessous de 'hosts: ["localhost:9200"]'
+# Add 'ssl.verification_mode: "none"' below 'hosts: ["localhost:9200"]'.
 sed -i '/hosts: \["localhost:9200"\]/a \ \ ssl.verification_mode: "none"' $FILEBEAT_CONFIG
 
-# Commenter la configuration de Logstash
+# Comment on Logstash configuration
 sed -i '/output.logstash:/,/^[^#]/ s/^/#/' $FILEBEAT_CONFIG
 
-# Construction de la configuration à ajouter pour le type 'log'
+# Build the configuration to be added for the 'log' type
 LOG_CONFIG="- type: log\n  enabled: true\n  paths:\n    - /var/www/html/Downloaded/Log_simulation/*.json\n  json.keys_under_root: true\n  json.add_error_key: true\n  json.message_key: log\n  fields_under_root: true\n  fields:\n    timestamp: date\n  date_formats:\n    - 'MMM dd HH:mm:ss'"
 
-# Ajouter la configuration après la ligne spécifiée
+# Add configuration after specified line
 awk -v log_config="$LOG_CONFIG" '/#- c:\\programdata\\elasticsearch\\logs\\*/{print; print log_config; next}1' $FILEBEAT_CONFIG > temp.yml && mv temp.yml $FILEBEAT_CONFIG
 
-# Redémarrer le service Filebeat pour appliquer les changements
+# Restart the Filebeat service to apply the changes
 systemctl restart filebeat
 
-# Afficher un message indiquant la fin du script et le redémarrage de Filebeat
-echo "Filebeat a été redémarré pour appliquer les changements de configuration."
+# Display a message indicating the end of the script and the restart of Filebeat
+echo "Filebeat has been restarted to apply the configuration changes."
