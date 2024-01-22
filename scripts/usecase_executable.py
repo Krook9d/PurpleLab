@@ -2,13 +2,13 @@ import subprocess
 import sys
 
 def execute_use_case(use_case_name):
-    # Dictionnaire des chemins des exécutables pour chaque use case
+    # Dictionary of executable paths for each use case
     use_cases = {
         "useCase1": "C:\\Users\\oem\\Documents\\usecase\\encrypt.exe",
         "useCase2": "C:\\Users\\oem\\Documents\\usecase\\excel.exe"
     }
 
-    # Vérifier si le use case donné est dans notre dictionnaire
+    # Check if the given use case is in our dictionary
     if use_case_name in use_cases:
         file_path = use_cases[use_case_name]
         command = [
