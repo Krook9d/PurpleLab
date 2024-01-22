@@ -80,6 +80,7 @@ sudo bash install.sh
 You have to set up your accounts. after installation :
 
 1. Type the IP adress of your server
+<img src="/MD_image/connexion.png" width="800" alt="Health Page">
 2. clique on the button **Register**
 3. Fill all the following fields :
 - **Name**: The name of the account, it will be reused to link an account to an instance.  
