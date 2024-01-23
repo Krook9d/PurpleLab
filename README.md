@@ -84,7 +84,7 @@ You have to set up your accounts. after installation :
 
 1. Type the IP adress of your server
 <img src="/MD_image/connexion.png" width="800" alt="Health Page">
-2. clique on the button **Register**
+2. click on the button **Register**
 3. Fill all the following fields :
 - **Name**: The name of the account, it will be reused to link an account to an instance.  
 - **Last name**: The username of this account. For now, it's not used but we recommand you to keep the same name as you have on your instance (TheHive or Cortex)
@@ -118,7 +118,7 @@ sudo /usr/share/kibana/bin/kibana-verification-code
 
 You have to connect to the VM, edit the winlogbeats.yml and do some commands 
 
-1. Connecte to the VM (you have the IP adress on the health.php page or you can do `sudo VBoxManage guestproperty get sandbox "/VirtualBox/GuestInfo/Net/0/V4/IP"
+1. Connect to the VM (you have the IP adress on the health.php page or you can do `sudo VBoxManage guestproperty get sandbox "/VirtualBox/GuestInfo/Net/0/V4/IP"
 `)
 
 2. Open an Administrator Powershell Prompt and go to this folder :
