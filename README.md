@@ -130,7 +130,7 @@ cd 'C:\Program Files\winlogbeat'
 3. Open the file `C:\Program Files\winlogbeat` with notepadd or other
 Change :
  the password at "password:" (put the password you have in admin.txt)
- Replace All the Ip that corresponding to 192.168.142.130 with your adress of your ELK server 
+ Replace All the Ip that corresponding to 192.168.142.130 with the address of your ELK server 
 the ca_trusted_fingerprint: (to have it, run this command in the purplelab server : `sudo openssl x509 -fingerprint -sha256 -in /etc/elasticsearch/certs/http_ca.crt` and REMOVE THE ":" characters with this command `echo "$Yourfingerprint" | tr -d ':'` )
  
 
@@ -173,7 +173,7 @@ Open a new prompt on the PurpleLab server and start the flask server on :
 ```bash
 sudo python3 /home/$(logname)/app.py
 ```
-Once the application is fully configured lets explain all the page and the features
+Once the application is fully configured lets explain all the pages and the features
 
 ## Home Page 🏠
 
