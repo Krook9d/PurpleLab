@@ -84,8 +84,11 @@ You have to set up your accounts. after installation :
 
 1. Type the IP adress of your server
 <img src="/MD_image/connexion.png" width="800" alt="Health Page">
+
 2. click on the button **Register**
+
 3. Fill all the following fields :
+
 - **Name**: The name of the account, it will be reused to link an account to an instance.  
 - **Last name**: The username of this account. For now, it's not used but we recommand you to keep the same name as you have on your instance (TheHive or Cortex)
 - **Analyst level**: The password field must be filled with **a valid API key** to use for authentification
