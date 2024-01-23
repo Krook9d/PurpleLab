@@ -100,23 +100,21 @@ You have to set up your accounts. after installation :
 
 ### ELK Configuration
 
-1. To begin, restart the elastic search service
-```bash
-service elasticsearch restart
-```
 
-2. In the admin.txt file on your home directory, copy the enrolment token 
+1. In the admin.txt file on your home directory, copy the enrolment token 
 The token is located below the line "he generated password for the elastic built-in superuser is". 
 Then go to the "Hunting" page to open ELK and copy it when prompted.
 
-3. After pasting the enrolment token, you'll be asked for a verification code. Here's how to obtain it
+2. After pasting the enrolment token, you'll be asked for a verification code. Here's how to obtain it
 ```bash
 sudo /usr/share/kibana/bin/kibana-verification-code
 ```
 
 > Note: To regenerate the token you can use this command : `/usr/share/elasticsearch/bin/elasticsearch-create-enrollment-token --scope kibana`
-
-
+If you have issues submitting the enrolment token restart the elastic search service
+```bash
+service elasticsearch restart
+```
 ### VM logs configuration
 
 You have to connect to the VM, edit the winlogbeats.yml and do some commands 
