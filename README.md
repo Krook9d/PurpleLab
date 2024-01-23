@@ -111,10 +111,13 @@ sudo /usr/share/kibana/bin/kibana-verification-code
 ```
 
 > Note: To regenerate the token you can use this command : `/usr/share/elasticsearch/bin/elasticsearch-create-enrollment-token --scope kibana`
+
+
 If you have issues submitting the enrolment token restart the elastic search service
 ```bash
 service elasticsearch restart
 ```
+
 ### VM logs configuration
 
 You have to connect to the VM, edit the winlogbeats.yml and do some commands 
