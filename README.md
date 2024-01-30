@@ -151,9 +151,9 @@ the ca_trusted_fingerprint: (to have it, run this command in the purplelab serve
 .\winlogbeat.exe setup -e
 ```
 
-6. Start the Winlobeat Service :
+6. Restart the Winlobeat Service :
 ```bash
- Start-Service winlogbeat
+ Restart-Service winlogbeat
 ```
 7. ⚠️ On the purplelab server, Make a snapshot of the vm -> named: "Snapshot1"
 
