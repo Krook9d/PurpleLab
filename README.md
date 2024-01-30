@@ -47,7 +47,7 @@ The lab contains :
 ## Requirements
 
 Minimum Hardware resources : 
-- 2 processors
+- 8 processors
 - 13GB RAM
 
 A clean installation of Ubuntu server 22.04 available : [Here](https://ubuntu.com/download/server?ref=linuxhandbook.com)
