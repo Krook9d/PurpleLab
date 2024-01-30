@@ -59,7 +59,7 @@ A clean installation of Ubuntu server 22.04 available : [Here](https://ubuntu.co
 
 In VM Ware workstation -> Go to the settings of the VM -> Processors -> Virtualization engine -> enable "Virtualize Intel VT-x/EPT or AMD-V/RVI" 
 
-In VirtualBox -> Select the relevant virtual machine -> Right-click -> Settings -> System -> Acceleration tab -> Check "Enable VT-x/AMD-V".
+In VirtualBox -> Select the relevant virtual machine -> Right-click -> Settings -> System -> Processor -> Check "Enable Nested VT-x/AMD-V".
 
 On the physical machine (host) -> Access the BIOS/UEFI settings -> Look for an option to enable hardware virtualization (VT-x for Intel or AMD-V for AMD) in the CPU or motherboard settings. This option may be called "Intel Virtualization Technology," "VT-x," "AMD-V," "Virtualization Extensions," or something similar. Ensure it is enabled if not already, save the changes, and restart your computer.
 
