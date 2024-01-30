@@ -279,6 +279,8 @@ done
 sudo chmod -R 775 /var/www/html/
 sudo chmod -R 77 /var/www/html/uploads/
 sudo chmod -R 777 -R /var/www/html/Downloaded/malware_upload/
+sudo chmod 777 -R /var/www/html/Downloaded/
+sudo chmod 777 -R /var/www/html/csv/
 
 # Path to filebeat.yml file
 FILEBEAT_CONFIG="/etc/filebeat/filebeat.yml"
