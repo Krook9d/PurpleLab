@@ -37,6 +37,7 @@ The lab contains :
 - A pfsense (coming soon)
 - A linux VM (coming soon)
 
+If you like the project and want to follow its progress, feel free to follow me on [LinkedIn](https://www.linkedin.com/in/martin-cayrol-47669a1a2/)
 
 # Installation procedure
 
