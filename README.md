@@ -38,7 +38,7 @@ The lab contains :
 - A linux VM (coming soon)
 
 If you like the project and want to follow its progress, feel free to follow me on [LinkedIn](https://www.linkedin.com/in/martin-cayrol-47669a1a2/)
-I'm truly grateful for the coffee donations if people have enjoyed my work (https://ko-fi.com/krook9d)
+I'm truly grateful for the coffee donations if people have enjoyed my work ❤️ https://ko-fi.com/krook9d 
 
 # Installation procedure
 
