@@ -27,7 +27,7 @@ if ($stmt->fetch() && password_verify($password, $hash)) {
     $_SESSION['email'] = $email;
     header('Location: index.php');
 } else {
-    echo "Erreur de connexion. Email ou mot de passe incorrect.";
+    echo "Connection error. Incorrect email or password.";
 }
 
 $stmt->close();
