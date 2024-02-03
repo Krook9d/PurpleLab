@@ -174,19 +174,24 @@ def mitre_attack_execution():
         data = request.get_json()
         technique_id = data['id']
 
-        powershell_command = f"& {{Import-Module 'C:\\AtomicRedTeam\\invoke-atomicredteam\\Invoke-AtomicRedTeam.psd1' -Force; Invoke-AtomicTest {technique_id}}}"
-        
+        # Format the PowerShell command
+        powershell_command = f"\"& {{Import-Module 'C:\\\\AtomicRedTeam\\\\invoke-atomicredteam\\\\Invoke-AtomicRedTeam.psd1' -Force; Invoke-AtomicTest {technique_id}}}\""
+
+        # Execute the command using VBoxManage
         subprocess.run(
             ['VBoxManage', 'guestcontrol', 'sandbox', '--username', 'oem', '--password', 'oem', 'run', '--exe', 'C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe', '--', 'powershell.exe', '-NoProfile', '-NonInteractive', '-Command', powershell_command],
             check=True,
-            stdout=subprocess.DEVNULL,
-            stderr=subprocess.DEVNULL
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE
         )
 
         return jsonify({'status': 'success'}), 200
 
     except subprocess.CalledProcessError as e:
-        return jsonify({'status': 'error', 'message': str(e)}), 500
+        # Output the error message
+        error_message = e.stderr.decode()
+        return jsonify({'status': 'error', 'message': error_message}), 500
+
 
 
 @app.route('/execute_usecase', methods=['POST'])
