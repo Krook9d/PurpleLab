@@ -11,7 +11,12 @@ if (!isset($_SESSION['email'])) {
     exit();
 }
 
-$conn = new mysqli('localhost', 'toor', 'root', 'myDatabase');
+$conn = new mysqli(
+    getenv('DB_HOST'), 
+    getenv('DB_USER'), 
+    getenv('DB_PASS'), 
+    getenv('DB_NAME')
+);
 
 if ($conn->connect_error) {
     die("Connection failed: " . $conn->connect_error);
@@ -26,7 +31,7 @@ $stmt->execute();
 $stmt->bind_result($first_name, $last_name, $email, $analyst_level, $avatar);
 
 if (!$stmt->fetch()) {
-    die("Erreur lors de la récupération des informations de l'utilisateur.");
+    die("Error retrieving user information.");
 }
 
 $stmt->close();
@@ -174,7 +179,7 @@ $vmInfo['IP'] = $vmIP;
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Purplelab</title>
-    <link rel="stylesheet" href="styles.css?v=5.2" >
+    <link rel="stylesheet" href="styles.css?v=5.4" >
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="script.js"></script>
@@ -182,15 +187,15 @@ $vmInfo['IP'] = $vmIP;
 <body>
 
 <div class="nav-bar">
-
-        <!-- Ajout du logo en haut de la nav-bar -->
-        <div class="nav-logo">
-        <img src="logo.png" alt="Logo" /> <!-- Assurez-vous de mettre à jour le chemin vers votre logo -->
+        <!-- Add logo to top of nav-bar -->
+    <div class="nav-logo">
+        <img src="MD_image/logowhite.png" alt="Logo" /> 
     </div>
 
-    <!-- Affichage de la version du logiciel -->
-    <div class="software-version">
-        v1.0.0
+    <!-- Display software version -->
+    <?php include $_SERVER['DOCUMENT_ROOT'].'/scripts/php/version.php'; ?>
+        <div class="software-version">
+        <?php echo SOFTWARE_VERSION; ?>
     </div>
 
     <ul>
@@ -202,6 +207,9 @@ $vmInfo['IP'] = $vmIP;
         <li><a href="usecase.php"><i class="fas fa-lightbulb"></i> UseCase</a></li>
         <li><a href="sharing.php"><i class="fas fa-pencil-alt"></i> Sharing</a></li>
         <li><a href="health.php"><i class="fas fa-heartbeat"></i> Health</a></li>
+        <?php if (isset($_SESSION['email']) && $_SESSION['email'] === 'admin@local.com'): ?>
+        <li><a href="admin.php"><i class="fas fa-user-shield"></i> Admin</a></li>
+    <?php endif; ?>
     </ul>
 
         <!-- Conteneur pour les crédits en bas de la nav-bar -->
@@ -305,17 +313,16 @@ $vmInfo['IP'] = $vmIP;
 <div class="health-section-separator"></div>
 
 
-
-
 <!-- VM Status Section -->
 <div class="health-section">
     <h2 class="health-section-title">🔨 VM Management</h2>
     <div class="health-dashboard">
+        <div class="health-card no-hover">
+            <div>
 
 <!-- VM Info -->
-<div class="health-card">
     <h3>🗒️ VM Information</h3>
-    <div>
+
         <?php
         // Itérer sur le tableau $vmInfo
         foreach ($vmInfo as $key => $value) {
@@ -347,24 +354,84 @@ $vmInfo['IP'] = $vmIP;
 }
 
         ?>
+
+
+                <!-- Actions -->
+                <h3>⚙️ Actions</h3><br>
+                <button id="restoreButton" onclick="restoreSnapshot()">Restore Windows VM snapshot</button>
+                <!-- Power Off VM Button -->
+                <button id="powerOffButton" onclick="powerOffVM()">Power Off VM</button>
+                <!-- Start VM Headless Button -->
+                <button id="startVmButton" onclick="startVMHeadless()">Start VM Headless</button>
+                <!-- Restart Winlogbeat Service Button -->
+                <button id="restartWinlogbeatButton" onclick="restartWinlogbeat()">Restart Winlogbeat Service</button>
+
+                <!-- Antivirus Toggle -->
+                <div><br>
+                    <label class="switch">
+                        <input type="checkbox" id="antivirusSwitch" checked>
+                        <span class="slider round"></span>
+                    </label>
+                    <span id="antivirusStatusLabel">Antivirus Status</span>
+                </div>
+
+            </div>
+        </div>
     </div>
-</div>
-
-
-
-
-
-<!-- Restore VM Snapshot Button -->
-
-    <div class="health-card no-hover">
-    <h3>⚙️ Actions</h3>
-    <button id="restoreButton" onclick="restoreSnapshot()">Restore Windows VM snapshot</button>
-    </div>
-
-</div>
 </div>
 
 <script>
+
+function restartWinlogbeat() {
+    var button = document.getElementById('restartWinlogbeatButton');
+    button.innerHTML = 'Restarting...';
+    button.disabled = true;
+
+    fetch('http://' + window.location.hostname + ':5000/restart_winlogbeat', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        }
+    })
+    .then(handleResponse)
+    .catch(handleError);
+}
+
+document.getElementById('antivirusSwitch').addEventListener('change', function() {
+    var statusLabel = document.getElementById('antivirusStatusLabel');
+    if (this.checked) {
+        statusLabel.innerHTML = 'Antivirus Status: On';
+        // Call function to enable antivirus
+        enableAntivirus();
+    } else {
+        statusLabel.innerHTML = 'Antivirus Status: Off';
+        // Call function to disable antivirus
+        disableAntivirus();
+    }
+});
+
+function enableAntivirus() {
+    fetch('http://' + window.location.hostname + ':5000/enable_av', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        }
+    })
+    .then(handleResponse)
+    .catch(handleError);
+}
+
+function disableAntivirus() {
+    fetch('http://' + window.location.hostname + ':5000/disable_av', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        }
+    })
+    .then(handleResponse)
+    .catch(handleError);
+}
+
 function restoreSnapshot() {
     var button = document.getElementById('restoreButton');
     button.innerHTML = 'Restoring...';
@@ -377,14 +444,14 @@ function restoreSnapshot() {
         }
     })
     .then(response => {
-        console.log(response); // Ajoutez ceci pour voir l'objet de réponse
+        console.log(response); 
         if (!response.ok) {
             throw new Error('Network response was not ok: ' + response.statusText);
         }
         return response.json();
     })
     .then(data => {
-        console.log(data); // Ajoutez ceci pour voir les données de réponse
+        console.log(data); 
         if (data.message) {
             alert(data.message);
         } else if (data.error) {
@@ -400,6 +467,77 @@ function restoreSnapshot() {
         button.disabled = false;
     });
 }
+
+function powerOffVM() {
+    var button = document.getElementById('powerOffButton');
+    button.innerHTML = 'Powering Off...';
+    button.disabled = true;
+
+    fetch('http://' + window.location.hostname + ':5000/poweroff_vm', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        }
+    })
+    .then(handleResponse)
+    .catch(handleError);
+}
+
+function startVMHeadless() {
+    var button = document.getElementById('startVmButton');
+    button.innerHTML = 'Starting...';
+    button.disabled = true;
+
+    fetch('http://' + window.location.hostname + ':5000/start_vm_headless', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        }
+    })
+    .then(handleResponse)
+    .catch(handleError);
+}
+
+function handleResponse(response) {
+    // Common response handling
+    console.log(response);
+    if (!response.ok) {
+        throw new Error('Network response was not ok: ' + response.statusText);
+    }
+    return response.json().then(data => {
+        console.log(data);
+        if (data.message) {
+            alert(data.message);
+        } else if (data.error) {
+            alert('Error: ' + data.error);
+        }
+        updateButtons();
+    });
+}
+
+
+
+
+function handleError(error) {
+    // Common error handling
+    console.error('Error:', error);
+    alert('An error occurred.');
+    updateButtons();
+}
+
+function updateButtons() {
+    document.getElementById('restoreButton').innerHTML = 'Restore Windows VM snapshot';
+    document.getElementById('restoreButton').disabled = false;
+    document.getElementById('powerOffButton').innerHTML = 'Power Off VM';
+    document.getElementById('powerOffButton').disabled = false;
+    document.getElementById('startVmButton').innerHTML = 'Start VM Headless';
+    document.getElementById('startVmButton').disabled = false;
+}
+</script>
+
+
+
+  
 </script>
 
 <!-- start sidebar JS -->
