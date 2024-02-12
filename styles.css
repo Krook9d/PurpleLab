@@ -133,7 +133,7 @@ body {
 /* Section for background image */
 .background-image-section {
     flex-grow: 1; 
-    background-image: url('connexionbg.jpg');
+    background-image: url('/MD_image/connexionbg.jpg');
     background-size: cover; 
     background-position: center center; 
     background-repeat: no-repeat; 
@@ -677,6 +677,139 @@ form select {
     box-shadow: 0 4px 8px 0 rgba(0,0,0,0.24), 0 6px 20px 0 rgba(0,0,0,0.19);
 }
 
+#powerOffButton, #startVmButton {
+    border: none;
+    color: white;
+    padding: 15px 32px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+    margin: 4px 2px;
+    cursor: pointer;
+    border-radius: 4px;
+    transition-duration: 0.4s;
+    box-shadow: 0 2px 2px 0 rgba(0,0,0,0.24), 0 5px 5px 0 rgba(0,0,0,0.19);
+}
+
+#powerOffButton {
+    background-color: #f44336; /* Red for power off */
+}
+
+#powerOffButton:hover {
+    background-color: #d32f2f; 
+    box-shadow: 0 4px 8px 0 rgba(0,0,0,0.24), 0 6px 20px 0 rgba(0,0,0,0.19);
+}
+
+#startVmButton {
+    background-color: #2196F3; /* Blue for start VM */
+}
+
+#startVmButton:hover {
+    background-color: #1976D2; 
+    box-shadow: 0 4px 8px 0 rgba(0,0,0,0.24), 0 6px 20px 0 rgba(0,0,0,0.19);
+}
+
+#restartWinlogbeatButton {
+    background-color: #FFC107; /* Yellow for restart Winlogbeat */
+    border: none;
+    color: white;
+    padding: 15px 32px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+    margin: 4px 2px;
+    cursor: pointer;
+    border-radius: 4px;
+    transition-duration: 0.4s;
+    box-shadow: 0 2px 2px 0 rgba(0,0,0,0.24), 0 5px 5px 0 rgba(0,0,0,0.19);
+}
+
+#restartWinlogbeatButton:hover {
+    background-color: #FFB300; /* Darker yellow on hover */
+    box-shadow: 0 4px 8px 0 rgba(0,0,0,0.24), 0 6px 20px 0 rgba(0,0,0,0.19);
+}
+
+
+/* The switch - the box around the slider */
+.switch {
+    position: relative;
+    display: inline-block;
+    width: 60px;
+    height: 34px;
+  }
+  
+  /* Hide default HTML checkbox */
+  .switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+  }
+  
+  /* The slider */
+  .slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #ccc;
+    -webkit-transition: .4s;
+    transition: .4s;
+  }
+  
+  .slider:before {
+    position: absolute;
+    content: "";
+    height: 26px;
+    width: 26px;
+    left: 4px;
+    bottom: 4px;
+    background-color: white;
+    -webkit-transition: .4s;
+    transition: .4s;
+  }
+
+  /* Disabled state for the slider */
+.slider:disabled + .slider {
+    cursor: not-allowed;
+    opacity: 0.5; /* Make the slider appear faded */
+  }
+  
+  /* Disabled state for the slider label */
+  .slider:disabled + .slider:before {
+    background-color: #cccccc;
+  }
+  
+  
+  input:checked + .slider {
+    background-color: #2196F3;
+  }
+  
+  input:focus + .slider {
+    box-shadow: 0 0 1px #2196F3;
+  }
+  
+  input:checked + .slider:before {
+    -webkit-transform: translateX(26px);
+    -ms-transform: translateX(26px);
+    transform: translateX(26px);
+  }
+  
+  /* Rounded sliders */
+  .slider.round {
+    border-radius: 34px;
+  }
+  
+  .slider.round:before {
+    border-radius: 50%;
+  }
+  
+
+
+
 .health-card.no-hover:hover {
     transform: none;
     box-shadow: 0 5px 15px rgba(0,0,0,0.1);
@@ -1155,3 +1288,63 @@ form select {
     margin-left: 10px; 
 }
 
+
+
+/* General style of admin page */
+.admin-container {
+    width: 80%;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+/* Admin page buttons */
+.admin-button {
+    background-color: #4CAF50; 
+    color: white;
+    padding: 10px 20px;
+    margin: 10px 5px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+    transition: background-color 0.3s ease;
+}
+
+.admin-button:hover {
+    background-color: #367c39; 
+}
+
+/* Table to list tokens */
+.admin-table {
+    margin-top: 20px;
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.admin-table th, .admin-table td {
+    padding: 10px;
+    border: 1px solid #ddd;
+    text-align: left;
+}
+
+.admin-table th {
+    background-color: #f2f2f2;
+}
+
+/* Input field style for token name */
+.admin-input {
+    padding: 10px;
+    margin-bottom: 10px;
+    width: calc(100% - 22px); 
+    border-radius: 5px;
+    border: 1px solid #ddd;
+}
+
+/* Style of token field in array */
+.token-field {
+    border: none;
+    background-color: transparent;
+    font-family: monospace;
+    width: 100%;
+    text-overflow: ellipsis;
+}
