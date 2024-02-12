@@ -86,6 +86,12 @@ At the start of the installation, a dialog box will ask you whether you want to 
 
 ### Accounts
 
+#### Admin Account
+
+An admin account is created by default, stored in your home directory in the admin.txt file and then hashed into the database.
+
+#### User Account
+
 You have to set up your accounts. after installation :
 
 1. Type the IP adress of your server
