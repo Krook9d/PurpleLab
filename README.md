@@ -22,7 +22,8 @@
 	- [Usage Case Page](#usage-case-page-)
 	- [Sharing Page](#sharing-page-)
 	- [Health Page](#health-page-)
-
+- [Splunk APP](#Splunk-App)
+- [API](#API-documentation)
 
 # What is PurpleLab ?
 
@@ -37,9 +38,6 @@ The lab contains :
 - A pfsense (coming soon)
 - A linux VM (coming soon)
 
-If you like the project and want to follow its progress, feel free to follow me on [LinkedIn](https://www.linkedin.com/in/martin-cayrol-47669a1a2/)
-
-I'm truly grateful for the coffee donations if people have enjoyed my work ❤️ https://ko-fi.com/krook9d 
 
 # Installation procedure
 
@@ -82,6 +80,9 @@ run :
 ```bash
 sudo bash install.sh
 ```
+
+At the start of the installation, a dialog box will ask you whether you want to install the default ELK siem or install your own siem later. If you answer yes, the ELK installation will be skipped.
+> ⚠️ Warning: if you don't install ELK, PHP errors will appear on the home page. Edit the code to prevent errors from appearing on the page 
 
 ### Accounts
 
@@ -169,6 +170,12 @@ Indicators in the home page  should be fed
 
 # Usage
 
+
+Open a new prompt on the PurpleLab server and start the flask server on : 
+```bash
+sudo python3 /home/$(logname)/app.py
+```
+
 Make sure that de VM is running :
 ```bash
 sudo VBoxManage showvminfo sandbox --machinereadable | grep "VMState=" | awk -F'"' '{print $2}'
@@ -178,10 +185,8 @@ If not, do :
 sudo VBoxManage startvm sandbox --type headless
 ```
 
-Open a new prompt on the PurpleLab server and start the flask server on : 
-```bash
-sudo python3 /home/$(logname)/app.py
-```
+You can also do this from the health page once you have started the flask back end.
+
 Once the application is fully configured lets explain all the pages and the features
 
 ## Home Page 🏠
@@ -275,8 +280,23 @@ Then, you can check the RAM and disk usage.
 
 Next, you will find information about the VM, including its status, IP address, and snapshot.
 
-Finally, there is a button to restore the VM.
+There are several buttons to manage the VM
 
 > ⚠️ Sometimes, the restoration of the VM snapshot is reported with an error even though it is successfully completed. Please confirm this by connecting to the VM.
 
 <img src="/MD_image/health_page.png" width="800" alt="Health Page">
+
+
+# Splunk App
+
+https://github.com/Krook9d/TA-Purplelab-Splunk
+
+Atomic Red Team Test Execution: Initiate Atomic Red Team tests on the PurpleLab platform directly from Splunk.
+Threat Hunting Dashboard: Utilize a dedicated dashboard within Splunk for efficient threat hunting, powered by data from PurpleLab.
+Seamless Integration: Easy setup and configuration to interconnect PurpleLab with Splunk for enhanced security operations.
+
+
+# API documentation
+
+For more information on using the PurpleLab API, see [API Documentation](/Documentation/flask_app_documentation.md).
+
