@@ -55,12 +55,13 @@ $conn->close();
 
         <!-- Add logo to top of nav-bar -->
         <div class="nav-logo">
-        <img src="logo.png" alt="Logo" /> 
+        <img src="MD_image/logowhite.png" alt="Logo" /> 
     </div>
 
     <!-- Display software version -->
-    <div class="software-version">
-        v1.0.0
+    <?php include $_SERVER['DOCUMENT_ROOT'].'/scripts/php/version.php'; ?>
+        <div class="software-version">
+        <?php echo SOFTWARE_VERSION; ?>
     </div>
 
     <ul>
@@ -72,6 +73,9 @@ $conn->close();
         <li><a href="usecase.php"><i class="fas fa-lightbulb"></i> UseCase</a></li>
         <li><a href="sharing.php"><i class="fas fa-pencil-alt"></i> Sharing</a></li>
         <li><a href="health.php"><i class="fas fa-heartbeat"></i> Health</a></li>
+           <?php if (isset($_SESSION['email']) && $_SESSION['email'] === 'admin@local.com'): ?>
+        <li><a href="admin.php"><i class="fas fa-user-shield"></i> Admin</a></li>
+    <?php endif; ?>
     </ul>
 
         <!-- Container for credits at the bottom of the nav-bar -->
@@ -109,11 +113,11 @@ $conn->close();
     </div>
     
     <div class="mitre-attack-image">
-        <img src="MITRE_ATTACK.png" alt="MITRE ATTACK Framework">
+        <img src="/MD_image/MITRE_ATTACK.png" alt="MITRE ATTACK Framework">
     </div>
 
 <div class="atomic-image">
-    <img src="atomic.png" alt="Atomic Image">
+    <img src="/MD_image/atomic.png" alt="Atomic Image">
 </div>
 
 
