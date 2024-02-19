@@ -48,6 +48,7 @@ The lab contains :
 ## Requirements
 
 Minimum Hardware resources : 
+- 200Go 
 - 8 cores
 - 13GB RAM
 
