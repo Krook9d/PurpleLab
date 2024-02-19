@@ -212,7 +212,7 @@ $vmInfo['IP'] = $vmIP;
     <?php endif; ?>
     </ul>
 
-        <!-- Conteneur pour les crédits en bas de la nav-bar -->
+        
         <div class="nav-footer">
         <a href="https://github.com/Krook9d" target="_blank">
             <img src="https://pngimg.com/uploads/github/github_PNG20.png" alt="GitHub Icon" class="github-icon"/> 
