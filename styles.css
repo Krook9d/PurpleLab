@@ -634,6 +634,17 @@ form select {
     text-align: center;
 }
 
+.animate-bar {
+    width: 0;
+    animation: fillBar 2s ease forwards;
+}
+
+@keyframes fillBar {
+    from { width: 0; }
+    to { width: var(--target-width); }
+}
+
+
 
 .health-section {
     margin-bottom: 50px; 
