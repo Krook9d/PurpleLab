@@ -282,7 +282,7 @@ if (isset($result['aggregations']['agent_types']['buckets'])) {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Purplelab</title>
-    <link rel="stylesheet" href="styles.css?v=5.2" >
+    <link rel="stylesheet" href="styles.css?v=5.3" >
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/raphael/2.3.0/raphael.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/justgage@1.3.2/dist/justgage.min.js"></script>
@@ -382,13 +382,11 @@ if (isset($result['aggregations']['agent_types']['buckets'])) {
 </div>
 
 <div class="index-card">
-
-    
     <img src="/uploads/adresse-ip.png" style="width: 80px; height: auto;">
-    <div class="kpi-number"><?php echo $unique_ip; ?></div>
+    <div class="kpi-number" id="kpiNumber"><?php echo $unique_ip; ?></div>
     <div class="kpi-title">Unique IP Addresses</div>
-
 </div>
+
 
 <div class="index-card">
     <img src="/uploads/book.png" style="width: 80px; height: auto;">
@@ -678,6 +676,46 @@ var myBubbleChart = new Chart(ctx, {
     }]
 });
 </script>
+
+<script>
+document.addEventListener('DOMContentLoaded', (event) => {
+    const kpiNumberElement = document.getElementById('kpiNumber');
+    let finalValue = parseInt(kpiNumberElement.textContent, 10);
+    let currentValue = 0;
+    
+    // Reset the displayed number to 0 before starting the animation
+    kpiNumberElement.textContent = '0';
+    
+    // Animate the value of the KPI number
+    const animateValue = () => {
+        let duration = 1000; // Duration of the animation in milliseconds
+        let start = null;
+
+        const step = (timestamp) => {
+            if (!start) start = timestamp;
+            let progress = Math.min((timestamp - start) / duration, 1);
+            currentValue = Math.floor(progress * finalValue);
+            kpiNumberElement.textContent = currentValue;
+            
+            if (progress < 1) {
+                window.requestAnimationFrame(step);
+            } else {
+                kpiNumberElement.textContent = finalValue; // Ensure the final value is set
+            }
+        };
+
+        window.requestAnimationFrame(step);
+    };
+    
+    // Add the animation class to trigger the CSS effect
+    kpiNumberElement.classList.add('kpi-number-animate');
+
+    // Start the animation
+    animateValue();
+});
+</script>
+
+
 
 </body>
 </html>
