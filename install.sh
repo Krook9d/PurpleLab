@@ -276,7 +276,7 @@ rm "$TEMP_PHP_SCRIPT"
 mysql -e "USE $DB_NAME; INSERT INTO users (first_name, last_name, email, analyst_level, avatar, password) VALUES ('Admin', 'admin', 'admin@local.com', 'n3', '/path/to/default/avatar.png', '$HASHED_PASSWORD');"
 
 # Add admin credentials to admin.txt file
-echo "admin:$ADMIN_PASSWORD" > /home/$(logname)/admin.txt
+echo "admin@local.com:$ADMIN_PASSWORD" > /home/$(logname)/admin.txt
 
 
     # Replace these values with information from your database
