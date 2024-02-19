@@ -273,7 +273,76 @@ if (isset($result['aggregations']['agent_types']['buckets'])) {
     }, $result['aggregations']['agent_types']['buckets']);
     
 }
+
+
+
+
+
+$ch7 = curl_init();
+
+curl_setopt($ch7, CURLOPT_URL, 'https://localhost:9200/*/_search');
+curl_setopt($ch7, CURLOPT_RETURNTRANSFER, true);
+curl_setopt($ch7, CURLOPT_USERPWD, $username . ':' . $elasticPassword);
+curl_setopt($ch7, CURLOPT_HTTPHEADER, array('Content-Type: application/json'));
+curl_setopt($ch7, CURLOPT_SSL_VERIFYPEER, false); 
+
+$data7 = json_encode([
+    "size" => 0,
+    "aggs" => [
+        "source_ips" => [
+            "terms" => [
+                "field" => "source_ip",
+                "size" => 10
+            ],
+            "aggs" => [
+                "destination_ips" => [
+                    "terms" => [
+                        "field" => "destination_ip",
+                        "size" => 10
+                    ],
+                    "aggs" => [
+                        "traffic_count" => [
+                            "value_count" => [
+                                "field" => "destination_ip" // Ou un autre champ pour calculer le volume/le nombre
+                            ]
+                        ]
+                    ]
+                ]
+            ]
+        ]
+    ]
+]);
+
+curl_setopt($ch7, CURLOPT_POSTFIELDS, $data7);
+
+$response7 = curl_exec($ch7);
+curl_close($ch7);
+
+$responseData7 = json_decode($response7, true);
+$graphData = [];
+
+if (isset($responseData7['aggregations']['source_ips']['buckets'])) {
+    foreach ($responseData7['aggregations']['source_ips']['buckets'] as $sourceBucket) {
+        $sourceIp = $sourceBucket['key'];
+        foreach ($sourceBucket['destination_ips']['buckets'] as $destinationBucket) {
+            $destinationIp = $destinationBucket['key'];
+            $trafficCount = $destinationBucket['traffic_count']['value'];
+            $graphData[] = ['from' => $sourceIp, 'to' => $destinationIp, 'value' => $trafficCount];
+        }
+    }
+}
+
+
+
+
+
+
+
+
+
+
 ?>
+
 
 <!DOCTYPE html>
 <html lang="fr">
@@ -282,7 +351,7 @@ if (isset($result['aggregations']['agent_types']['buckets'])) {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Purplelab</title>
-    <link rel="stylesheet" href="styles.css?v=5.3" >
+    <link rel="stylesheet" href="styles.css?v=5.4" >
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/raphael/2.3.0/raphael.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/justgage@1.3.2/dist/justgage.min.js"></script>
@@ -291,6 +360,8 @@ if (isset($result['aggregations']['agent_types']['buckets'])) {
     <script src="https://cdn.amcharts.com/lib/4/plugins/wordCloud.js"></script>
     <script src="https://cdn.amcharts.com/lib/4/themes/animated.js"></script>
     <script src="https://cdn.amcharts.com/lib/5/index.js"></script>
+    <script src="https://cdn.amcharts.com/lib/5/flow.js"></script>
+    <script src="https://cdn.amcharts.com/lib/5/themes/Animated.js"></script>
     <script src="https://cdn.amcharts.com/lib/5/hierarchy.js"></script>
     <script src="https://cdn.amcharts.com/lib/5/themes/Animated.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -433,11 +504,19 @@ document.addEventListener("DOMContentLoaded", function() {
 </div>
 
 
+
+</div>
+<br><br><br><br>
+<div class="health-section-separator"></div>
+
+<div class="index-dashboard">
+    <div class="index-card" id="index-card-sankey">
+        <div id="sankeyChartdiv" style="width: 95%; height: 500px;"></div>
+        <div class="kpi-title">Traffic Flow</div>
+    </div>
 </div>
 
 </div>
-
-
             
 
 <!-- word-cloud-graph -->
@@ -713,6 +792,40 @@ document.addEventListener('DOMContentLoaded', (event) => {
     // Start the animation
     animateValue();
 });
+</script>
+<script>
+am5.ready(function() {
+    var root = am5.Root.new("sankeyChartdiv");
+
+    root.setThemes([
+        am5themes_Animated.new(root)
+    ]);
+
+    var series = root.container.children.push(am5flow.Sankey.new(root, {
+        sourceIdField: "from",
+        targetIdField: "to",
+        valueField: "value",
+        paddingRight: 120, 
+        nodeAlign: "bottom",
+        nodePadding: 30
+    }));
+
+    series.nodes.get("colors").set("step", 2);
+
+    var seriesData = <?php echo json_encode($graphData); ?>;
+    series.data.setAll(seriesData);
+
+    series.nodes.template.events.on("sizechanged", function(ev) {
+        var label = ev.target.children.getIndex(0);
+        var cellWidth = ev.target.pixelWidth;
+        label.maxWidth = cellWidth;
+    });
+
+    series.labels.template.truncate = true;
+    series.labels.template.maxWidth = 150; 
+
+    series.appear(1000, 100);
+}); // end am5.ready()
 </script>
 
 
