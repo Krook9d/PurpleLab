@@ -111,12 +111,10 @@
     elasticsearch_config_path="/etc/elasticsearch/jvm.options.d/custom.options"
 
     # Configuration content to be inserted into the Elasticsearch configuration file
-    elasticsearch_config_content="# ELK Stack JVM Heap Size - see /etc/elasticsearch/jvm.options
-    -Xms4g
-    -Xmx4g"
+    elasticsearch_config_content="# ELK Stack JVM Heap Size - see /etc/elasticsearch/jvm.options\n-Xms4g\n-Xmx4g"
 
     # Create the Elasticsearch configuration file and write the content
-    echo "$elasticsearch_config_content" | sudo tee "$elasticsearch_config_path" > /dev/null
+    printf "%b" "$elasticsearch_config_content" | sudo tee "$elasticsearch_config_path" > /dev/null
 
     # Restart the Elasticsearch service
     sudo systemctl restart elasticsearch
