@@ -40,22 +40,22 @@ $conn->close();
 
 <?php
 
-// Fonctions pour vérifier l'état des services
+
 function isServiceRunning($serviceName) {
     $result = shell_exec("systemctl is-active " . escapeshellarg($serviceName));
     return (strpos($result, "active") !== false);
 }
 
 function getServerMemoryUsage() {
-    $free = shell_exec('free -m'); // -m pour obtenir la mémoire en Mo
+    $free = shell_exec('free -m'); // 
     $free = (string)trim($free);
     $free_arr = explode("\n", $free);
     $mem = explode(" ", $free_arr[1]);
     $mem = array_filter($mem);
     $mem = array_merge($mem);
     $memory_usage = $mem[2]/$mem[1]*100;
-    $memory_total = round($mem[1]/1024, 2); // Convertir en Go
-    $memory_used = round($mem[2]/1024, 2); // Convertir en Go
+    $memory_total = round($mem[1]/1024, 2); 
+    $memory_used = round($mem[2]/1024, 2); 
 
     return [
         'percent' => $memory_usage,
@@ -72,31 +72,44 @@ function getServerDiskUsage() {
     
     return [
         'percent' => $diskusepercent,
-        'total' => round($disktotal/1024/1024/1024, 2), // Convertir en Go
-        'used' => round($diskused/1024/1024/1024, 2) // Convertir en Go
+        'total' => round($disktotal/1024/1024/1024, 2), 
+        'used' => round($diskused/1024/1024/1024, 2) 
     ];
 }
 
-// Utilisez ces fonctions pour obtenir les pourcentages et les valeurs absolues
+
+function getServerCpuUsage() {
+    $load = sys_getloadavg();
+    $cpuCoreCount = (int)trim(shell_exec("grep -c processor /proc/cpuinfo")); 
+    $cpuUsagePercent = 0;
+    if ($cpuCoreCount > 0) {
+        $cpuUsagePercent = round($load[0] * 100 / $cpuCoreCount);
+    }
+    return $cpuUsagePercent;
+}
+
+
+
 $memory = getServerMemoryUsage();
 $disk = getServerDiskUsage();
+$cpuUsagePercent = getServerCpuUsage();
 
 
-// Récupération des informations
+
 $kibanaRunning = isServiceRunning("kibana");
 $logstashRunning = isServiceRunning("logstash");
 $elasticRunning = isServiceRunning("elasticsearch");
 $virtualboxRunning = isServiceRunning("virtualbox");
 
 
-// Utilisez ces fonctions pour obtenir les pourcentages
+
 $memoryUsagePercent = getServerMemoryUsage();
 $diskUsagePercent = getServerDiskUsage();
 
 
-// Fonction pour vérifier si Flask est en cours d'exécution
+
 function isFlaskRunning() {
-    $url = 'http://127.0.0.1:5000/'; // Assurez-vous que cette route existe dans votre application Flask
+    $url = 'http://127.0.0.1:5000/'; 
     $headers = @get_headers($url);
     if ($headers !== false && is_array($headers)) {
         return strpos($headers[0], '200') !== false;
@@ -109,24 +122,24 @@ function isFlaskRunning() {
 $flaskStatus = isFlaskRunning() ? 'running' : 'stopped';
 
 
-// URL de votre endpoint Flask pour obtenir l'état de la VM
+
 $flask_vm_state_url = 'http://127.0.0.1:5000/vm_state';
 
-// Utilisez cURL pour faire une requête GET
+
 $curl = curl_init($flask_vm_state_url);
 curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
 curl_setopt($curl, CURLOPT_HTTPHEADER, [
     'Accept: application/json'
 ]);
 
-// Exécutez la requête cURL
+
 $response = curl_exec($curl);
 $vmInfo = "Error retrieving VM information";
 
 if (!curl_errno($curl)) {
     $response_data = json_decode($response, true);
     if ($response_data) {
-        // Supposons que la réponse est une chaîne contenant les informations de la VM
+        
         $vmInfo = $response_data;
     }
 }
@@ -134,31 +147,31 @@ if (!curl_errno($curl)) {
 curl_close($curl);
 
 
-// URL de votre endpoint Flask pour obtenir l'IP de la VM
+
 $flask_vm_ip_url = 'http://127.0.0.1:5000/vm_ip';
 
-// Utilisez cURL pour faire une requête GET pour obtenir l'IP de la VM
+
 $curl_ip = curl_init($flask_vm_ip_url);
 curl_setopt($curl_ip, CURLOPT_RETURNTRANSFER, true);
 curl_setopt($curl_ip, CURLOPT_HTTPHEADER, [
     'Accept: application/json'
 ]);
 
-// Exécutez la requête cURL
+
 $response_ip = curl_exec($curl_ip);
 $vmIP = "Error retrieving VM IP";
 
 if (!curl_errno($curl_ip)) {
     $response_ip_data = json_decode($response_ip, true);
     if ($response_ip_data) {
-        // Supposons que la réponse contient l'IP de la VM
+        
         $vmIP = $response_ip_data['ip'];
     }
 }
 
 curl_close($curl_ip);
 
-// Ajoutez l'IP à votre tableau $vmInfo
+
 if (!is_array($vmInfo)) {
     $vmInfo = [];
 }
@@ -179,7 +192,7 @@ $vmInfo['IP'] = $vmIP;
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Purplelab</title>
-    <link rel="stylesheet" href="styles.css?v=5.4" >
+    <link rel="stylesheet" href="styles.css?v=5.5" >
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="script.js"></script>
@@ -212,7 +225,7 @@ $vmInfo['IP'] = $vmIP;
     <?php endif; ?>
     </ul>
 
-        
+    
         <div class="nav-footer">
         <a href="https://github.com/Krook9d" target="_blank">
             <img src="https://pngimg.com/uploads/github/github_PNG20.png" alt="GitHub Icon" class="github-icon"/> 
@@ -288,7 +301,7 @@ $vmInfo['IP'] = $vmIP;
     <h2 class="health-section-title">💾 RAM & Disk Usage</h2>
   <div class="health-dashboard">
     
-<!-- Mémoire RAM -->
+<!-- RAM -->
 <div class="health-card">
     <h2>🔋RAM Usage</h2>
     <div class="health-metric">
@@ -298,7 +311,7 @@ $vmInfo['IP'] = $vmIP;
     </div>
     <p><?= $memory['used'] ?> GB / <?= $memory['total'] ?> GB</p>
 </div>
-<!-- Espace disque -->
+<!-- Disk space -->
 <div class="health-card">
     <h2>🛢️ Disk Usage</h2>
     <div class="health-metric">
@@ -308,6 +321,18 @@ $vmInfo['IP'] = $vmIP;
     </div>
     <p><?= $disk['used'] ?> GB / <?= $disk['total'] ?> GB</p>
 </div>
+
+<!-- CPU Usage -->
+<div class="health-card">
+    <h2>🖥️ CPU Usage</h2>
+    <div class="health-metric">
+        <div style="width: <?= $cpuUsagePercent ?>%;">
+            <?= $cpuUsagePercent ?>%
+        </div>
+    </div>
+    <p>Current CPU Usage</p>
+</div>
+
 </div>
 </div>
 <div class="health-section-separator"></div>
@@ -324,9 +349,9 @@ $vmInfo['IP'] = $vmIP;
     <h3>🗒️ VM Information</h3>
 
         <?php
-        // Itérer sur le tableau $vmInfo
+   
         foreach ($vmInfo as $key => $value) {
-            // Si la valeur est également un tableau, itérez sur celui-ci
+          
             if (is_array($value)) {
                 foreach ($value as $subKey => $subValue) {
                     echo formatInfoLine($subKey, $subValue);
@@ -334,14 +359,14 @@ $vmInfo['IP'] = $vmIP;
             } else {
                 echo formatInfoLine($key, $value);
                 if ($key == 'Name' || $key == 'State') {
-                    echo '<br>'; // Ajoutez un saut de ligne après certaines sections
+                    echo '<br>'; 
                 }
             }
         }
 
         function formatInfoLine($key, $value) {
 
-   // Mettez en gras les valeurs 'sandbox' et 'Snapshot1'
+
     $boldTerms = ['sandbox', 'Snapshot1'];
     foreach ($boldTerms as $term) {
         if (strpos($value, $term) !== false) {
@@ -349,7 +374,7 @@ $vmInfo['IP'] = $vmIP;
         }
     }
 
-    // Retournez la ligne formatée avec un saut de ligne après
+  
     return "<div><strong>$key:</strong>$value</span></div>";
 }
 
@@ -568,6 +593,23 @@ function updateButtons() {
     });
 </script>
 
+<script>
+document.addEventListener('DOMContentLoaded', (event) => {
+   
+    const bars = document.querySelectorAll('.health-metric div');
+
+    bars.forEach(bar => {
+       
+        const percent = bar.textContent.trim();
+
+       
+        bar.style.setProperty('--target-width', percent);
+
+       
+        bar.classList.add('animate-bar');
+    });
+});
+</script>
 
 
 </body>
