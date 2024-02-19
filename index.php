@@ -469,11 +469,11 @@ am4core.ready(function() {
     series.labels.template.adapter.add("fill", function(fill, target) {
         var value = target.dataItem.value;
         if (value > 100) {
-            return am4core.color("#003f5c"); 
+            return am4core.color("#004f8a"); 
         } else if (value > 50) {
-            return am4core.color("#bc5090"); 
+            return am4core.color("#0074d9"); 
         } else {
-            return am4core.color("#ffa600"); 
+            return am4core.color("#7abaf2"); 
         }
     });
 
