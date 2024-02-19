@@ -1120,7 +1120,11 @@ form select {
     padding: 15px;
     border-radius: 5px;
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    overflow: hidden; 
     display: none; 
+    opacity: 0; 
+    transition: opacity 0.5s ease, max-height 0.5s ease; 
+    max-height: 0; 
 }
 
 .usecase-details h3 {
