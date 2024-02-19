@@ -150,27 +150,29 @@ $(document).ready(function() {
         var selectedValue = $(this).val();
         if (selectedValue != '') {
             $('#buttons').show();
-            // Reset status and hide details when a new use case is selected
+            $('#useCaseDetails').css({'opacity': 0, 'display': 'none'}); // Reset the detail box
             detailsShown = false;
-            $('#useCaseDetails').hide();
-            $('#scenario').html(''); // Update to remove text directly from td tag
-            $('#actions').html(''); 
-            $('#ioc').html(''); 
-
-            $(this).find('option[value=""]').remove();
+            $('#scenario').html('');
+            $('#actions').html('');
+            $('#ioc').html('');
+            $(this).find('option[value=""]').remove(); // Remove placeholder after selection
         } else {
             $('#buttons').hide();
         }
     });
 
-        $('#details').click(function() {
-            var useCaseId = $('#useCaseSelect').val();
+    $('#details').click(function() {
+        var useCaseId = $('#useCaseSelect').val();
 
-            if (detailsShown) {
-                
-                $('#useCaseDetails').hide();
-                detailsShown = false;
-            } else {
+        if (detailsShown) {
+            // Hide with animation
+            $('#useCaseDetails').animate({
+                opacity: 0
+            }, 500, function() {
+                $(this).css('display', 'none');
+            });
+            detailsShown = false;
+        } else {
                 
                 var details = {
                     'useCase1': {
@@ -189,16 +191,19 @@ $(document).ready(function() {
                 };
 
                 if (useCaseId && details[useCaseId]) {
-                    $('#scenario').html(details[useCaseId].scenario);
-                    $('#actions').html(details[useCaseId].actions);
-                    $('#ioc').html(details[useCaseId].ioc);
-                    $('#useCaseDetails').show();
-                    detailsShown = true;
-                }
+                $('#scenario').html(details[useCaseId].scenario);
+                $('#actions').html(details[useCaseId].actions);
+                $('#ioc').html(details[useCaseId].ioc);
+                
+                // Show with animation
+                $('#useCaseDetails').css('display', 'block').animate({
+                    opacity: 1
+                }, 500);
+                detailsShown = true;
             }
-        });
-
+        }
     });
+});
 </script>
 
 <script>
