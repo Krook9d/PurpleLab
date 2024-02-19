@@ -636,7 +636,7 @@ form select {
 
 .animate-bar {
     width: 0;
-    animation: fillBar 2s ease forwards;
+    animation: fillBar 1s ease forwards;
 }
 
 @keyframes fillBar {
@@ -1202,11 +1202,30 @@ form select {
 
 
 .kpi-number {
-            font-size: 48px;
-            color: #4a4a4a; 
-            font-weight: bold;
-            margin: 10px 0;
-        }
+    font-size: 48px;
+    font-weight: bold;
+    color: #333; 
+    transition: all 0.8s ease-out;
+}
+
+
+@keyframes counterIncrease {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+
+.kpi-number-animate {
+    animation: counterIncrease 1.5s forwards;
+}
+
+
 .kpi-title {
             font-size: 18px;
             color: #6e6e6e; 
