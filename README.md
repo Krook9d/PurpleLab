@@ -123,7 +123,7 @@ Then go to the "Hunting" page to open ELK and copy it when prompted.
 sudo /usr/share/kibana/bin/kibana-verification-code
 ```
 
-> Note: To regenerate the token you can use this command : `/usr/share/elasticsearch/bin/elasticsearch-create-enrollment-token --scope kibana`
+> Note: To regenerate the token you can use this command : `sudo /usr/share/elasticsearch/bin/elasticsearch-create-enrollment-token --scope kibana`
 
 
 If you have issues submitting the enrolment token restart the elastic search service
