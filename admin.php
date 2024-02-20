@@ -212,7 +212,7 @@ $stmt->close();
         $(document).ready(function() {
             $('#generateToken').click(function() {
                 $.ajax({
-                    url: 'http://localhost:5000/login', 
+                    url: 'http://' + window.location.hostname + ':5000/login', 
                     type: 'POST',
                     contentType: 'application/json',
                     data: JSON.stringify({ username: 'admin', password: 'password' }),
