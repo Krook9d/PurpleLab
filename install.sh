@@ -271,8 +271,7 @@ HASHED_PASSWORD=$(php "$TEMP_PHP_SCRIPT")
 rm "$TEMP_PHP_SCRIPT"
 
 # Add admin user to the users table with the hashed password
-mysql -e "USE $DB_NAME; INSERT INTO users (first_name, last_name, email, analyst_level, avatar, password) VALUES ('Admin', 'admin', 'admin@local.com', 'n3', 'mysql -e "USE $DB_NAME; INSERT INTO users (first_name, last_name, email, analyst_level, avatar, password) VALUES ('Admin', 'admin', 'admin@local.com', 'n3', '/MD_image/admin.png', '$HASHED_PASSWORD');"
-', '$HASHED_PASSWORD');"
+mysql -e "USE $DB_NAME; INSERT INTO users (first_name, last_name, email, analyst_level, avatar, password) VALUES ('Admin', 'Admin', 'admin@local.com', 'n3', '/MD_image/admin.png', '$HASHED_PASSWORD');"
 
 # Add admin credentials to admin.txt file
 echo "admin@local.com:$ADMIN_PASSWORD" > /home/$(logname)/admin.txt
