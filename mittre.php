@@ -38,11 +38,11 @@ $conn->close();
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-    <link rel="icon" href="MD_image/logowhite.png" type="image/png">
+    <link rel="icon" href="logo.png" type="image/png">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Purplelab</title>
-    <link rel="stylesheet" href="styles.css?v=5.3" >
+    <link rel="stylesheet" href="styles.css?v=5.4" >
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     
@@ -124,6 +124,9 @@ $conn->close();
     <div class="search-container-mittre">
         <i class="fas fa-search search-icon"></i>
     <input type="text" id="searchInput" placeholder="Please type the first 5 letters of the ID.." onkeyup="searchFunction()">
+    <div id="loadingIcon" class="loading-icon" style="display: none;">
+        <img src="/MD_image/loading.gif" alt="Loading...">
+    </div>
     <div id="searchResults" class="search-results-mittre"></div>
 <table id="searchResultsTable" class="search-results-mittre">
         <thead>
@@ -161,67 +164,66 @@ function searchFunction() {
     var filter = input.value.toUpperCase();
     var resultsTable = document.getElementById('searchResultsMitre');
     var detailsTable = document.getElementById('techniqueDetailsTable'); 
-
+    var loadingIcon = document.getElementById('loadingIcon');
 
     if (filter.length < 5) {
-        resultsTable.innerHTML = ''; 
-        detailsTable.style.display = 'none'; 
-        document.getElementById('searchResultsTable').style.display = 'none'; 
+        resultsTable.innerHTML = '';
+        detailsTable.style.display = 'none';
+        document.getElementById('searchResultsTable').style.display = 'none';
+        loadingIcon.style.display = 'none';
         return;
     }
 
-    
+    loadingIcon.style.display = 'block';
     var searchTerm = filter.substring(0, 5);
 
-    
     $.ajax({
-        url: '/scripts/php/search_techniques.php', 
+        url: '/scripts/php/search_techniques.php',
         type: 'POST',
         dataType: 'json',
         data: { searchTerm: searchTerm },
         success: function(techniques) {
-            resultsTable.innerHTML = ''; 
-
+            resultsTable.innerHTML = '';
             techniques.forEach(function(technique) {
-                var row = resultsTable.insertRow(-1); 
+                var row = resultsTable.insertRow(-1);
                 var cell1 = row.insertCell(0);
                 var cell2 = row.insertCell(1);
-
                 cell1.textContent = technique.id;
                 cell2.textContent = technique.name;
-
-               
                 row.addEventListener('click', function() {
                     loadTechniqueDetails(technique.id);
                 });
             });
-
-            // Display results table if techniques are present
             document.getElementById('searchResultsTable').style.display = techniques.length ? 'table' : 'none';
+            loadingIcon.style.display = 'none';
+        },
+        error: function() {
+            loadingIcon.style.display = 'none';
         }
     });
 }
 
 
 
+
 function loadTechniqueDetails(techniqueId) {
+    var loadingIcon = document.getElementById('loadingIcon');
+    var detailsTable = document.getElementById('techniqueDetailsTable');
+    var resultsTable = document.getElementById('searchResultsTable');
+    
+    loadingIcon.style.display = 'block';
+    detailsTable.style.display = 'none';
+    resultsTable.style.display = 'none';
+
     $.ajax({
         url: '/scripts/php/search_techniques.php',
         type: 'POST',
         dataType: 'json',
         data: { id: techniqueId },
         success: function(techniqueDetails) {
-            
-            document.getElementById('searchResultsTable').style.display = 'none';
-
-            
-            var detailsTable = document.getElementById('techniqueDetailsTable');
             var tbody = detailsTable.getElementsByTagName('tbody')[0];
-            tbody.innerHTML = ''; 
-
-            
-            Object.keys(techniqueDetails).forEach(function(key, index) {
-                
+            tbody.innerHTML = '';
+            Object.keys(techniqueDetails).forEach(function(key) {
                 if (!['STIX ID', 'domain', 'is sub-technique', 'contributors', 'supports remote', 'relationship citations'].includes(key)) {
                     var row = tbody.insertRow();
                     var cellKey = row.insertCell(0);
@@ -230,57 +232,42 @@ function loadTechniqueDetails(techniqueId) {
                     cellValue.textContent = techniqueDetails[key];
                 }
             });
-
-
-            //  add the line "Run test".
-            var tbody = document.getElementById('techniqueDetailsTable').getElementsByTagName('tbody')[0];
             var runTestRow = tbody.insertRow();
             var cellKeyRunTest = runTestRow.insertCell(0);
             var cellValueRunTest = runTestRow.insertCell(1);
             cellKeyRunTest.textContent = 'Run test';
-
-            // Create the "Run Test" button
-        var runTestButton = document.createElement('button');
-        runTestButton.textContent = 'Run Test';
-        runTestButton.onclick = function() {
-            console.log('Running test for technique ID:', techniqueId);
-
-            // Modify button status and appearance during command execution
-            runTestButton.textContent = 'Running...';
-            runTestButton.disabled = true;
-
-            // Call the Flask function with the technical ID
-            fetch('http://' + window.location.hostname + ':5000/mitre_attack_execution', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ id: techniqueId })
-            })
-            .then(response => response.json())
-            .then(data => {
-                if(data.status === 'success') {
-                    runTestButton.textContent = 'Done';
-                } else {
+            var runTestButton = document.createElement('button');
+            runTestButton.textContent = 'Run Test';
+            runTestButton.onclick = function() {
+                runTestButton.textContent = 'Running...';
+                runTestButton.disabled = true;
+                fetch('http://' + window.location.hostname + ':5000/mitre_attack_execution', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ id: techniqueId })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    runTestButton.textContent = data.status === 'success' ? 'Done' : 'Error';
+                })
+                .catch(error => {
+                    console.error('Fetch Error:', error);
                     runTestButton.textContent = 'Error';
-                    console.error('Error:', data.message);
-                }
-        })
-        .catch(error => {
-            console.error('Fetch Error:', error);
-            runTestButton.textContent = 'Error';
-        })
-        .finally(() => {
-            runTestButton.disabled = false;
-        });
-    };
-
-        // Add the button to the "Value" cell
-        cellValueRunTest.appendChild(runTestButton);
-
-            // Show details table
+                })
+                .finally(() => {
+                    runTestButton.disabled = false;
+                });
+            };
+            cellValueRunTest.appendChild(runTestButton);
             detailsTable.style.display = 'table';
+            loadingIcon.style.display = 'none';
+        },
+        error: function() {
+            loadingIcon.style.display = 'none';
         }
     });
 }
+
 
 
 function updateDatabase() {
