@@ -150,7 +150,7 @@ the password at "password:" (put the password you have in admin.txt)
 
 Replace All the Ip that corresponding to 192.168.142.130 with the address of your ELK server
 
-Replace the ca_trusted_fingerprint: (to have it, run this command in the purplelab server :
+Replace the ca_trusted_fingerprint, to have it, run this command in the purplelab server :
 
 ```bash
 sudo openssl x509 -fingerprint -sha256 -in /etc/elasticsearch/certs/http_ca.crt | awk -F '=' '/Fingerprint/{print $2}' | tr -d ':'
