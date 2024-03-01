@@ -15,7 +15,7 @@ logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 
 # Configure CORS
-CORS(app)
+CORS(app, resources={r"/*": {"origins": "*"}}) 
 
 # Configure JWT
 app.config['JWT_SECRET_KEY'] = 'prout'  
