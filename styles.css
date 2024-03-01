@@ -944,6 +944,12 @@ form select {
     height: auto;
 }
 
+.loading-icon {
+    text-align: center; 
+    margin-top: 10px; 
+}
+
+
 .search-container-mittre {
     margin: 20px auto;
     max-width: 500px;
