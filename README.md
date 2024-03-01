@@ -146,12 +146,15 @@ cd 'C:\Program Files\winlogbeat'
 
 3. Open the file `C:\Program Files\winlogbeat` with notepadd or other
 Change :
- the password at "password:" (put the password you have in admin.txt)
- Replace All the Ip that corresponding to 192.168.142.130 with the address of your ELK server 
-the ca_trusted_fingerprint: (to have it, run this command in the purplelab server : `sudo openssl x509 -fingerprint -sha256 -in /etc/elasticsearch/certs/http_ca.crt` and REMOVE THE ":" characters with this command `echo "$Yourfingerprint" | tr -d ':'` )
- 
+the password at "password:" (put the password you have in admin.txt)
+Replace All the Ip that corresponding to 192.168.142.130 with the address of your ELK server 
+Replace the ca_trusted_fingerprint: (to have it, run this command in the purplelab server :
 
-4. test the configuration with : 
+```bash
+sudo openssl x509 -fingerprint -sha256 -in /etc/elasticsearch/certs/http_ca.crt | awk -F '=' '/Fingerprint/{print $2}' | tr -d ':'
+```
+
+5. test the configuration with : 
 
 ```bash
   & "C:\Program Files\Winlogbeat\winlogbeat.exe" test config -c "C:\Program Files\Winlogbeat\winlogbeat.yml" -e
