@@ -167,11 +167,9 @@ sudo openssl x509 -fingerprint -sha256 -in /etc/elasticsearch/certs/http_ca.crt 
 .\winlogbeat.exe setup -e
 ```
 
-6. Restart the Winlobeat Service :
-```bash
- Restart-Service winlogbeat
-```
-7. ⚠️ On the purplelab server, Make a snapshot of the vm -> named: "Snapshot1"
+6. Restart the VM 
+
+7. ⚠️ On the purplelab server once the VM is restarted, Make a snapshot of the vm -> named: "Snapshot1"
 
 ```bash
 sudo VBoxManage snapshot "sandbox" take "Snapshot1" --description "snapshot before the mess"
