@@ -42,7 +42,7 @@ $conn->close();
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-    <link rel="icon" href="logo.png" type="image/png">
+    <link rel="icon" href="MD_image/logowhite.png" type="image/png">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Purplelab</title>
