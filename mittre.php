@@ -155,10 +155,10 @@ $conn->close();
 
 <table id="csvDataTable" class="details-table" style="display:none;">
     <thead>
-        <!-- Les en-têtes seront insérés dynamiquement par JavaScript -->
+       
     </thead>
     <tbody>
-        <!-- Les données seront insérées dynamiquement par JavaScript -->
+       
     </tbody>
 </table>
 
@@ -284,37 +284,51 @@ function displayCsvData(techniqueId) {
         data: { techniqueId: techniqueId },
         success: function(data) {
             var csvDataTable = document.getElementById('csvDataTable');
-            var thead = csvDataTable.getElementsByTagName('thead')[0];
             var tbody = csvDataTable.getElementsByTagName('tbody')[0];
+            var thead = csvDataTable.getElementsByTagName('thead')[0];
 
+            
             thead.innerHTML = '';
             tbody.innerHTML = '';
 
-            if (data && data.length > 0) {
-                // Create header row
-                var headerRow = document.createElement('tr');
-                ["Tactic", "ID", "Technique Name", "Test", "Test Name", "Test GUID", "Executor Name"].forEach(function(headerText) {
-                    var th = document.createElement('th');
-                    th.textContent = headerText;
-                    headerRow.appendChild(th);
-                });
-                thead.appendChild(headerRow);
+          
+            var headers = ["Tactic", "ID", "Technique Name", "Test", "Test Name", "Test GUID", "Executor Name"];
+            var headerRow = document.createElement('tr');
+            headers.forEach(function(headerText) {
+                var th = document.createElement('th');
+                th.textContent = headerText;
+                headerRow.appendChild(th);
+            });
+            thead.appendChild(headerRow);
 
-                // Add data rows
-                data.forEach(function(rowData) {
-                    var row = document.createElement('tr');
-                    rowData.forEach(function(cellData) {
-                        var cell = document.createElement('td');
-                        cell.textContent = cellData;
-                        row.appendChild(cell);
-                    });
-                    tbody.appendChild(row);
+        
+            var th = document.createElement('th');
+            th.textContent = 'Action';
+            headerRow.appendChild(th);
+
+    
+            data.forEach(function(rowData, index) {
+                var row = document.createElement('tr');
+                rowData.forEach(function(cellData, cellIndex) {
+                    var cell = document.createElement('td');
+                    cell.textContent = cellData;
+                    row.appendChild(cell);
                 });
 
-                csvDataTable.style.display = 'table';
-            } else {
-                console.error('No data found for this technique ID.');
-            }
+
+                var runCell = document.createElement('td');
+                var runButton = document.createElement('button');
+                runButton.textContent = 'Run';
+                runButton.addEventListener('click', function() {
+                    runTestWithArgument(techniqueId + '-' + rowData[3]);
+                });
+                runCell.appendChild(runButton);
+                row.appendChild(runCell);
+
+                tbody.appendChild(row);
+            });
+
+            csvDataTable.style.display = 'table';
             document.getElementById('loadingIcon').style.display = 'none';
         },
         error: function() {
@@ -323,6 +337,63 @@ function displayCsvData(techniqueId) {
         }
     });
 }
+
+function runTestWithArgument(testArgument) {
+ 
+    runTestButton.textContent = 'Running...';
+    runTestButton.disabled = true;
+
+    fetch('http://' + window.location.hostname + ':5000/mitre_attack_execution', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id: testArgument })
+    })
+    .then(response => response.json())
+    .then(data => {
+        runTestButton.textContent = 'Run';
+        runTestButton.disabled = false;
+        if(data.status === 'success') {
+            alert('Test ' + testArgument + ' completed successfully.');
+        } else {
+            alert('Test ' + testArgument + ' failed: ' + data.message);
+        }
+    })
+    .catch(error => {
+        console.error('Error running test:', error);
+        runTestButton.textContent = 'Run';
+        runTestButton.disabled = false;
+        alert('Error running test: ' + error);
+    });
+}
+
+
+function runTestWithArgument(testArgument) {
+    var runTestButton = document.createElement('button');
+    runTestButton.textContent = 'Running...';
+    runTestButton.disabled = true;
+
+    fetch('http://' + window.location.hostname + ':5000/mitre_attack_execution', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id: testArgument })
+    })
+    .then(response => response.json())
+    .then(data => {
+        runTestButton.textContent = 'Run';
+        runTestButton.disabled = false;
+        if(data.status === 'success') {
+            alert('Test ' + testArgument + ' completed successfully.');
+        } else {
+            alert('Test ' + testArgument + ' failed to complete.');
+        }
+    })
+    .catch(error => {
+        runTestButton.textContent = 'Error';
+        runTestButton.disabled = false;
+        console.error('Error running test:', error);
+    });
+}
+
 
 function updateDatabase() {
     var button = document.getElementById('updateDatabaseBtn');
