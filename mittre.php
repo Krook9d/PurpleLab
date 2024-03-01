@@ -153,6 +153,14 @@ $conn->close();
     </tbody>
 </table>
 
+<table id="csvDataTable" class="details-table" style="display:none;">
+    <thead>
+        <!-- Les en-têtes seront insérés dynamiquement par JavaScript -->
+    </thead>
+    <tbody>
+        <!-- Les données seront insérées dynamiquement par JavaScript -->
+    </tbody>
+</table>
 
 
 
@@ -164,11 +172,13 @@ function searchFunction() {
     var filter = input.value.toUpperCase();
     var resultsTable = document.getElementById('searchResultsMitre');
     var detailsTable = document.getElementById('techniqueDetailsTable'); 
+    var csvDataTable = document.getElementById('csvDataTable');
     var loadingIcon = document.getElementById('loadingIcon');
 
     if (filter.length < 5) {
         resultsTable.innerHTML = '';
         detailsTable.style.display = 'none';
+        csvDataTable.style.display = 'none';
         document.getElementById('searchResultsTable').style.display = 'none';
         loadingIcon.style.display = 'none';
         return;
@@ -203,17 +213,16 @@ function searchFunction() {
     });
 }
 
-
-
-
 function loadTechniqueDetails(techniqueId) {
     var loadingIcon = document.getElementById('loadingIcon');
     var detailsTable = document.getElementById('techniqueDetailsTable');
     var resultsTable = document.getElementById('searchResultsTable');
+    var csvDataTable = document.getElementById('csvDataTable');
     
     loadingIcon.style.display = 'block';
     detailsTable.style.display = 'none';
     resultsTable.style.display = 'none';
+    csvDataTable.style.display = 'none';
 
     $.ajax({
         url: '/scripts/php/search_techniques.php',
@@ -260,7 +269,7 @@ function loadTechniqueDetails(techniqueId) {
             };
             cellValueRunTest.appendChild(runTestButton);
             detailsTable.style.display = 'table';
-            loadingIcon.style.display = 'none';
+            displayCsvData(techniqueId);
         },
         error: function() {
             loadingIcon.style.display = 'none';
@@ -268,7 +277,52 @@ function loadTechniqueDetails(techniqueId) {
     });
 }
 
+function displayCsvData(techniqueId) {
+    $.ajax({
+        url: '/scripts/php/read_csv.php',
+        type: 'GET',
+        data: { techniqueId: techniqueId },
+        success: function(data) {
+            var csvDataTable = document.getElementById('csvDataTable');
+            var thead = csvDataTable.getElementsByTagName('thead')[0];
+            var tbody = csvDataTable.getElementsByTagName('tbody')[0];
 
+            thead.innerHTML = '';
+            tbody.innerHTML = '';
+
+            if (data && data.length > 0) {
+                // Create header row
+                var headerRow = document.createElement('tr');
+                ["Tactic", "ID", "Technique Name", "Test", "Test Name", "Test GUID", "Executor Name"].forEach(function(headerText) {
+                    var th = document.createElement('th');
+                    th.textContent = headerText;
+                    headerRow.appendChild(th);
+                });
+                thead.appendChild(headerRow);
+
+                // Add data rows
+                data.forEach(function(rowData) {
+                    var row = document.createElement('tr');
+                    rowData.forEach(function(cellData) {
+                        var cell = document.createElement('td');
+                        cell.textContent = cellData;
+                        row.appendChild(cell);
+                    });
+                    tbody.appendChild(row);
+                });
+
+                csvDataTable.style.display = 'table';
+            } else {
+                console.error('No data found for this technique ID.');
+            }
+            document.getElementById('loadingIcon').style.display = 'none';
+        },
+        error: function() {
+            console.error('Error loading CSV data');
+            document.getElementById('loadingIcon').style.display = 'none';
+        }
+    });
+}
 
 function updateDatabase() {
     var button = document.getElementById('updateDatabaseBtn');
