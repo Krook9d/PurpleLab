@@ -44,11 +44,11 @@ $conn->close();
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-    <link rel="icon" href="MD_image/logowhite.png" type="image/png">
+    <link rel="icon" href="MD_image/logo.png" type="image/png">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Purplelab</title>
-    <link rel="stylesheet" href="styles.css?v=5.3" >
+    <link rel="stylesheet" href="styles.css?v=5.7" >
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
@@ -150,29 +150,28 @@ $(document).ready(function() {
         var selectedValue = $(this).val();
         if (selectedValue != '') {
             $('#buttons').show();
-            $('#useCaseDetails').css({'opacity': 0, 'display': 'none'}); // Reset the detail box
+            // Reset status and hide details when a new use case is selected
             detailsShown = false;
-            $('#scenario').html('');
-            $('#actions').html('');
-            $('#ioc').html('');
-            $(this).find('option[value=""]').remove(); // Remove placeholder after selection
+            $('#useCaseDetails').hide();
+            $('#scenario').html(''); // Update to remove text directly from td tag
+            $('#actions').html(''); 
+            $('#ioc').html(''); 
+
+            // Supprimer l'option de sélection si un use case a été choisi
+            $(this).find('option[value=""]').remove();
         } else {
             $('#buttons').hide();
         }
     });
 
-    $('#details').click(function() {
-        var useCaseId = $('#useCaseSelect').val();
+        $('#details').click(function() {
+            var useCaseId = $('#useCaseSelect').val();
 
-        if (detailsShown) {
-            // Hide with animation
-            $('#useCaseDetails').animate({
-                opacity: 0
-            }, 500, function() {
-                $(this).css('display', 'none');
-            });
-            detailsShown = false;
-        } else {
+            if (detailsShown) {
+                
+                $('#useCaseDetails').hide();
+                detailsShown = false;
+            } else {
                 
                 var details = {
                     'useCase1': {
@@ -191,19 +190,16 @@ $(document).ready(function() {
                 };
 
                 if (useCaseId && details[useCaseId]) {
-                $('#scenario').html(details[useCaseId].scenario);
-                $('#actions').html(details[useCaseId].actions);
-                $('#ioc').html(details[useCaseId].ioc);
-                
-                // Show with animation
-                $('#useCaseDetails').css('display', 'block').animate({
-                    opacity: 1
-                }, 500);
-                detailsShown = true;
+                    $('#scenario').html(details[useCaseId].scenario);
+                    $('#actions').html(details[useCaseId].actions);
+                    $('#ioc').html(details[useCaseId].ioc);
+                    $('#useCaseDetails').show();
+                    detailsShown = true;
+                }
             }
-        }
+        });
+
     });
-});
 </script>
 
 <script>
@@ -247,33 +243,5 @@ $(document).ready(function() {
 
 </div>
         
-<!-- start sidebar JS -->
-<script>
-    // When the document is ready
-    document.addEventListener('DOMContentLoaded', function() {
-        // When the settings link is clicked
-        document.querySelector('#settings-link').addEventListener('click', function(e) {
-            // Prevent the default link behavior
-            e.preventDefault();
-
-            // Toggle the active class on the sidebar
-            let sidebar = document.getElementById('sidebar');
-            sidebar.classList.toggle('active');
-
-            // Stop propagation of the event to parent elements
-            e.stopPropagation();
-        });
-
-        // When a click is detected outside the sidebar
-        document.addEventListener('click', function(e) {
-            let sidebar = document.getElementById('sidebar');
-            if (!sidebar.contains(e.target) && sidebar.classList.contains('active')) {
-                // Remove the active class from the sidebar
-                sidebar.classList.remove('active');
-            }
-        });
-    });
-</script>
-
 </body>
 </html>
