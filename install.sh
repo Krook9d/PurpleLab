@@ -249,10 +249,12 @@ mysql -e "USE $DB_NAME; CREATE TABLE IF NOT EXISTS users (
     password VARCHAR(255) NOT NULL
 );"
 
-# Create the contents table
+# Create the contents table with author_id as a foreign key
 mysql -e "USE $DB_NAME; CREATE TABLE IF NOT EXISTS contents (
     id INT AUTO_INCREMENT PRIMARY KEY,
-    content TEXT NOT NULL
+    content TEXT NOT NULL,
+    author_id INT NOT NULL,
+    FOREIGN KEY (author_id) REFERENCES users(id)
 );"
 
 # Randomly generate a secure password
