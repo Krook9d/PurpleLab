@@ -340,6 +340,12 @@ echo "admin@local.com:$ADMIN_PASSWORD" >> /home/$(logname)/admin.txt
         fi
     done
 
+    # Generate a secure encryption key
+    ENCRYPTION_KEY=$(openssl rand -base64 32)
+
+    # Add the encryption key to /etc/apache2/envvars
+    echo "export ENCRYPTION_KEY=\"$ENCRYPTION_KEY\"" | sudo tee -a /etc/apache2/envvars
+
     sudo chmod -R 775 /var/www/html/
     sudo chmod -R 77 /var/www/html/uploads/
     sudo chmod -R 777 -R /var/www/html/Downloaded/malware_upload/
