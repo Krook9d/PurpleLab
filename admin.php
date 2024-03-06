@@ -38,7 +38,7 @@ $stmt->close();
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-    <link rel="icon" href="MD_image/logowhite.png" type="image/png">
+    <link rel="icon" href="MD_image/logo.png" type="image/png">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Purplelab</title>
@@ -199,6 +199,8 @@ $stmt->close();
 
     <div class="content">
         <h1>🔐  Admin page</h1>
+        <br>
+        <h2>Token generation</h2>
         <div class="admin-container">
             <button id="generateToken" class="admin-button">Generate API token</button>
             <div id="tokenContainer" style="display:none;">
@@ -206,6 +208,45 @@ $stmt->close();
                 <button id="copyToken" class="admin-button">Copy</button>
             </div>
         </div>
+
+        <div class="health-section-separator"></div>
+
+        <h2>LDAP configuration</h2>
+
+        <div class="ldap-configuration">
+    <form id="ldapConfigForm" method="post" action="/scripts/php/saveLdapConfig.php">
+        <div class="form-group">
+            <label for="ldapServer">LDAP Server:</label>
+            <input type="text" id="ldapServer" name="ldapServer" required>
+        </div>
+        <div class="form-group">
+            <label for="ldapDn">Base DN (Base DN):</label>
+            <input type="text" id="ldapDn" name="ldapDn" required>
+        </div>
+        <div class="form-group">
+            <label for="ldapUser">Search User (Bind DN):</label>
+            <input type="text" id="ldapUser" name="ldapUser" required>
+        </div>
+        <div class="form-group">
+            <label for="ldapPassword">Password:</label>
+            <input type="password" id="ldapPassword" name="ldapPassword" required>
+        </div>
+        <button type="submit" class="admin-button">Save Configuration</button>
+    </form>
+
+    <?php if (isset($_SESSION['ldap_config_saved']) && $_SESSION['ldap_config_saved'] === true): ?>
+    <div style="color: green; margin-top: 20px;">
+        The LDAP configuration has been successfully saved.
+    </div>
+    <?php unset($_SESSION['ldap_config_saved']); ?>
+<?php endif; ?>
+
+
+</div>
+
+
+
+
     </div>
 
     <script>
