@@ -311,6 +311,7 @@ This page is designed for administrators to manage the configuration of the Purp
 
 To access the Admin page, ensure you are logged in with the administrator account (`admin@local.com`). 
 
+<img src="/MD_image/admin.png" width="800" alt="Health Page">
 
 # Splunk App
 
