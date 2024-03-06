@@ -23,8 +23,9 @@
     pip install stix2
     pip install mitreattack-python
     pip install Flask-JWT-Extended
-
-
+    apt-get install -y libapache2-mod-ldap-userdir
+    a2enmod ldap
+    a2enmod authnz_ldap
     
     phpenmod mysqli
     apt-get -y install php-xml php-gd php-mbstring php-zip
