@@ -22,6 +22,7 @@
 	- [Usage Case Page](#usage-case-page-)
 	- [Sharing Page](#sharing-page-)
 	- [Health Page](#health-page-)
+ 	- [Admin Page](#admin-page-)
 - [Splunk APP](#Splunk-App)
 - [API](#API-documentation)
 
@@ -295,6 +296,20 @@ There are several buttons to manage the VM
 > ⚠️ Sometimes, the restoration of the VM snapshot is reported with an error even though it is successfully completed. Please confirm this by connecting to the VM.
 
 <img src="/MD_image/health_page.png" width="800" alt="Health Page">
+
+## Admin Page 🔐
+
+This page is designed for administrators to manage the configuration of the PurpleLab environment. Here, administrators can perform several tasks related to the configuration of the lab.
+
+### Key Features
+
+- **LDAP Configuration**: Allows administrators to configure and save LDAP settings for centralized authentication. Upon submitting the form, a green message is displayed at the bottom to confirm that the configuration has been successfully saved.
+
+- **API Key Generation**: Administrators can generate new API keys that are essential for authenticating and interfacing with the lab's API endpoints. This facilitates secure communication between the lab's components and external services or applications.
+
+### How to Access the Admin Page
+
+To access the Admin page, ensure you are logged in with the administrator account (`admin@local.com`). 
 
 
 # Splunk App
