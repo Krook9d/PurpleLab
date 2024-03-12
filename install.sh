@@ -169,8 +169,8 @@
 
     # Download the sandbox.ova file
 
-    #curl -L -o sandbox.ova -H "User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3" "https://dl-wj4hmh39.swisstransfer.com/api/download/aaa9c64a-0cdf-4007-ab02-a5d7bb43fef9/be3589b9-2984-45f9-b8e4-40d72d0219bf"
-    curl -L -o sandbox.ova -H "User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3" "https://dl-hjrvebrv.swisstransfer.com/api/download/c4b9f0b9-a398-4242-a801-cabb3bb37753/68d799f7-45d9-404e-8173-9476d8d37b71"
+    curl -L -o sandbox.ova -H "User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3" "https://dl-578bsydn.swisstransfer.com/api/download/2b71f6e1-6be5-4750-8dba-76bf1455683f/c7341658-27ac-4aec-918c-4869cc858bec"
+    #curl -L -o sandbox.ova -H "User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3" "https://dl-hjrvebrv.swisstransfer.com/api/download/c4b9f0b9-a398-4242-a801-cabb3bb37753/68d799f7-45d9-404e-8173-9476d8d37b71"
     mv sandbox.ova /var/www/html/
 
     mv PurpleLab/* /var/www/html/
