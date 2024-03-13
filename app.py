@@ -461,6 +461,57 @@ def restart_winlogbeat():
         return jsonify({"error": "Error occurred while restarting Winlogbeat service.", "details": str(e)}), 500
 
 
+@app.route('/convert_sigma', methods=['POST'])
+@cross_origin()
+def convert_sigma():
+    data = request.get_json()
+    rule_path = data.get('rule_path', '')  
+    plugin = data.get('plugin', '') 
+
+ 
+    sigma_script_path = '/var/www/html/Downloaded/Sigma/rules/sigma.py'
+    absolute_rule_path = os.path.join('/var/www/html/Downloaded/Sigma/rul', rule_path)
+
+    command = ['sudo', 'python3', sigma_script_path, absolute_rule_path, plugin]
+
+    try:
+    
+        result = subprocess.run(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+
+        if not result.stdout.strip() and result.stderr.strip():
+            response = {
+                "status": "error",
+                "error": result.stderr
+            }
+        else:
+            response = {
+                "status": "success",
+                "output": result.stdout
+            }
+
+        return jsonify(response), 200 if result.returncode == 0 else 400
+
+    except subprocess.CalledProcessError as e:
+        logger.error(f"Error executing sigma.py: {e}")
+        return jsonify({
+            "status": "error",
+            "message": "An error occurred while converting the sigma rule.",
+            "details": str(e)
+        }), 500
+    
+
+
+@app.route('/update_sigma_rules', methods=['POST'])
+@cross_origin()
+def update_sigma_rules():
+    try:
+        subprocess.run(['python3', '/var/www/html/scripts/sigma_database_update.py'], check=True)
+        return jsonify({"message": "Sigma rules updated successfully"}), 200
+    except subprocess.CalledProcessError as e:
+        return jsonify({"error": str(e)}), 500
+
+
+
 
 @app.errorhandler(422)
 def handle_unprocessable_entity(err):
