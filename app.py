@@ -470,7 +470,7 @@ def convert_sigma():
 
  
     sigma_script_path = '/var/www/html/Downloaded/Sigma/rules/sigma.py'
-    absolute_rule_path = os.path.join('/var/www/html/Downloaded/Sigma/rul', rule_path)
+    absolute_rule_path = os.path.join('/var/www/html/Downloaded/Sigma/rules', rule_path)
 
     command = ['sudo', 'python3', sigma_script_path, absolute_rule_path, plugin]
 
