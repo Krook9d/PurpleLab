@@ -347,6 +347,30 @@ echo "admin@local.com:$ADMIN_PASSWORD" >> /home/$(logname)/admin.txt
     # Add the encryption key to /etc/apache2/envvars
     echo "export ENCRYPTION_KEY=\"$ENCRYPTION_KEY\"" | sudo tee -a /etc/apache2/envvars
 
+
+    # Set temporary path for cloning
+TEMP_CLONE_DIR="/tmp/sigma_clone"
+# Set destination path
+DEST_PATH="/var/www/html/Downloaded/Sigma"
+
+# Clone the Sigma repository in the temporary directory
+git clone https://github.com/SigmaHQ/sigma.git "$TEMP_CLONE_DIR"
+
+# Create the destination path if necessary
+mkdir -p "$DEST_PATH"
+
+# Copy rules folder to destination path
+cp -r "$TEMP_CLONE_DIR/rules" "$DEST_PATH"
+
+# Clean up temporary directory
+rm -rf "$TEMP_CLONE_DIR"
+
+echo "The 'rules' folder has been successfully copied to $DEST_PATH"
+
+pip install sigma-cli
+sigma plugin install elasticsearch
+sigma plugin install splunk
+
     sudo chmod -R 775 /var/www/html/
     sudo chmod -R 77 /var/www/html/uploads/
     sudo chmod -R 777 -R /var/www/html/Downloaded/malware_upload/
