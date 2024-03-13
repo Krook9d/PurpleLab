@@ -69,6 +69,7 @@ $stmt->close();
         <li><a href="simulation.php"><i class="fas fa-project-diagram"></i> Log Simulation</a></li>
         <li><a href="usecase.php"><i class="fas fa-lightbulb"></i> UseCase</a></li>
         <li><a href="sharing.php"><i class="fas fa-pencil-alt"></i> Sharing</a></li>
+        <li><a href="sigma.php"><i class="fas fa-shield-alt"></i> Sigma Rules</a></li>
         <li><a href="health.php"><i class="fas fa-heartbeat"></i> Health</a></li>
         <?php if (isset($_SESSION['email']) && $_SESSION['email'] === 'admin@local.com'): ?>
         <li><a href="admin.php"><i class="fas fa-user-shield"></i> Admin</a></li>
