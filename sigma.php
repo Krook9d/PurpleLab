@@ -289,7 +289,7 @@ function convertRule(plugin, rulePath) {
     console.log("Plugin:", plugin);
     console.log("Rule Path:", rulePath);
     
-    fetch('http://127.0.0.1:5000/convert_sigma', {
+    fetch('http://' + window.location.hostname + ':5000/convert_sigma', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json'
@@ -343,7 +343,7 @@ function updateDatabaseSigma() {
     const updateIcon = document.getElementById("updateIcon");
     updateIcon.classList.add("fa-spin");
 
-    fetch('http://127.0.0.1:5000/update_sigma_rules', {
+    fetch('http://' + window.location.hostname + ':5000/update_sigma_rules', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json'
