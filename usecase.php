@@ -1,4 +1,9 @@
+  <!-- start Connexion -->
 <?php
+
+error_reporting(E_ALL);
+ini_set('display_errors', 1);
+
 session_start();
 
 if (!isset($_SESSION['email'])) {
@@ -12,7 +17,6 @@ $conn = new mysqli(
     getenv('DB_PASS'), 
     getenv('DB_NAME')
 );
-
 
 if ($conn->connect_error) {
     die("Connection failed: " . $conn->connect_error);
@@ -31,66 +35,11 @@ if (!$stmt->fetch()) {
 }
 
 $stmt->close();
-
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['content'])) {
-    
-    $user_id = $_SESSION['user_id'];
-$content = $_POST['content'];
-
-$sql = "INSERT INTO contents (content, author_id) VALUES (?, ?)";
-$stmt = $conn->prepare($sql);
-$stmt->bind_param('si', $content, $user_id);
-    
-    if ($stmt->execute()) {
-        
-        header('Location: sharing.php');
-        exit;
-    } else {
-        echo "Error during content insertion : " . $conn->error;
-    }
-}
-
-// Check if a deletion request has been made
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['delete']) && isset($_POST['id'])) {
-    $id = $_POST['id'];
-    
-    // Check if the user is authorized to delete this content (check for a user ID, for example)
-    $canDelete = true;
-    
-    if ($canDelete) {
-        // Delete content corresponding to the identifier
-        $sql = "DELETE FROM contents WHERE id = ?";
-        $stmt = $conn->prepare($sql);
-        $stmt->bind_param('i', $id);
-        
-        if ($stmt->execute()) {
-            
-            header('Location: sharing.php');
-            exit;
-        } else {
-            echo "Error when deleting content : " . $conn->error;
-        }
-    }
-}
-
-// Retrieve content and author information from the database
-$sql = "SELECT contents.id, contents.content, users.first_name, users.last_name FROM contents JOIN users ON contents.author_id = users.id";
-$result = $conn->query($sql);
-
-if ($result->num_rows > 0) {
-    $contents = array();
-    while ($row = $result->fetch_assoc()) {
-        $contents[] = $row;
-    }
-} else {
-    echo '<p>No content available.</p>';
-}
-
-
-
-
 $conn->close();
+
+
 ?>
+<!-- End Connexion -->
 
 <!DOCTYPE html>
 <html lang="fr">
@@ -99,78 +48,14 @@ $conn->close();
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Purplelab</title>
-    <link rel="stylesheet" href="styles.css?v=5.2">
+    <link rel="stylesheet" href="styles.css?v=5.7" >
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    
-
-    <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        var textarea = document.querySelector('textarea[name="content"]');
-        var submitButton = document.querySelector('button[type="submit"]');
-        var errorMessage = document.querySelector('.error-message');
-
-        textarea.addEventListener('input', function() {
-            var contentLength = textarea.value.length;
-
-            if (contentLength > 1000) {
-                submitButton.disabled = true;
-                errorMessage.textContent = 'The content must not exceed 1000 characters.';
-            } else {
-                submitButton.disabled = false;
-                errorMessage.textContent = '';
-            }
-        });
-    });
-</script>
-
-<style>
-    /* "content" form style */
-    form {
-        margin-bottom: 20px;
-    }
-
-    textarea {
-        width: 80%;
-        height: 100px;
-        padding: 10px;
-        border: 1px solid #ccc;
-        border-radius: 5px;
-        resize: vertical;
-    }
-
-    button[type="submit"] {
-        margin-top: 10px;
-        padding: 5px 10px;
-        background-color: #4CAF50;
-        color: white;
-        border: none;
-        border-radius: 5px;
-        cursor: pointer;
-    }
-
-    .error-message {
-        color: red;
-    }
-
-
-    .content div:not(:last-child) {
-        border-bottom: 1px solid #ccc;
-        padding-bottom: 10px;
-        margin-bottom: 20px;
-    }
-
-    .white-background {
-        background-color: white;
-    }
-    
-</style>
 
 </head>
 <body>
 
 <div class="nav-bar">
-
         <!-- Add logo to top of nav-bar -->
         <div class="nav-logo">
         <img src="MD_image/logowhite.png" alt="Logo" /> 
@@ -190,14 +75,13 @@ $conn->close();
         <li><a href="simulation.php"><i class="fas fa-project-diagram"></i> Log Simulation</a></li>
         <li><a href="usecase.php"><i class="fas fa-lightbulb"></i> UseCase</a></li>
         <li><a href="sharing.php"><i class="fas fa-pencil-alt"></i> Sharing</a></li>
-        <li><a href="sigma.php"><i class="fas fa-shield-alt"></i> Sigma Rules</a></li>
         <li><a href="health.php"><i class="fas fa-heartbeat"></i> Health</a></li>
-           <?php if (isset($_SESSION['email']) && $_SESSION['email'] === 'admin@local.com'): ?>
+   <?php if (isset($_SESSION['email']) && $_SESSION['email'] === 'admin@local.com'): ?>
         <li><a href="admin.php"><i class="fas fa-user-shield"></i> Admin</a></li>
     <?php endif; ?>
     </ul>
 
-       <!-- Container for credits at the bottom of the nav-bar -->
+        <!-- Container for credits at the bottom of the nav-bar -->
         <div class="nav-footer">
         <a href="https://github.com/Krook9d" target="_blank">
             <img src="https://pngimg.com/uploads/github/github_PNG20.png" alt="GitHub Icon" class="github-icon"/> 
@@ -206,56 +90,158 @@ $conn->close();
     </div>
 </div>
 
+
     <div class="user-info-bar">
         <div class="avatar-info">
             <img src="<?= $avatar ?>" alt="Avatar">
-            <button class="user-button">
-                <span><?= $first_name ?> <?= $last_name ?></span>
+            <button id="user-button" class="user-button">
+            <span><?= $first_name ?> <?= $last_name ?></span>
                 <div class="dropdown-content">
-                    <a href="sharing.php" id="settings-link">Settings</a>
+                <a href="usecase.php" id="settings-link">Settings</a>
                     <a href="logout.php">Logout</a>
                 </div>
             </button>
         </div>
     </div>
 
+<div class="content">
+<div class="usecase-content">
+    <h1 class="usecase-h1">🧩 Usage Case</h1>
+    <p class="usecase-p">On this page, you will find several use cases to play out, each of which triggers a sequence of actions that you will need to analyze and reconstruct in order to determine what actually happened on the machine</p>
+    
+    <select id="useCaseSelect" class="usecase-select">
+        <option value="">Select a Use Case</option>
+        <option value="useCase1">Use Case 1</option>
+        <option value="useCase2">Use Case 2</option>
+        <!-- ... other options ... -->
+    </select>
 
-    <div class="content">
-        <h1>✏️ Sharing page</h1>
-
-        <form method="POST" action="sharing.php">
-    <textarea name="content" placeholder="Write your content here"></textarea>
-    <p class="error-message" style="color: red;"></p>
-    <button type="submit">Add</button>
-</form>
-
-
-
-<?php
-// Show existing content
-if (!empty($contents)) {
-    foreach ($contents as $content) {
-        $id = $content['id'];
-        $text = $content['content'];
-        $authorFirstName = $content['first_name']; 
-        $authorLastName = $content['last_name']; 
-
-        echo '<div class="note">';
-        echo '<p>' . htmlspecialchars($text) . '</p>';
-        echo '<p class="author">Par ' . htmlspecialchars($authorFirstName) . ' ' . htmlspecialchars($authorLastName) . '</p>';
-
-        // Add deletion form
-        echo '<form method="POST" action="sharing.php">';
-        echo '<input type="hidden" name="id" value="' . $id . '">';
-        echo '<button type="submit" name="delete">Delete</button>';
-        echo '</form>';
-
-        echo '</div>';
-    }
-} else {
-    echo '<p>No content available.</p>';
-}
-?>
+    <div id="buttons" class="usecase-buttons" style="display: none;">
+        <button id="runUseCase" class="usecase-button">Run Use Case</button>
+        <button id="details" class="usecase-button">Detail</button>
     </div>
+
+    <div id="useCaseDetails" class="usecase-details" style="display: none;">
+    <h3 class="usecase-h1">Use Case Detail</h3>
+    <table class="usecase-table">
+    <tr>
+        <th>Scenario 📜</th>
+        <td id="scenario"></td>
+    </tr>
+    <tr>
+        <th>Actions Performed 🔨</th>
+        <td id="actions"></td>
+    </tr>
+    <tr>
+        <th>IOC 🚨</th>
+        <td id="ioc"></td>
+    </tr>
+</table>
+
+</div>
+
+</div>
+
+<script>
+$(document).ready(function() {
+    var detailsShown = false; // Status to see if details are displayed
+
+    $('#useCaseSelect').change(function() {
+        var selectedValue = $(this).val();
+        if (selectedValue != '') {
+            $('#buttons').show();
+            // Reset status and hide details when a new use case is selected
+            detailsShown = false;
+            $('#useCaseDetails').hide();
+            $('#scenario').html(''); // Update to remove text directly from td tag
+            $('#actions').html(''); 
+            $('#ioc').html(''); 
+
+            // Supprimer l'option de sélection si un use case a été choisi
+            $(this).find('option[value=""]').remove();
+        } else {
+            $('#buttons').hide();
+        }
+    });
+
+        $('#details').click(function() {
+            var useCaseId = $('#useCaseSelect').val();
+
+            if (detailsShown) {
+                
+                $('#useCaseDetails').hide();
+                detailsShown = false;
+            } else {
+                
+                var details = {
+                    'useCase1': {
+    "scenario": "This use case involves a Windows executable derived from a Python script, which serves a malicious purpose.<br>The script is engineered to surreptitiously encrypt files within a specified user directory using the Fernet cryptography library.<br>It stealthily scans the specified directory, encrypting each file that matches defined extensions, and subsequently replaces the original files with their encrypted counterparts.",
+    "actions": "🔑 1. Covert generation of a Fernet encryption key, used for the encryption of files without user consent.<br>🔍 2. Silent traversal and scanning of the specified directory for files with extensions '.xlsx', '.pdf', '.doc', and '.docx'.<br>🔐 3. Encryption of each identified file, followed by the creation of an encrypted version with the '.encrypted' extension.<br>🗑️ 4. Removal of the original files, effectively rendering the data inaccessible to the user.",
+    "ioc": "Unexpected appearance of '.encrypted' files in user directories, replacing commonly used file formats.<br>Sudden disappearance or inaccessibility of original files after the execution of the executable.<br>Presence of a new, unknown executable likely generated from a Python script, with file encryption capabilities.<br>User notifications or prompts related to encryption completion, coupled with demands or instructions, often indicative of ransomware."
+}
+,
+                    'useCase2': {
+    "scenario": "This use case revolves around an executable derived from a Python script designed for data aggregation and exfiltration.<br>The script systematically scans specified directories for files with common extensions, compresses them into a ZIP archive, and then uploads this archive to an external server.",
+    "actions": "1. Scanning of directories for target files. 2. Compression of files into a ZIP archive. 3. Automatic upload of the archive to a remote server. 4. Execution of these actions silently without user consent.",
+    "ioc": "Creation of a ZIP archive in the user's directory.<br>Network activity related to file upload.<br>Presence of an executable performing unauthorized actions.<br>Unusual disappearance of disk space."
+}
+
+                    // ... other use cases ...
+                };
+
+                if (useCaseId && details[useCaseId]) {
+                    $('#scenario').html(details[useCaseId].scenario);
+                    $('#actions').html(details[useCaseId].actions);
+                    $('#ioc').html(details[useCaseId].ioc);
+                    $('#useCaseDetails').show();
+                    detailsShown = true;
+                }
+            }
+        });
+
+    });
+</script>
+
+<script>
+    $(document).ready(function() {
+        $('#runUseCase').click(function() {
+            var useCaseId = $('#useCaseSelect').val();
+            if (useCaseId) {
+               
+                $(this).html('<i class="fa fa-spinner fa-spin"></i> In Progress...');
+
+                
+                $.ajax({
+                    url: 'http://' + window.location.hostname + ':5000/execute_usecase',
+                    type: 'POST',
+                    contentType: 'application/json',
+                    data: JSON.stringify({ use_case_name: useCaseId }),
+                    dataType: 'json',
+                    success: function(response) {
+                        if(response.success) {
+                           
+                            $('#runUseCase').html('Done');
+                        } else {
+                            alert('Error: ' + response.error);
+                            $('#runUseCase').html('Run Use Case');
+                        }
+
+                        // Reset button after timeout
+                        setTimeout(function() {
+                            $('#runUseCase').html('Run Use Case');
+                        }, 3000); // 3 secondes
+                    },
+                    error: function(xhr, status, error) {
+                        $('#runUseCase').html('Run Use Case');
+                        alert('An error occurred: ' + error + useCaseId);
+                    }
+                });
+            }
+        });
+    });
+</script>
+
+</div>
+        
 </body>
 </html>
