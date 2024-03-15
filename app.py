@@ -136,18 +136,18 @@ def malware_retrieval():
 @cross_origin()
 
 def vm_state():
-    # Définissez le chemin complet du script manageVM.py
+ 
     script_path = '/var/www/html/scripts/manageVM.py'
 
-    # Utilisez subprocess pour exécuter le script avec l'argument 'state'
+ 
     result = subprocess.run(['python3', script_path, 'state'], capture_output=True, text=True)
 
-    # Vérifiez si l'exécution a réussi
+ 
     if result.returncode == 0:
-        # Renvoyez la sortie standard du script
+     
         return jsonify({"output": result.stdout}), 200
     else:
-        # Renvoyez la sortie d'erreur du script
+  
         return jsonify({"error": result.stderr}), 400
 
 @app.route('/vm_ip', methods=['GET'])
@@ -176,11 +176,11 @@ def restore_snapshot():
     try:
         
         subprocess.run(command, check=True)
-        print("Le script a été exécuté avec succès.") 
-        return jsonify({"message": "La VM a bien été restaurée."}), 200
+        print("The script has been executed successfully.") 
+        return jsonify({"message": "The VM has been restored."}), 200
     except subprocess.CalledProcessError as e:
-        print(f"Erreur lors de l'exécution du script: {e}")  
-        return jsonify({"error": "Une erreur est survenue lors de l'exécution du script.", "details": str(e)}), 500
+        print(f"Error during script execution: {e}")  
+        return jsonify({"error": "An error has occurred while executing the script.", "details": str(e)}), 500
 
 @app.route('/upload_to_vm', methods=['POST'])
 @cross_origin()
@@ -192,10 +192,10 @@ def upload_to_vm():
     
     try:
         result = subprocess.run(command, capture_output=True, text=True, check=True)
-        print("Sortie du script:", result.stdout)
+        print("Script output:", result.stdout)
         return jsonify({"message": "The files have been uploaded to the VM."}), 200
     except subprocess.CalledProcessError as e:
-        print(f"Erreur lors de l'exécution du script: {e}")  
+        print(f"Error during script execution: {e}")  
         return jsonify({"error": "An error has occurred during script execution.", "details": str(e)}), 500
 
 @app.route('/execute_upload', methods=['POST'])
@@ -207,7 +207,6 @@ def execute_upload():
     if file_name:
         script_path = '/var/www/html/scripts/malware_executable.py'
 
-        # Exécuter le script avec subprocess
         try:
             log_message = f"{datetime.now()} - action : Malware was downloaded\n"
                 # Log the action
