@@ -280,7 +280,7 @@ form select {
 
 
 .user-info-bar {
-  position: fixed;
+  position: absolute;
   right: 0;
   top: 0;
   background-color: #3498db;
