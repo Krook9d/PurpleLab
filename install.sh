@@ -1,5 +1,48 @@
-    #!/bin/bash
+#!/bin/bash
 
+# Function to check internet connectivity
+check_internet() {
+    echo -e "\nChecking Internet connection..."
+    if ! ping -c 1 google.com &> /dev/null; then
+        echo -e "\e[31m✖ No Internet connection. Please ensure you have an active Internet connection.\e[0m"
+        exit 1
+    else
+        echo -e "\e[32m✔ Internet connection: OK\e[0m"
+    fi
+}
+
+# Function to check minimum required RAM
+check_ram() {
+    echo -e "\nChecking RAM size..."
+    total_ram=$(awk '/MemTotal/ {print $2}' /proc/meminfo)
+    # Convert from kB to GB
+    total_ram_gb=$(echo "$total_ram/1024/1024" | bc)
+    if (( $(echo "$total_ram_gb < 7.9" | bc -l) )); then
+        echo -e "\e[31m✖ Insufficient RAM. A minimum of 7.9 GB RAM is required.\e[0m"
+        exit 1
+    else
+        echo -e "\e[32m✔ RAM size: OK\e[0m"
+    fi
+}
+
+# Function to check if hardware virtualization is enabled
+check_virtualization() {
+    echo -e "\nChecking Hardware Virtualization..."
+    if ! grep -E --color 'vmx|svm' /proc/cpuinfo &> /dev/null; then
+        echo -e "\e[31m✖ Hardware Virtualization is disabled. Please enable it in your BIOS settings.\e[0m"
+        exit 1
+    else
+        echo -e "\e[32m✔ Hardware Virtualization: OK\e[0m"
+    fi
+}
+
+# Call the checking functions
+check_internet
+check_ram
+check_virtualization
+
+# If all checks pass, continue with the installation...
+echo -e "\n\e[32mAll checks passed. Continuing with the installation...\e[0m\n"
 
     apt remove -y needrestart
     apt-get update
