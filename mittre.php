@@ -38,7 +38,7 @@ $conn->close();
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-    <link rel="icon" href="logo.png" type="image/png">
+    <link rel="icon" href="MD_image/logo.png" type="image/png">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Purplelab</title>
@@ -321,7 +321,7 @@ function displayCsvData(techniqueId) {
                 var runButton = document.createElement('button');
                 runButton.textContent = 'Run';
                 runButton.addEventListener('click', function() {
-                    runTestWithArgument(techniqueId + '-' + rowData[3]);
+                    runTestWithArgument(techniqueId + '-' + rowData[3], this);
                 });
                 runCell.appendChild(runButton);
                 row.appendChild(runCell);
@@ -368,10 +368,9 @@ function runTestWithArgument(testArgument) {
 }
 
 
-function runTestWithArgument(testArgument) {
-    var runTestButton = document.createElement('button');
-    runTestButton.textContent = 'Running...';
-    runTestButton.disabled = true;
+function runTestWithArgument(testArgument, buttonElement) {
+    buttonElement.textContent = 'Running...';
+    buttonElement.disabled = true;
 
     fetch('http://' + window.location.hostname + ':5000/mitre_attack_execution', {
         method: 'POST',
@@ -380,20 +379,21 @@ function runTestWithArgument(testArgument) {
     })
     .then(response => response.json())
     .then(data => {
-        runTestButton.textContent = 'Run';
-        runTestButton.disabled = false;
+        buttonElement.textContent = data.status === 'success' ? 'Done' : 'Error';
+        buttonElement.disabled = false;
         if(data.status === 'success') {
             alert('Test ' + testArgument + ' completed successfully.');
         } else {
-            alert('Test ' + testArgument + ' failed to complete.');
+            alert('Test ' + testArgument + ' failed: ' + data.message);
         }
     })
     .catch(error => {
-        runTestButton.textContent = 'Error';
-        runTestButton.disabled = false;
         console.error('Error running test:', error);
+        buttonElement.textContent = 'Error';
+        buttonElement.disabled = false;
     });
 }
+
 
 
 function updateDatabase() {
