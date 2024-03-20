@@ -250,7 +250,36 @@ echo -e "\n\e[32mAll checks passed. Continuing with the installation...\e[0m\n"
     # Changing the number of processors and RAM
     sudo VBoxManage modifyvm "sandbox" --memory "$VM_MEMORY" --cpus "$VM_CPUS"
 
-    VBoxManage modifyvm sandbox --nic1 bridged --bridgeadapter1 ens33
+# Collect and display available network interfaces with their IP addresses
+echo -e "Available network interfaces and their IP addresses:"
+
+# Get a list of interfaces with their IPv4 addresses
+interfaces=$(ip -o -4 addr show | awk '{print $2, $4}')
+
+# Check if interfaces were found
+if [ -z "$interfaces" ]; then
+    echo "No network interfaces found. Exiting."
+    exit 1
+fi
+
+# Display interfaces in light cyan without coloring the IP addresses
+echo "$interfaces" | awk '{print "\033[1;96m" $1 "\033[0m " $2}'
+
+# Ask for user input with the ability to retry if the input is invalid
+while true; do
+    echo "Please type the name of the network interface you want to use for the VM (as listed above):"
+    read INTERFACE_CHOSEN
+
+    # Check if the chosen interface is valid
+    if echo "$interfaces" | grep -q "^$INTERFACE_CHOSEN "; then
+        break # Valid interface selected
+    else
+        echo -e "\033[1;31mInvalid interface selected. Please try again.\033[0m"
+    fi
+done
+
+# Configure the VM's network interface
+sudo VBoxManage modifyvm sandbox --nic1 bridged --bridgeadapter1 "$INTERFACE_CHOSEN"
 
     # VM startup
     sudo VBoxManage startvm "sandbox" --type headless
