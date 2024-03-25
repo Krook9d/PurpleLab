@@ -333,13 +333,25 @@ if (isset($responseData7['aggregations']['source_ips']['buckets'])) {
 }
 
 
-
-
-
-
-
-
-
+$sigmaDirectory = 'Downloaded/Sigma/rules/';
+$sigmaFileCount = 0;
+$sigmaFiles = array();
+function countYmlFiles($path) {
+    global $sigmaFileCount, $sigmaFiles;
+    $filesInDirectory = scandir($path);
+    foreach ($filesInDirectory as $file) {
+        if ($file != '.' && $file != '..') {
+            $filePath = $path . '/' . $file;
+            if (is_dir($filePath)) {
+                countYmlFiles($filePath);
+            } elseif (pathinfo($file, PATHINFO_EXTENSION) == 'yml' && !isset($sigmaFiles[$file])) {
+                $sigmaFiles[$file] = true;
+                $sigmaFileCount++;
+            }
+        }
+    }
+}
+countYmlFiles($sigmaDirectory);
 
 ?>
 
@@ -351,7 +363,7 @@ if (isset($responseData7['aggregations']['source_ips']['buckets'])) {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Purplelab</title>
-    <link rel="stylesheet" href="styles.css?v=5.4" >
+    <link rel="stylesheet" href="styles.css?v=<?= filemtime('styles.css') ?>">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/raphael/2.3.0/raphael.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/justgage@1.3.2/dist/justgage.min.js"></script>
@@ -459,13 +471,17 @@ if (isset($responseData7['aggregations']['source_ips']['buckets'])) {
     <div class="kpi-title">Unique IP Addresses</div>
 </div>
 
+<div class="index-card">
+    <img src="/uploads/sigma.png" style="width: 80px; height: auto;">
+    <div class="kpi-number" id="sigmaRulesKpiNumber"><?php echo $sigmaFileCount; ?></div>
+    <div class="kpi-title">Sigma rules</div>
+</div>
 
 <div class="index-card">
     <img src="/uploads/book.png" style="width: 80px; height: auto;">
     <div class="kpi-number" id="mitre-technique-count">Loading...</div>
     <div class="kpi-title">Mitre Attack technique</div>
 </div>
-
 <script>
 document.addEventListener("DOMContentLoaded", function() {
     fetch('/scripts/php/getTechniqueCount.php')
@@ -621,7 +637,7 @@ am4core.ready(function() {
     series.hiddenState.properties.startAngle = 90;
     series.hiddenState.properties.endAngle = 90;
 
-    series.labels.template.fontSize = 13; 
+    series.labels.template.fontSize = 10; 
     series.labels.template.text = "{category}: {value.percent.formatNumber('#.0')}%"; 
 
 
@@ -760,39 +776,33 @@ var myBubbleChart = new Chart(ctx, {
 <script>
 document.addEventListener('DOMContentLoaded', (event) => {
     const kpiNumberElement = document.getElementById('kpiNumber');
-    let finalValue = parseInt(kpiNumberElement.textContent, 10);
-    let currentValue = 0;
+    const sigmaRulesKpiNumberElement = document.getElementById('sigmaRulesKpiNumber');
     
-    // Reset the displayed number to 0 before starting the animation
-    kpiNumberElement.textContent = '0';
-    
-    // Animate the value of the KPI number
-    const animateValue = () => {
-        let duration = 1000; // Duration of the animation in milliseconds
-        let start = null;
-
-        const step = (timestamp) => {
-            if (!start) start = timestamp;
-            let progress = Math.min((timestamp - start) / duration, 1);
-            currentValue = Math.floor(progress * finalValue);
-            kpiNumberElement.textContent = currentValue;
-            
-            if (progress < 1) {
-                window.requestAnimationFrame(step);
-            } else {
-                kpiNumberElement.textContent = finalValue; // Ensure the final value is set
-            }
-        };
-
-        window.requestAnimationFrame(step);
-    };
-    
-    // Add the animation class to trigger the CSS effect
-    kpiNumberElement.classList.add('kpi-number-animate');
-
-    // Start the animation
-    animateValue();
+    animateValue(kpiNumberElement, parseInt(kpiNumberElement.textContent, 10));
+    animateValue(sigmaRulesKpiNumberElement, parseInt(sigmaRulesKpiNumberElement.textContent, 10));
 });
+
+function animateValue(element, finalValue) {
+    let currentValue = 0;
+    const duration = 1000; 
+    let start = null;
+
+    const step = (timestamp) => {
+        if (!start) start = timestamp;
+        const progress = Math.min((timestamp - start) / duration, 1);
+        currentValue = Math.floor(progress * finalValue);
+        element.textContent = currentValue;
+
+        if (progress < 1) {
+            window.requestAnimationFrame(step);
+        } else {
+            element.textContent = finalValue; 
+        }
+    };
+
+    window.requestAnimationFrame(step);
+}
+
 </script>
 <script>
 am5.ready(function() {
