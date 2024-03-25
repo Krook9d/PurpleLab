@@ -192,7 +192,7 @@ $vmInfo['IP'] = $vmIP;
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Purplelab</title>
-    <link rel="stylesheet" href="styles.css?v=5.5" >
+    <link rel="stylesheet" href="styles.css?v=<?= filemtime('styles.css') ?>">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="script.js"></script>
@@ -248,14 +248,15 @@ $vmInfo['IP'] = $vmIP;
         </div>
     </div>
 
-
+    <br><br>
 <!-- Service Status Section -->
-<div class="health-section">
-    <h2 class="health-section-title">🩺 Service Status</h2>
+<div class="health-section" id="service-status">
+    <h2 class="health-section-title"><i class="fas fa-heartbeat"></i> Service Status</h2>
+    
     <div class="health-dashboard">
     <!-- Service Kibana -->
     <div class="health-card">
-        <h2>🔍 Kibana</h2>
+        <h2><i class="fas fa-search"></i> Kibana</h2>
         <div class="health-status <?= $kibanaRunning ? 'running' : 'stopped' ?>">
             <?= $kibanaRunning ? 'Running' : 'Stopped' ?>
         </div>
@@ -263,7 +264,7 @@ $vmInfo['IP'] = $vmIP;
 
     <!-- Service Logstash -->
     <div class="health-card">
-        <h2>🔗 Logstash</h2>
+        <h2><i class="fas fa-stream"></i> Logstash</h2>
         <div class="health-status <?= $logstashRunning ? 'running' : 'stopped' ?>">
             <?= $logstashRunning ? 'Running' : 'Stopped' ?>
         </div>
@@ -271,7 +272,7 @@ $vmInfo['IP'] = $vmIP;
 
     <!-- Service Elastic -->
     <div class="health-card">
-        <h2>📊 Elastic</h2>
+        <h2><i class="fas fa-chart-bar"></i> Elastic</h2>
         <div class="health-status <?= $elasticRunning ? 'running' : 'stopped' ?>">
             <?= $elasticRunning ? 'Running' : 'Stopped' ?>
         </div>
@@ -279,14 +280,14 @@ $vmInfo['IP'] = $vmIP;
 
     <!-- Service VirtualBox -->
     <div class="health-card">
-        <h2>🖥️ VirtualBox</h2>
+        <h2><i class="fas fa-desktop"></i> VirtualBox</h2>
         <div class="health-status <?= $virtualboxRunning ? 'running' : 'stopped' ?>">
             <?= $virtualboxRunning ? 'Running' : 'Stopped' ?>
         </div>
     </div>
 
     <div class="health-card">
-        <h2>🔧 Flask Backend</h2>
+        <h2><i class="fas fa-toolbox"></i> Flask Backend</h2>
     <div class="health-status <?= $flaskStatus ?>">
         <?= ucfirst($flaskStatus) ?>
     </div>
@@ -299,12 +300,12 @@ $vmInfo['IP'] = $vmIP;
 
 <!-- RAM & Disk Usage Section -->
 <div class="health-section">
-    <h2 class="health-section-title">💾 RAM & Disk Usage</h2>
+<h2 class="health-section-title"><i class="fas fa-tachometer-alt"></i> RAM & Disk Usage</h2>
   <div class="health-dashboard">
     
 <!-- RAM -->
 <div class="health-card">
-    <h2>🔋RAM Usage</h2>
+    <h2><i class="fas fa-memory"></i> RAM Usage</h2>
     <div class="health-metric">
         <div style="width: <?= $memory['percent'] ?>%;">
             <?= round($memory['percent'], 2) ?>%
@@ -314,7 +315,7 @@ $vmInfo['IP'] = $vmIP;
 </div>
 <!-- Disk space -->
 <div class="health-card">
-    <h2>🛢️ Disk Usage</h2>
+    <h2><i class="fas fa-hdd"></i> Disk Usage</h2>
     <div class="health-metric">
         <div style="width: <?= $disk['percent'] ?>%;">
             <?= $disk['percent'] ?>%
@@ -325,7 +326,7 @@ $vmInfo['IP'] = $vmIP;
 
 <!-- CPU Usage -->
 <div class="health-card">
-    <h2>🖥️ CPU Usage</h2>
+    <h2><i class="fas fa-microchip"></i> CPU Usage</h2>
     <div class="health-metric">
         <div style="width: <?= $cpuUsagePercent ?>%;">
             <?= $cpuUsagePercent ?>%
@@ -341,49 +342,59 @@ $vmInfo['IP'] = $vmIP;
 
 <!-- VM Status Section -->
 <div class="health-section">
-    <h2 class="health-section-title">🔨 VM Management</h2>
+    <h2 class="health-section-title"><i class="fas fa-server"></i> VM Management</h2>
     <div class="health-dashboard">
         <div class="health-card no-hover">
             <div>
 
 <!-- VM Info -->
-    <h3>🗒️ VM Information</h3>
+    <h3><i class="fas fa-info-circle"></i> VM Information</h3>
 
         <?php
    
-        foreach ($vmInfo as $key => $value) {
-          
-            if (is_array($value)) {
-                foreach ($value as $subKey => $subValue) {
-                    echo formatInfoLine($subKey, $subValue);
-                }
-            } else {
-                echo formatInfoLine($key, $value);
-                if ($key == 'Name' || $key == 'State') {
-                    echo '<br>'; 
-                }
-            }
+   foreach ($vmInfo as $key => $value) {
+    if (is_array($value)) {
+        foreach ($value as $subKey => $subValue) {
+            $formattedLine = formatInfoLine($subKey, $subValue);
+            $formattedLine = str_replace('output:', '', $formattedLine); 
+            echo preg_replace('/([A-Z][a-z]+)/', '<br>$1', $formattedLine);
         }
+    } else {
+        $formattedLine = formatInfoLine($key, $value);
+        $formattedLine = str_replace('output:', '', $formattedLine); 
+        echo preg_replace('/([A-Z][a-z]+)/', '<br>$1', $formattedLine);
+    }
+}
 
-        function formatInfoLine($key, $value) {
 
-
-    $boldTerms = ['sandbox', 'Snapshot1'];
+function formatInfoLine($key, $value) {
+    $boldTerms = ['sandbox', 'Snapshot1', 'running', 'powered off'];
     foreach ($boldTerms as $term) {
         if (strpos($value, $term) !== false) {
-            $value = str_replace($term, "<strong>$term</strong>", $value);
+            if ($term == 'running') {
+                $value = str_replace($term, "<strong style='color: green;'>$term</strong>", $value);
+            } elseif ($term == 'powered off') {
+                $value = str_replace($term, "<strong style='color: red;'>$term</strong>", $value);
+            } else {
+                $value = str_replace($term, "<strong style='color: green;'>$term</strong>", $value);
+            }
         }
     }
 
-  
-    return "<div><strong>$key:</strong>$value</span></div>";
+ 
+    if ($key == 'IP') {
+        $value = "<span style='color: blue;'>$value</span>";
+    }
+
+    return "<div><strong>$key:</strong> $value</div>";
 }
+
 
         ?>
 
 
                 <!-- Actions -->
-                <h3>⚙️ Actions</h3><br>
+                <h3><i class="fas fa-cogs"></i> Actions</h3><br>
                 <button id="restoreButton" onclick="restoreSnapshot()">Restore Windows VM snapshot</button>
                 <!-- Power Off VM Button -->
                 <button id="powerOffButton" onclick="powerOffVM()">Power Off VM</button>
@@ -394,11 +405,13 @@ $vmInfo['IP'] = $vmIP;
 
                 <!-- Antivirus Toggle -->
                 <div><br>
+
+                <h3><i class="fas fa-shield-alt"></i> Antivirus</h3><br>
                     <label class="switch">
                         <input type="checkbox" id="antivirusSwitch" checked>
                         <span class="slider round"></span>
                     </label>
-                    <span id="antivirusStatusLabel">Antivirus Status</span>
+                    <span id="antivirusStatusLabel"></span>
                 </div>
 
             </div>
@@ -615,4 +628,3 @@ document.addEventListener('DOMContentLoaded', (event) => {
 
 </body>
 </html>
-
