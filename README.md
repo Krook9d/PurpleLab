@@ -103,11 +103,11 @@ You have to set up your accounts. after installation :
 
 3. Fill all the following fields :
 
-- **Name**: The name of the account, it will be reused to link an account to an instance.  
-- **Last name**: The username of this account. For now, it's not used but we recommand you to keep the same name as you have on your instance (TheHive or Cortex)
-- **Analyst level**: The password field must be filled with **a valid API key** to use for authentification
-- **Avatar**: The password field must be filled with **a valid API key** to use for authentification
-- **Password**: The password field must be filled with **a valid API key** to use for authentification
+- **First Name**: Your first name.
+- **Last name**: Your last name.
+- **Analyst level**: Your analyst lvl (N1/N2/N3)
+- **Avatar**: Select an avatar.
+- **Password**: The password must contain **at least 8 characters, including at least one uppercase letter, one lowercase letter, one number and one special character**
 
 > ⚠️Avatar have to be light (< 1mo)
 > On the welcome page after a connection, there will be a php error, this is normal, we'll configure VM log collection in the next step
