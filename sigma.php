@@ -86,7 +86,7 @@ function displayItems($path, $relativePath = '') {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Purplelab</title>
-    <link rel="stylesheet" href="styles.css?v=6.0" >
+    <link rel="stylesheet" href="styles.css?v=<?= filemtime('styles.css') ?>">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
@@ -145,8 +145,11 @@ function displayItems($path, $relativePath = '') {
 
 <div class="content">
 
-<h1>✏️ Sigma Rules Navigator </h1>
+<h1><i class="fas fa-shield-alt"></i> Sigma Rules Navigator</h1> 
 <br>
+
+
+
 <button id="updateDatabaseBtn" class="update-btn" onclick="updateDatabaseSigma()">
             <i id="updateIcon" class="fas fa-sync"></i> Sigma rules update database
         </button> 
