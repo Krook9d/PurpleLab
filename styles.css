@@ -562,7 +562,7 @@ form select {
     grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
     gap: 20px;
     padding: 20px;
-    margin-top: 100px;
+    margin-top: 50px;
     transition: margin 0.3s;
 }
 
@@ -570,7 +570,7 @@ form select {
     background: white;
     border: none;
     border-radius: 15px;
-    padding: 20px;
+    padding: 10px;
     box-shadow: 0 5px 15px rgba(0,0,0,0.1);
     display: flex;
     flex-direction: column;
@@ -647,11 +647,14 @@ form select {
 
 
 .health-section {
-    margin-bottom: 50px; 
-    margin-left: 200px; 
+    margin-bottom: 20px; 
 
-   
 }
+
+#service-status {
+    margin-left: 200px; 
+}
+
 
 .health-section-title {
     font-size: 24px; 
@@ -664,7 +667,7 @@ form select {
 .health-section-separator {
     height: 4px; 
     background-color: #d9d9d9; 
-    margin-bottom: 20px; 
+    margin-bottom: 50px; 
 }
 
 #restoreButton {
