@@ -1395,36 +1395,49 @@ form select {
     margin-bottom: 20px;
 }
 .sigma-link {
-    display: block;
-    padding: 10px;
-    background-color: #007bff;
-    color: white;
+    display: inline-block; 
+    padding: 5px 15px; 
+    background-color: #e7e7e7; 
+    color: #333; 
     text-decoration: none;
-    margin-bottom: 5px;
+    margin-bottom: 5px; 
     border-radius: 5px;
-    transition: background-color 0.3s ease;
-    width: fit-content;
+    transition: all 0.3s ease; 
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1); 
+    font-weight: normal; 
+    border: 1px solid #cccccc; 
+    text-align: left; 
 }
-
 
 .sigma-link:hover {
-    background: #0056b3;
+    color: #000; 
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2); 
+    background-color: #d6d6d6; 
+    border-color: #999; 
 }
 
+
 .sigma-back-link {
-    display: block;
-    padding: 8px 10px;
+    display: inline-block; 
+    padding: 8px 15px;
     margin-top: 20px;
-    background-color: #f0ad4e; 
-    color: white;
+    background-color: #e9ecef; 
+    color: #007bff; 
     text-decoration: none;
     border-radius: 5px;
-    transition: background-color 0.3s ease;
-    width: fit-content;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1); 
+    font-weight: bold; 
+    border: 1px solid #007bff; 
+    text-align: center; 
+    width: auto; 
 }
 
 .sigma-back-link:hover {
-    background-color: #ec971f; 
+    background-color: #dae0e5; 
+    color: #0056b3; 
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2); 
+    text-decoration: underline; 
 }
 
 
@@ -1442,29 +1455,43 @@ form select {
 }
 
 .sigma-search-container {
-    margin-top: 20px;
+    margin-top: 40px;
+    display: flex;
+    justify-content: left; 
+    width: 100%; 
 }
 
 .sigma-search-box {
-    padding: 8px;
-    margin-right: 5px;
-    border-radius: 4px;
-    border: 1px solid #ddd;
+    padding: 12px 15px; 
+    margin-right: 8px; 
+    border-radius: 20px; 
+    border: 2px solid #ddd; 
+    width: 50%; 
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2); 
+    transition: box-shadow 0.3s ease; 
+}
+
+.sigma-search-box:focus {
+    box-shadow: 0 4px 8px rgba(0,0,0,0.3); 
 }
 
 .sigma-search-btn {
-    padding: 8px 15px;
+    padding: 12px 20px; 
     border: none;
-    border-radius: 4px;
-    background-color: #28a745; 
+    border-radius: 20px; 
+    background-color: #4CAF50; 
     color: white;
     cursor: pointer;
-    transition: background-color 0.3s ease;
+    transition: background-color 0.3s ease, transform 0.3s ease;
+    font-size: 16px; 
+    font-weight: bold; 
 }
 
 .sigma-search-btn:hover {
-    background-color: #218838; 
+    background-color: #45a049; 
+    transform: scale(1.05); 
 }
+
 
 .sigma-copy-icon {
     margin-right: 15px; 
