@@ -3,16 +3,11 @@ session_start();
 
 if (!isset($_SESSION['email'])) {
     header('Location: connexion.html');
-    exit();
+    exit;
 }
 
-$conn = new mysqli(
-    getenv('DB_HOST'), 
-    getenv('DB_USER'), 
-    getenv('DB_PASS'), 
-    getenv('DB_NAME')
-);
 
+$conn = new mysqli(getenv('DB_HOST'), getenv('DB_USER'), getenv('DB_PASS'), getenv('DB_NAME'));
 
 if ($conn->connect_error) {
     die("Connection failed: " . $conn->connect_error);
@@ -20,67 +15,57 @@ if ($conn->connect_error) {
 
 $email = $_SESSION['email'];
 
-$sql = "SELECT first_name, last_name, email, analyst_level, avatar FROM users WHERE email=?";
+
+$sql = "SELECT id, first_name, last_name, email, analyst_level, avatar FROM users WHERE email=?";
 $stmt = $conn->prepare($sql);
 $stmt->bind_param('s', $email);
 $stmt->execute();
-$stmt->bind_result($first_name, $last_name, $email, $analyst_level, $avatar);
+$stmt->bind_result($user_id, $first_name, $last_name, $email, $analyst_level, $avatar);
 
 if (!$stmt->fetch()) {
     die("Error retrieving user information.");
 }
-
 $stmt->close();
 
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['content'])) {
-    
     $content = $_POST['content'];
-    
-    // Insert content into database
-    $sql = "INSERT INTO contents (content) VALUES (?)";
+
+    $sql = "INSERT INTO contents (author_id, content) VALUES (?, ?)";
     $stmt = $conn->prepare($sql);
-    $stmt->bind_param('s', $content);
+    $stmt->bind_param('is', $user_id, $content); 
     
     if ($stmt->execute()) {
-        
         header('Location: sharing.php');
         exit;
     } else {
-        echo "Error during content insertion : " . $conn->error;
+        echo "Error during content insertion: " . $conn->error;
     }
 }
 
-// Check if a deletion request has been made
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['delete']) && isset($_POST['id'])) {
     $id = $_POST['id'];
     
-    // Check if the user is authorized to delete this content (check for a user ID, for example)
     $canDelete = true;
     
     if ($canDelete) {
-        // Delete content corresponding to the identifier
         $sql = "DELETE FROM contents WHERE id = ?";
         $stmt = $conn->prepare($sql);
         $stmt->bind_param('i', $id);
         
-        if ($stmt->execute()) {
-            
-            header('Location: sharing.php');
-            exit;
-        } else {
-            echo "Error when deleting content : " . $conn->error;
+        if (!$stmt->execute()) {
+            echo "Error when deleting content: " . $conn->error;
         }
     }
 }
 
-// Retrieve content from the database
+
 $sql = "SELECT id, content FROM contents";
 $result = $conn->query($sql);
+$contents = [];
 
 if ($result->num_rows > 0) {
-    $contents = array();
-    
-   
     while ($row = $result->fetch_assoc()) {
         $contents[] = $row;
     }
@@ -88,6 +73,7 @@ if ($result->num_rows > 0) {
 
 $conn->close();
 ?>
+
 
 <!DOCTYPE html>
 <html lang="fr">
@@ -181,7 +167,7 @@ $conn->close();
 
     <ul>
         <li><a href="index.php"><i class="fas fa-home"></i> Home</a></li>
-        <li><a href="http://<?= $_SERVER['SERVER_ADDR'] ?>:5601" target="_blank"><i class="fas fa-crosshairs"></i> Hunting</a></li>
+        <li><a href="https://<?= $_SERVER['SERVER_ADDR'] ?>:5601" target="_blank"><i class="fas fa-crosshairs"></i> Hunting</a></li>
         <li><a href="mittre.php"><i class="fas fa-book"></i> Mitre Att&ck</a></li>
         <li><a href="malware.php"><i class="fas fa-virus"></i> Malware</a></li>
         <li><a href="simulation.php"><i class="fas fa-project-diagram"></i> Log Simulation</a></li>
