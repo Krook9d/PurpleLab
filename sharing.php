@@ -61,7 +61,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['delete']) && isset($_
 }
 
 
-$sql = "SELECT id, content FROM contents";
+$sql = "SELECT contents.id, contents.content, users.first_name, users.last_name, contents.author_id FROM contents JOIN users ON contents.author_id = users.id";
 $result = $conn->query($sql);
 $contents = [];
 
@@ -70,6 +70,8 @@ if ($result->num_rows > 0) {
         $contents[] = $row;
     }
 }
+
+
 
 $conn->close();
 ?>
@@ -218,24 +220,24 @@ $conn->close();
 // Show existing content
 if (!empty($contents)) {
     foreach ($contents as $content) {
-        $id = $content['id'];
-        $text = $content['content'];
-
-        echo '<div class="white-background">'; // Add the class "white-background" here
-        echo '<p>' . $text . '</p>';
-        echo '<p>Par ' . $first_name . ' ' . $last_name . '</p>';
-
-        // Add deletion form
-        echo '<form method="POST" action="sharing.php">';
-        echo '<input type="hidden" name="id" value="' . $id . '">';
-        echo '<button type="submit" name="delete">Delete</button>';
-        echo '</form>';
-
+        echo '<div class="white-background">';
+        echo '<p>' . htmlspecialchars($content['content']) . '</p>';
+        echo '<p>Par ' . htmlspecialchars($content['first_name']) . ' ' . htmlspecialchars($content['last_name']) . '</p>';
+    
+    
+        if (isset($content['author_id']) && $user_id == $content['author_id']) {
+            echo '<form method="POST" action="sharing.php">';
+            echo '<input type="hidden" name="id" value="' . $content['id'] . '">';
+            echo '<button type="submit" name="delete">Delete</button>';
+            echo '</form>';
+        }
         echo '</div>';
     }
+    
 } else {
     echo '<p>No content available.</p>';
 }
+
 ?>
     </div>
 </body>
