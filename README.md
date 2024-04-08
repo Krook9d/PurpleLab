@@ -199,6 +199,11 @@ You can also do this from the health page once you have started the flask back e
 
 Once the application is fully configured lets explain all the pages and the features
 
+## Windows 10 Sandbox VM 
+
+there are several tools installed on the windows 10 sandbox VM, a browser, atomics red team modules, libre office, 
+Forensic tools collected in "Forensictools" more info: https://github.com/cristianzsh/forensictools
+
 ## Home Page 🏠
 
 This is the home page, she is composed of several KPI that are retreiving from the elasticsearch server
