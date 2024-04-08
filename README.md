@@ -33,12 +33,10 @@ This solution will allow you to easily deploy an entire lab to create/test your 
 The lab contains : 
 
 - A web interface with a complete front end to control features
-- The Virtualbox tool with a ready-to-use Windows 10 VM
+- The Virtualbox tool with a ready-to-use Windows 10 VM and forensic tools
 - A Flask back end
 - A mysql database
-- A pfsense (coming soon)
-- A linux VM (coming soon)
-
+- An elasticsearch server
 
 # Installation procedure
 
@@ -275,6 +273,14 @@ The details will provide you with a step-by-step scenario of the use case, the a
 This page is a simple sharing platform. When you have found a good query or detection rule, you can publish it on this shared page to benefit other analysts, and vice versa.
 
 <img src="/MD_image/sharing.png" width="800" alt="Health Page">
+
+## Sigma rules Page  🛡️
+
+This page will allow you to search for sigma rules with key words, this can be technique IDs or words like "powershell", the list of concerned rules is displayed
+Once a rule is selected it is displayed, on the top right side of the rule is an icon with arrows, once clicked it displays two buttons "Splunk" and "Lucene" and when a button is clicked it converts the sigma rule with the chosen language. 
+
+![image](https://github.com/Krook9d/PurpleLab/assets/40600995/1207555f-407f-4e49-8430-6a811e7185d0)
+
 
 ## Health Page  🩺
 
