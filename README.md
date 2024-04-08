@@ -21,6 +21,7 @@
 	- [Log simulation Page](#log-simulation-page-)
 	- [Usage Case Page](#usage-case-page-)
 	- [Sharing Page](#sharing-page-)
+	- [Sigma Page](#sigma-page-)
 	- [Health Page](#health-page-)
  	- [Admin Page](#admin-page-)
 - [Splunk APP](#Splunk-App)
@@ -274,7 +275,7 @@ This page is a simple sharing platform. When you have found a good query or dete
 
 <img src="/MD_image/sharing.png" width="800" alt="Health Page">
 
-## Sigma rules Page  🛡️
+## Sigma Page  🛡️
 
 This page will allow you to search for sigma rules with key words, this can be technique IDs or words like "powershell", the list of concerned rules is displayed
 Once a rule is selected it is displayed, on the top right side of the rule is an icon with arrows, once clicked it displays two buttons "Splunk" and "Lucene" and when a button is clicked it converts the sigma rule with the chosen language. 
