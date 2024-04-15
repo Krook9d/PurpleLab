@@ -1,11 +1,14 @@
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, current_app
 from flask_cors import CORS, cross_origin
 from flask_jwt_extended import JWTManager, jwt_required, create_access_token, get_jwt_identity
 import subprocess
 import os
 import logging
+from logging.handlers import RotatingFileHandler
 import shlex
 from datetime import datetime
+from werkzeug.utils import secure_filename
+
 
 app = Flask(__name__)
 
@@ -18,8 +21,9 @@ logger.setLevel(logging.INFO)
 CORS(app, resources={r"/*": {"origins": "*"}}) 
 
 # Configure JWT
-app.config['JWT_SECRET_KEY'] = 'prout'  
-app.config['JWT_ACCESS_TOKEN_EXPIRES'] = False  
+app.config['JWT_SECRET_KEY'] = 'changeandsecuriseme'  
+app.config['JWT_ACCESS_TOKEN_EXPIRES'] = False
+app.config['UPLOAD_FOLDER'] = '/var/www/html/Downloaded/upload/' 
 jwt = JWTManager(app)
 
 
@@ -27,6 +31,24 @@ jwt = JWTManager(app)
 def log_request_info():
     logger.debug(f"Headers: {request.headers}")
     logger.debug(f"Body: {request.get_data()}")
+
+@app.route('/api/upload', methods=['POST'])
+@jwt_required()
+def upload_file():
+    
+    if 'file' not in request.files:
+        return jsonify({"error": "No file part"}), 400
+    file = request.files['file']
+
+    
+    if file.filename == '':
+        return jsonify({"error": "No selected file"}), 400
+
+    if file:
+        filename = secure_filename(file.filename)
+        file_path = os.path.join(current_app.config['UPLOAD_FOLDER'], filename)
+        file.save(file_path)
+        return jsonify({"success": "File uploaded successfully", "filename": filename}), 200
 
 
 @app.route('/login', methods=['POST'])
