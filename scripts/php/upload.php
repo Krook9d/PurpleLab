@@ -16,7 +16,7 @@ if ($_FILES["file"]["size"] > 15097152) { // 2MB
 
 // Allow certain file formats
 $extension = strtolower(pathinfo($target_file, PATHINFO_EXTENSION));
-if(!in_array($extension, ['exe', 'dll', 'bin', 'py', 'ps1'])) {
+if(!in_array($extension, ['exe', 'dll', 'bin', 'py', 'ps1', 'pdf', 'ods', 'xlsx'])) {
     echo "Sorry, only EXE, DLL, BIN, PY, PS1 files are allowed..";
     exit;
 }
