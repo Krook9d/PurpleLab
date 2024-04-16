@@ -37,6 +37,17 @@ def upload_to_vm():
     )
     subprocess.run(command, shell=True)
 
+def api_upload_to_vm():
+    # Command to copy files to the virtual machine for API uploads
+    command = (
+        'sudo VBoxManage guestcontrol "sandbox" copyto '
+        '--username oem --password oem --target-directory '
+        '"C:\\Users\\oem\\Documents\\upload" --recursive '
+        '"/var/www/html/Downloaded/upload/"'  
+    )
+    subprocess.run(command, shell=True)
+
+
 def disable_antivirus():
 # Command to disable Windows Defender real-time monitoring
     powershell_command = (
@@ -85,6 +96,8 @@ elif command_name == "state":
     show_vm_info()
 elif command_name == "upload":
     upload_to_vm()
+elif command_name == "apiupload":  
+    api_upload_to_vm()
 elif command_name == "ip":
     get_vm_ip()
 elif command_name == "poweroff":
