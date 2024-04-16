@@ -42,8 +42,8 @@ def api_upload_to_vm():
     command = (
         'sudo VBoxManage guestcontrol "sandbox" copyto '
         '--username oem --password oem --target-directory '
-        '"C:\\Users\\oem\\Documents\\upload" --recursive '
-        '"/var/www/html/Downloaded/upload/"'  
+        '"C:\\Users\\oem\\Documents\\malware_upload" --recursive '
+        '"/var/www/html/Downloaded/upload"'  
     )
     subprocess.run(command, shell=True)
 
