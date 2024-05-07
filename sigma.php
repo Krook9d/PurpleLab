@@ -199,6 +199,7 @@ if (isset($_GET['file']) && file_exists($rulesPath.'/'.$_GET['file'])) {
             <p>Which language would you like to convert the Sigma rule to?</p>
             <button class='sigma-convert-btn' onclick=\"convertRule('splunk', '" . htmlspecialchars($relativeFilePath) . "')\">Splunk</button>
             <button class='sigma-convert-btn' onclick=\"convertRule('lucene', '" . htmlspecialchars($relativeFilePath) . "')\">Lucene</button>
+            <button class='sigma-convert-btn' onclick=\"convertRule('qradar', '" . htmlspecialchars($relativeFilePath) . "')\">QRadar</button>
         </div>";
     echo "</div>"; 
 }
