@@ -32,23 +32,47 @@ def log_request_info():
     logger.debug(f"Headers: {request.headers}")
     logger.debug(f"Body: {request.get_data()}")
 
+def clear_upload_folder():
+    """ Deletes all files in the upload directory with detailed logging. """
+    folder = app.config['UPLOAD_FOLDER']
+    print(f"Clearing files in folder: {folder}")
+    for filename in os.listdir(folder):
+        file_path = os.path.join(folder, filename)
+        try:
+            if os.path.isfile(file_path) or os.path.islink(file_path):
+                os.unlink(file_path)
+                print(f"Deleted file: {file_path}")
+            elif os.path.isdir(file_path):
+                shutil.rmtree(file_path)
+                print(f"Deleted directory: {file_path}")
+        except Exception as e:
+            print(f'Failed to delete {file_path}. Reason: {e}')
+
 @app.route('/api/upload', methods=['POST'])
 @jwt_required()
 def upload_file():
-    
+    """ Route to upload files. Clears upload folder at the start. """
+    clear_upload_folder()  # Clear the folder right at the start
+
     if 'file' not in request.files:
         return jsonify({"error": "No file part"}), 400
-    file = request.files['file']
 
-    
+    file = request.files['file']
     if file.filename == '':
         return jsonify({"error": "No selected file"}), 400
 
-    if file:
-        filename = secure_filename(file.filename)
-        file_path = os.path.join(current_app.config['UPLOAD_FOLDER'], filename)
-        file.save(file_path)
-        return jsonify({"success": "File uploaded successfully", "filename": filename}), 200
+    filename = secure_filename(file.filename)
+    file_path = os.path.join(current_app.config['UPLOAD_FOLDER'], filename)
+    file.save(file_path)
+    
+    # Run the extension script and wait for it to finish
+    script_path = '/var/www/html/scripts/extension.py'
+    subprocess.run(f"sudo python3 {script_path}", shell=True, check=True)
+
+    # Get updated filename with extension
+    updated_filename = next((f for f in os.listdir(current_app.config['UPLOAD_FOLDER']) if os.path.isfile(os.path.join(current_app.config['UPLOAD_FOLDER'], f))), None)
+    
+    return jsonify({"success": "File uploaded successfully", "filename": updated_filename}), 200
 
 
 @app.route('/login', methods=['POST'])
