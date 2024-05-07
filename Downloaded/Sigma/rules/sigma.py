@@ -4,7 +4,7 @@ import sys
 def convert_sigma_rule(rule_path, plugin):
     """
     :param rule_path: The path to the Sigma rule file (.yml).
-    :param plugin: The plugin to use ('splunk' or 'eql').
+    :param plugin: The plugin to use ('splunk' or 'eql' or 'qradar').
     """
     try:
      
@@ -28,8 +28,8 @@ if __name__ == "__main__":
     plugin = sys.argv[2]
 
 
-    if plugin not in ['splunk', 'lucene']:
-        print("The specified plugin must be 'splunk' or 'lucene'.")
+    if plugin not in ['splunk', 'lucene', 'qradar']:
+        print("The specified plugin must be 'splunk' or 'lucene' or 'qradar'.")
         sys.exit(1)
     
     convert_sigma_rule(rule_path, plugin)
