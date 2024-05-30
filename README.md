@@ -66,13 +66,9 @@ In VirtualBox -> Select the relevant virtual machine -> Right-click -> Settings 
 
 On the physical machine (host) -> Access the BIOS/UEFI settings -> Look for an option to enable hardware virtualization (VT-x for Intel or AMD-V for AMD) in the CPU or motherboard settings. This option may be called "Intel Virtualization Technology," "VT-x," "AMD-V," "Virtualization Extensions," or something similar. Ensure it is enabled if not already, save the changes, and restart your computer.
 
-In your home folder, Download repo :
+In your home folder, Download repo 
 ```bash
-git clone https://github.com/Krook9d/PurpleLab.git
-```
-Preparing files : 
-```bash
-mv PurpleLab/install.sh .
+git clone https://github.com/Krook9d/PurpleLab.git && mv PurpleLab/install.sh .
 ```
 
 ## installation
