@@ -1,0 +1,1634 @@
+body {
+    font-family: Arial, sans-serif;
+    color: #333;
+    margin: 0;
+    padding: 0;
+    background-color: #f0f0f0;
+}
+
+
+
+.nav-bar {
+  width: 200px;
+  height: 100vh;
+  position: fixed;
+  left: 0;
+  top: 0;
+  background-color: #3498db;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: stretch;
+  padding-top: 20px;
+}
+
+.nav-bar ul {
+    list-style-type: none;
+    padding: 0;
+    margin: 0;
+    margin-top: 20px; 
+}
+
+.nav-bar li {
+  margin: 0; 
+  padding: 0; 
+  align-items: center; 
+}
+
+.nav-bar a {
+  text-decoration: none;
+  color: #fff;
+  background-color: rgba(255, 255, 255, 0.2);
+  padding: 10px 20px; 
+  border-radius: 5px;
+  transition: background-color 0.3s;
+  display: block;
+  text-align: left; 
+  line-height: 2; 
+  align-items: center; 
+}
+
+.nav-bar a:hover {
+  background-color: rgba(255, 255, 255, 0.4);
+}
+
+.nav-bar i {
+    width: 25px; 
+    text-align: center; 
+    margin-right: 2px; 
+}
+
+.nav-logo {
+
+    margin-bottom: 0; 
+    padding-bottom: 0;
+}
+
+.nav-logo img {
+    display: block; 
+    width: 100%; 
+    height: auto;
+
+}
+
+.software-version {
+    color: #e4e4e4; 
+    background-color: transparent; 
+    padding: 0 20px; 
+    text-align: center; 
+    font-size: 0.8em; 
+    font-style: italic; 
+    border-bottom: none; 
+    margin-top: 0; 
+    margin-bottom: 20px; 
+}
+
+.nav-footer {
+    position: absolute;
+    bottom: 0;
+    width: 100%; 
+}
+
+.credit-link {
+    color: #4a4a4a;
+    text-decoration: none;
+    font-size: 16px;
+    padding: 10px 20px; 
+    display: flex;
+    align-items: center; 
+}
+
+.github-icon {
+    height: 25px;
+    vertical-align: middle;
+    margin-right: 5px;
+}
+
+.content {
+    margin-left: 210px;
+    padding: 20px;
+}
+
+#t-button {
+    display: inline-block;
+    padding: 10px 20px;
+    background-color: #3498db;
+    color: #fff;
+    border-radius: 25px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+#t-button:hover {
+    background-color: #3498db;
+}
+
+
+.body-container {
+    display: flex; 
+    min-height: 100vh; 
+    overflow: hidden; 
+}
+
+/* Section for background image */
+.background-image-section {
+    flex-grow: 1; 
+    background-image: url('/MD_image/connexionbg.jpg');
+    background-size: cover; 
+    background-position: center center; 
+    background-repeat: no-repeat; 
+}
+
+/* Section for the form */
+.form-section {
+    flex-basis: 40%; 
+    background-color: white; 
+    display: flex;
+    align-items: center; 
+    justify-content: center; 
+    padding: 2em; 
+}
+
+.input-container {
+    position: relative; 
+    display: flex;
+    align-items: center; 
+    width: 100%; 
+    margin-bottom: 20px; 
+}
+
+/* Style for input icon */
+.input-icon {
+    position: absolute;
+    right: 700px; 
+    fill: #333;
+    z-index: 10;
+    pointer-events: none;
+}
+
+/* Style for input */
+input[type="email"],
+input[type="password"] {
+    padding: 12px 20px 0px 70px; 
+    font-size: 55px; 
+    border-radius: 5px;
+    border: 1px solid #ccc;
+    width: 100%; 
+    box-sizing: border-box; 
+}
+
+
+/* Styles for form fields */
+form input[type="text"],
+form select {
+    padding: 10px;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+    margin-bottom: 20px;
+}
+
+/* Specific style for the connection button */
+.login-button {
+    margin-top: 20px;
+    margin-right: 10px; 
+    background-color: #006e3b; 
+    color: #fff;
+    padding: 15px 30px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s, box-shadow 0.3s;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    display: inline-block;
+}
+
+.login-button:hover {
+    background-color: #00cf34; 
+    box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+}
+
+/* Specific style for registration button */
+.register-button {
+    margin-top: 20px;
+    background-color: #ff8c00; 
+    color: #fff;
+    padding: 15px 30px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s, box-shadow 0.3s;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    display: inline-block;
+}
+
+.register-button:hover {
+    background-color: #ffa500; 
+    box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+}
+
+
+/* Styles for password display button */
+#show-password-button {
+    border: none;
+    background: none;
+    cursor: pointer;
+}
+
+/* Styles for password display icon */
+#show-password-button svg {
+    fill: #333;
+    transition: fill 0.2s ease-in-out;
+}
+
+/* Styles for password display icon on hover and focus */
+#show-password-button:hover svg,
+#show-password-button:focus svg {
+    fill: #666;
+}
+
+/* Logo positioning */
+#logo-container {
+    position: absolute;
+    top: -1%;
+    left: 70%;
+}
+
+/* Credit positioning */
+#credit-container {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    text-align: right;
+}
+
+#credit-link {
+    color: #ffffff; 
+    text-decoration: none; 
+    font-size: 16px; 
+}
+
+#credit-link:hover {
+    text-decoration: underline; 
+}
+
+#github-icon {
+    width: 20px; 
+    vertical-align: middle; 
+    margin-right: 5px; 
+}
+
+
+
+.user-info-bar {
+  position: absolute;
+  right: 0;
+  top: 0;
+  background-color: #3498db;
+  width: 15%;
+  height: 60px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  padding: 10px 80px 10px 10px;
+  border-radius: 0 0 0 20px;
+}
+
+.user-info-bar img {
+  height: 60px;
+  width: 60px;
+  border-radius: 50%;
+  object-fit: cover;
+  margin-right: 30px; 
+  border: 3px solid #3498db;
+  box-shadow: 0px 0px 10px #888;
+}
+
+.user-info-bar h2 {
+  color: white;
+  margin: 0;
+}
+
+.avatar-info {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.user-info-bar .user-button {
+  background-color: rgba(255, 255, 255, 0.2);
+  color: #fff;
+  padding: 10px 20px; 
+  font-size: 18px; 
+  border-radius: 5px;
+  border: none;
+  cursor: pointer;
+  position: relative;
+  display: inline-block;
+  transition: background-color 0.3s;
+}
+
+
+.dropdown-content {
+  display: none;
+  position: absolute;
+  background-color: #f9f9f9;
+  min-width: 160px;
+  box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+  z-index: 1;
+  top: 100%;
+  left: 0;
+}
+
+.dropdown-content a {
+  color: black;
+  padding: 12px 16px;
+  text-decoration: none;
+  display: block;
+}
+
+.user-button:hover .dropdown-content {
+  display: block;
+}
+
+.user-button:hover {
+  background-color: rgba(255, 255, 255, 0.4);
+}
+
+.dropdown-content a:hover {
+  background-color: #7ec1ff;
+  color: white;
+}
+
+
+
+#connexionchart {
+  width: 70%;
+  height: 400px;
+}
+
+.sidebar {
+  position: fixed;
+  right: 0;
+  width: 20%;
+  height: 82vh; 
+  background-color: #3498db;
+  padding: 20px;
+  box-sizing: border-box;
+  overflow-y: auto;
+  transition: transform 0.3s ease-in-out;
+  transform: translateX(100%);
+  bottom: 0; 
+  border-radius: 20px 0 0 0; 
+}
+
+.sidebar.active {
+  transform: translateX(0);
+}
+
+.sidebar-section {
+  margin-bottom: 20px;
+}
+
+/* Styles for the Malware table */
+.malwaretable {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 20px 0;
+    font-size: 16px;
+    text-align: left;
+}
+
+.malwaretable th, 
+.malwaretable td {
+    padding: 10px 12px;
+    border: 1px solid #e0e0e0; 
+    background-color: #f5f5f5;
+}
+
+.malwaretable th {
+    background-color: #E1F9E8;
+    font-weight: bold;
+}
+
+
+.malwarebazarbutton {
+    padding: 10px 20px;
+    background-color: #4CAF50; 
+    border: none;
+    color: white;
+    font-size: 16px;
+    font-weight: bold;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.malwarebazarbutton:hover {
+    background-color: #45a049; 
+}
+
+
+
+/* Styles for the Run Malware button */
+.runMalware {
+    background-color: #2ecc71; 
+    color: #ffffff;
+    padding: 8px 12px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.runMalware:hover {
+    background-color: #27ae60; 
+}
+
+.displaycsvcontent {
+    padding: 10px 20px;
+    background-color: #4CAF50; 
+    border: none;
+    color: white;
+    font-size: 16px;
+    font-weight: bold;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.displaycsvcontent:hover {
+    background-color: #45a049; 
+}
+
+.displaycsvcontent:disabled {
+    background-color: #ddd; 
+    cursor: not-allowed;
+}
+
+.separation {
+    border: 1px solid #ddd; 
+    margin: 50px 0; 
+}
+
+
+/* Basic Dropzone style with shadows and a slight gradient effect */
+.dropzone {
+    border: 2px dashed #0087F7;
+    border-radius: 5px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    transition: all 0.2s ease-in-out;
+    width: 50%;
+}
+
+  
+ /* Default message style with modern typography and space */
+  .dropzone .dz-message {
+    font-family: 'Roboto Slab', serif; 
+    font-weight: 700; 
+    font-size: 1.5em; 
+    color: #4a4a4a; 
+    margin: 2em 0;
+    text-align: center;
+  }
+  
+  
+
+/* Style when flying over the Dropzone with a smooth transition */
+  .dropzone:hover {
+    background: linear-gradient(to bottom, #f8f8f8 0%, #f0f0f0 100%);
+    border-color: #0056b3;
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.15);
+  }
+  
+  .dropzone .dz-message:hover {
+    color: #0056b3;
+    cursor: pointer;
+  }
+  
+/* Style Dropzone elements when dragging and dropping with a visual lifting effect */
+  .dropzone .dz-preview.dz-file-preview {
+    background: #ffffff;
+    border: 1px solid #e0e0e0;
+    border-radius: 5px;
+    box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.2);
+  }
+  
+/* File information style with improved visual hierarchy */
+  .dropzone .dz-preview .dz-details {
+    color: #333;
+    font-size: 0.9em;
+    line-height: 1.3;
+  }
+  
+
+/* Progress bar style */
+.dropzone .dz-preview .dz-progress {
+  background: #0087F7;
+  height: 5px;
+  width: 100%;
+  margin-top: 10px;
+}
+
+/* Success message style */
+.dropzone .dz-preview .dz-success-mark {
+  color: #3c763d;
+}
+
+/* Error message style */
+.dropzone .dz-preview .dz-error-mark {
+  color: #a94442;
+}
+
+/* Error text style */
+.dropzone .dz-preview .dz-error-message {
+  color: #a94442;
+}
+
+.success {
+  color: #28a745; 
+  font-size: 1em;
+  margin-top: 10px;
+}
+
+.error {
+  color: #dc3545; 
+  font-size: 1em;
+  margin-top: 10px;
+}
+
+
+.health-dashboard {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 20px;
+    padding: 20px;
+    margin-top: 50px;
+    transition: margin 0.3s;
+}
+
+.health-card {
+    background: white;
+    border: none;
+    border-radius: 15px;
+    padding: 10px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-between; 
+    transition: transform 0.3s ease, box-shadow 0.3s ease; 
+    
+}
+
+.health-card:hover {
+    transform: translateY(-5px); 
+    box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+}
+
+.health-card h2 {
+    margin: 0 0 15px 0; 
+    color: #333;
+    font-size: 1.2em; 
+}
+
+
+.health-status {
+    font-size: 1em; 
+    margin-bottom: 15px; 
+    padding: 5px 10px; 
+    border-radius: 5px; 
+    width: fit-content; 
+}
+
+.health-status.running {
+    background-color: #C8E6C9; 
+    color: #256029; 
+}
+
+.health-status.stopped {
+    background-color: #FFCDD2; 
+    color: #C63737; 
+}
+
+.health-metric {
+    width: calc(100% - 240px); 
+    background-color: #f0f0f0;
+    border-radius: 8px;
+    overflow: hidden;
+    margin-bottom: 10px;
+}
+
+.health-metric div {
+    height: 50px;
+    background-color: #2196F3;
+    text-align: center;
+    line-height: 35px;
+    color: white;
+    transition: width 0.5s ease;
+}
+
+.health-metric p {
+    color: #555;
+    margin: 0;
+    font-size: 0.9em;
+    text-align: center;
+}
+
+.animate-bar {
+    width: 0;
+    animation: fillBar 1s ease forwards;
+}
+
+@keyframes fillBar {
+    from { width: 0; }
+    to { width: var(--target-width); }
+}
+
+
+
+.health-section {
+    margin-bottom: 20px; 
+
+}
+
+#service-status {
+    margin-left: 200px; 
+}
+
+
+.health-section-title {
+    font-size: 24px; 
+    color: #333; 
+    margin-bottom: 10px; 
+    text-align: center; 
+ 
+}
+
+.health-section-separator {
+    height: 4px; 
+    background-color: #d9d9d9; 
+    margin-bottom: 50px; 
+}
+
+#restoreButton {
+    background-color: #4CAF50; 
+    border: none;
+    color: white;
+    padding: 15px 32px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+    margin: 4px 2px;
+    cursor: pointer;
+    border-radius: 4px;
+    transition-duration: 0.4s;
+    box-shadow: 0 2px 2px 0 rgba(0,0,0,0.24), 0 5px 5px 0 rgba(0,0,0,0.19);
+}
+
+#restoreButton:hover {
+    background-color: #43a047; 
+    box-shadow: 0 4px 8px 0 rgba(0,0,0,0.24), 0 6px 20px 0 rgba(0,0,0,0.19);
+}
+
+#powerOffButton, #startVmButton {
+    border: none;
+    color: white;
+    padding: 15px 32px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+    margin: 4px 2px;
+    cursor: pointer;
+    border-radius: 4px;
+    transition-duration: 0.4s;
+    box-shadow: 0 2px 2px 0 rgba(0,0,0,0.24), 0 5px 5px 0 rgba(0,0,0,0.19);
+}
+
+#powerOffButton {
+    background-color: #f44336; /* Red for power off */
+}
+
+#powerOffButton:hover {
+    background-color: #d32f2f; 
+    box-shadow: 0 4px 8px 0 rgba(0,0,0,0.24), 0 6px 20px 0 rgba(0,0,0,0.19);
+}
+
+#startVmButton {
+    background-color: #2196F3; /* Blue for start VM */
+}
+
+#startVmButton:hover {
+    background-color: #1976D2; 
+    box-shadow: 0 4px 8px 0 rgba(0,0,0,0.24), 0 6px 20px 0 rgba(0,0,0,0.19);
+}
+
+#restartWinlogbeatButton {
+    background-color: #FFC107; /* Yellow for restart Winlogbeat */
+    border: none;
+    color: white;
+    padding: 15px 32px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+    margin: 4px 2px;
+    cursor: pointer;
+    border-radius: 4px;
+    transition-duration: 0.4s;
+    box-shadow: 0 2px 2px 0 rgba(0,0,0,0.24), 0 5px 5px 0 rgba(0,0,0,0.19);
+}
+
+#restartWinlogbeatButton:hover {
+    background-color: #FFB300; /* Darker yellow on hover */
+    box-shadow: 0 4px 8px 0 rgba(0,0,0,0.24), 0 6px 20px 0 rgba(0,0,0,0.19);
+}
+
+
+/* The switch - the box around the slider */
+.switch {
+    position: relative;
+    display: inline-block;
+    width: 60px;
+    height: 34px;
+  }
+  
+  /* Hide default HTML checkbox */
+  .switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+  }
+  
+  /* The slider */
+  .slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #ccc;
+    -webkit-transition: .4s;
+    transition: .4s;
+  }
+  
+  .slider:before {
+    position: absolute;
+    content: "";
+    height: 26px;
+    width: 26px;
+    left: 4px;
+    bottom: 4px;
+    background-color: white;
+    -webkit-transition: .4s;
+    transition: .4s;
+  }
+
+  /* Disabled state for the slider */
+.slider:disabled + .slider {
+    cursor: not-allowed;
+    opacity: 0.5; /* Make the slider appear faded */
+  }
+  
+  /* Disabled state for the slider label */
+  .slider:disabled + .slider:before {
+    background-color: #cccccc;
+  }
+  
+  
+  input:checked + .slider {
+    background-color: #2196F3;
+  }
+  
+  input:focus + .slider {
+    box-shadow: 0 0 1px #2196F3;
+  }
+  
+  input:checked + .slider:before {
+    -webkit-transform: translateX(26px);
+    -ms-transform: translateX(26px);
+    transform: translateX(26px);
+  }
+  
+  /* Rounded sliders */
+  .slider.round {
+    border-radius: 34px;
+  }
+  
+  .slider.round:before {
+    border-radius: 50%;
+  }
+  
+
+
+
+.health-card.no-hover:hover {
+    transform: none;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+}
+
+
+/* Styles for the table in malware.php*/
+.malwaretable {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 25px 0;
+    font-size: 0.9em;
+    font-family: sans-serif;
+    min-width: 400px;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.15);
+}
+
+.malwaretable thead tr {
+    background-color: #009879;
+    color: #024638;
+    text-align: left;
+}
+
+.malwaretable th,
+.malwaretable td {
+    padding: 12px 15px;
+}
+
+.malwaretable tbody tr {
+    border-bottom: 1px solid #dddddd;
+}
+
+.malwaretable tbody tr:nth-of-type(even) {
+    background-color: #f3f3f3;
+}
+
+
+.malwaretable tbody tr.active-row {
+    font-weight: bold;
+    color: #009879;
+}
+
+
+/* Basic styles for log simulation */
+.log_simulation_container {
+    background-color: #ffffff; 
+    padding: 20px;
+    border-radius: 5px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    max-width: 600px;
+    margin: 2em auto; 
+    font-family: 'Arial', sans-serif; 
+}
+
+.log_simulation_container h2 {
+    color: #333333; 
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+.log_simulation_field {
+    margin-bottom: 20px;
+    display: flex;
+    flex-direction: column;
+}
+
+.log_simulation_field label {
+    font-size: 1em;
+    color: #333333;
+    margin-bottom: 5px;
+}
+
+.log_simulation_field {
+    margin-bottom: 25px;
+}
+.log_simulation_field input,
+.log_simulation_field select {
+    padding: 12px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 1.1em;
+}
+
+/* Styles applied to input fields and selections when selected (focus) */
+.log_simulation_field input:focus,
+.log_simulation_field select:focus {
+    border-color: #007BFF;
+    box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+}
+
+#logSimulationForm button {
+    background-color: #007BFF; 
+    color: white;
+    padding: 15px 20px;
+    border: none;
+    border-radius: 4px;
+    font-size: 1em;
+    margin-top: 20px;
+    transition: background-color 0.3s ease;
+}
+
+#logSimulationForm button:hover {
+    background-color: #0056b3; 
+}
+
+.mitre-attack-image {
+    text-align: center; 
+    margin-top: 20px; 
+}
+.mitre-attack-image img {
+    max-width: 30%; 
+    height: auto; 
+}
+
+.atomic-image {
+    text-align: center;
+    margin-top: 20px; 
+}
+.atomic-image img {
+    max-width: 18%; 
+    height: auto;
+}
+
+.loading-icon {
+    text-align: center; 
+    margin-top: 10px; 
+}
+
+
+.search-container-mittre {
+    margin: 20px auto;
+    max-width: 500px;
+    position: relative;
+}
+
+#searchInput {
+    width: 100%;
+    padding: 10px 20px 10px 40px;
+    font-size: 1em;
+    border: 1px solid #ccc;
+    border-radius: 20px;
+    box-sizing: border-box;
+}
+
+.search-icon {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    color: #ccc;
+}
+
+
+.search-results-mittre {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+}
+
+.search-results-mittre th,
+.search-results-mittre td {
+    border: 1px solid #ddd;
+    padding: 8px;
+    text-align: left;
+}
+
+.search-results-mittre th {
+    background-color: #f2f2f2;
+    color: #333;
+}
+
+.search-results-mittre tr:nth-child(even) {
+    background-color: #f9f9f9;
+}
+
+.search-results-mittre tr:hover {
+    background-color: #eaeaea;
+}
+
+.details-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+}
+
+.details-table th, .details-table td {
+    border: 1px solid #ddd;
+    padding: 8px;
+    text-align: left;
+}
+
+.details-table th {
+    background-color: #f2f2f2;
+    color: #333;
+}
+
+.details-table tr:nth-child(even) {
+    background-color: #f9f9f9;
+}
+
+.details-table tr:hover {
+    background-color: #eaeaea;
+}
+
+.details-table button {
+    padding: 5px 10px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.details-table button:hover {
+    background-color: #0056b3;
+}
+
+.update-btn {
+    padding: 10px 20px;
+    background-color: #28a745;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.update-btn .fa-sync {
+    margin-right: 5px;
+}
+
+.update-btn:hover {
+    background-color: #218838;
+}
+
+.fa-spin {
+    animation: spin 1s infinite linear;
+}
+
+@keyframes spin {
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
+/*  usecase Page*/
+
+.usecase-content {
+    font-family: 'Arial', sans-serif;
+    line-height: 1.6;
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px;
+    background-color: #f9f9f9;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+.usecase-h1 {
+    color: #333;
+    text-align: center;
+}
+
+.usecase-p {
+    text-align: justify;
+    color: #666;
+}
+
+
+.usecase-select {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 20px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    box-sizing: border-box; 
+}
+
+.usecase-buttons {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.usecase-button {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    background-color: #5C9ACF;
+    color: white;
+    cursor: pointer;
+    margin-right: 10px;
+    transition: background-color 0.3s ease;
+}
+
+.usecase-button:hover {
+    background-color: #3b7ba9;
+}
+
+
+.usecase-details {
+    background-color: white;
+    padding: 15px;
+    border-radius: 5px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    display: none; 
+}
+
+.usecase-details h3 {
+    color: #333;
+    margin-bottom: 10px;
+}
+
+.usecase-details p {
+    margin-bottom: 10px;
+    color: #555;
+}
+
+.usecase-details span {
+    color: #222;
+    font-weight: bold;
+}
+
+.usecase-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.usecase-table th,
+.usecase-table td {
+    border: 1px solid #ddd;
+    padding: 8px;
+}
+
+.usecase-table th {
+    background-color: #f2f2f2;
+    text-align: left;
+}
+
+.usecase-table td {
+    background-color: #ffffff;
+}
+
+.usecase-table tr:hover {
+    background-color: #f5f5f5;
+}
+
+
+
+/* KPI page index */
+
+.index-dashboard {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 20px;
+    padding: 20px;
+    margin-top: 100px;
+    transition: margin 0.3s;
+}
+
+.index-card {
+    background: white;
+    border: none;
+    border-radius: 15px;
+    padding: 20px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-between; 
+    transition: transform 0.3s ease, box-shadow 0.3s ease; 
+    
+}
+
+.index-card:hover {
+    transform: translateY(-5px); 
+    box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+}
+
+.index-card h2 {
+    margin: 0 0 15px 0; 
+    color: #333;
+    font-size: 1.2em; 
+}
+
+
+
+.kpi-number {
+    font-size: 48px;
+    font-weight: bold;
+    color: #333; 
+    transition: all 0.8s ease-out;
+}
+
+
+@keyframes counterIncrease {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+
+.kpi-number-animate {
+    animation: counterIncrease 1.5s forwards;
+}
+
+
+.kpi-title {
+            font-size: 18px;
+            color: #6e6e6e; 
+            margin-bottom: 5px;
+        }
+
+
+
+/* sharing Page */
+
+.textarea-container {
+    position: relative;
+    margin-top: 10px;
+}
+
+#sharing-textarea {
+    width: 100%;
+    height: 150px;
+    padding: 10px 40px 10px 10px; 
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-size: 14px;
+    resize: vertical;
+}
+
+.copy-button {
+    position: absolute;
+    top: 5px; 
+    right: 5px; 
+    background: transparent;
+    border: none;
+    color: #4CAF50;
+    cursor: pointer;
+}
+
+.copy-button i {
+    font-size: 20px; 
+}
+
+/* General style of upload button */
+.input-file-container {
+    position: relative;
+    width: 250px; 
+    height: 40px; 
+    overflow: hidden;
+    display: inline-block;
+    cursor: pointer;
+    background-color: #4CAF50; 
+    border-radius: 5px;
+    text-align: center;
+    line-height: 40px; 
+    color: white; 
+    font-weight: bold; 
+    transition: background-color 0.3s; 
+}
+
+/* Text style inside button */
+.input-file-trigger {
+    display: block;
+    padding: 0 20px; 
+}
+
+.input-file {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    opacity: 0; 
+    cursor: pointer;
+}
+
+.input-file-container:hover {
+    background-color: #45a049; 
+}
+
+
+@media (max-width: 480px) {
+    .input-file-container {
+        width: 100%; 
+        margin-bottom: 15px; 
+    }
+}
+
+.file-name {
+    display: inline-block;
+    vertical-align: middle;
+    max-width: 150px; 
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis; 
+    margin-left: 10px; 
+}
+
+
+
+/* General style of admin page */
+.admin-container {
+    width: 80%;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+/* Admin page buttons */
+.admin-button {
+    background-color: #4CAF50; 
+    color: white;
+    padding: 10px 20px;
+    margin: 10px 5px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+    transition: background-color 0.3s ease;
+}
+
+.admin-button:hover {
+    background-color: #367c39; 
+}
+
+/* Table to list tokens */
+.admin-table {
+    margin-top: 20px;
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.admin-table th, .admin-table td {
+    padding: 10px;
+    border: 1px solid #ddd;
+    text-align: left;
+}
+
+.admin-table th {
+    background-color: #f2f2f2;
+}
+
+/* Input field style for token name */
+.admin-input {
+    padding: 10px;
+    margin-bottom: 10px;
+    width: calc(100% - 22px); 
+    border-radius: 5px;
+    border: 1px solid #ddd;
+}
+
+/* Style of token field in array */
+.token-field {
+    border: none;
+    background-color: transparent;
+    font-family: monospace;
+    width: 100%;
+    text-overflow: ellipsis;
+}
+
+
+/* General style of sigma page */
+
+.sigma-header {
+    color: #333;
+    margin-bottom: 20px;
+}
+.sigma-link {
+    display: inline-block; 
+    padding: 5px 15px; 
+    background-color: #e7e7e7; 
+    color: #333; 
+    text-decoration: none;
+    margin-bottom: 5px; 
+    border-radius: 5px;
+    transition: all 0.3s ease; 
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1); 
+    font-weight: normal; 
+    border: 1px solid #cccccc; 
+    text-align: left; 
+}
+
+.sigma-link:hover {
+    color: #000; 
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2); 
+    background-color: #d6d6d6; 
+    border-color: #999; 
+}
+
+
+.sigma-back-link {
+    display: inline-block; 
+    padding: 8px 15px;
+    margin-top: 20px;
+    background-color: #e9ecef; 
+    color: #007bff; 
+    text-decoration: none;
+    border-radius: 5px;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1); 
+    font-weight: bold; 
+    border: 1px solid #007bff; 
+    text-align: center; 
+    width: auto; 
+}
+
+.sigma-back-link:hover {
+    background-color: #dae0e5; 
+    color: #0056b3; 
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2); 
+    text-decoration: underline; 
+}
+
+
+.sigma-content {
+    margin-top: 20px;
+    padding: 15px;
+    background: #f9f9f9;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+}
+.sigma-back-link {
+    display: inline-block;
+    margin-top: 20px;
+    font-weight: bold;
+}
+
+.sigma-search-container {
+    margin-top: 40px;
+    display: flex;
+    justify-content: left; 
+    width: 100%; 
+}
+
+.sigma-search-box {
+    padding: 12px 15px; 
+    margin-right: 8px; 
+    border-radius: 20px; 
+    border: 2px solid #ddd; 
+    width: 50%; 
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2); 
+    transition: box-shadow 0.3s ease; 
+}
+
+.sigma-search-box:focus {
+    box-shadow: 0 4px 8px rgba(0,0,0,0.3); 
+}
+
+.sigma-search-btn {
+    padding: 12px 20px; 
+    border: none;
+    border-radius: 20px; 
+    background-color: #4CAF50; 
+    color: white;
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.3s ease;
+    font-size: 16px; 
+    font-weight: bold; 
+}
+
+.sigma-search-btn:hover {
+    background-color: #45a049; 
+    transform: scale(1.05); 
+}
+
+
+.sigma-copy-icon {
+    margin-right: 15px; 
+}
+
+.sigma-convert-icon {
+    cursor: pointer; 
+
+}
+
+/* The Modal (background) */
+.sigma-modal {
+    display: none; 
+    position: fixed; 
+    z-index: 1; 
+    left: 0;
+    top: 0;
+    width: 100%; 
+    height: 100%; 
+    overflow: auto; 
+    background-color: rgb(0,0,0); 
+    background-color: rgba(0,0,0,0.4); 
+    padding-top: 10px; 
+}
+  
+.sigma-modal-content {
+    position: relative;
+    background-color: #fefefe;
+    margin: 10px auto; 
+    padding: 20px;
+    border: none; 
+    width: calc(100% - 40px); 
+    max-height: calc(100vh - 20px); 
+    max-width: 800px; 
+    overflow: auto; 
+}
+  
+.sigma-close {
+    position: fixed; 
+    top: 10px;
+    right: 10px;
+    font-size: 28px;
+    font-weight: bold;
+    cursor: pointer;
+    color: #aaa;
+}
+
+.sigma-close:hover,
+.sigma-close:focus {
+    color: black;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+.sigma-copy-btn, .sigma-convert-btn {
+    background-color: #008CBA; 
+    border: none;
+    color: white;
+    padding: 10px 20px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+    margin: 4px 2px;
+    cursor: pointer;
+    border-radius: 4px;
+    transition-duration: 0.4s; 
+}
+
+.sigma-copy-btn:hover, .sigma-convert-btn:hover {
+    background-color: white; 
+    color: #008CBA; 
+    border: 1px solid #008CBA; 
+}
+
+
+.sigma-convert-btn {
+    background-color: #008CBA;
+    color: white; 
+    border: 1px solid transparent; 
+    padding: 10px 15px; 
+    cursor: pointer; 
+    outline: none; 
+    transition: background-color 0.3s, color 0.3s, border-color 0.3s; 
+}
+
+.sigma-convert-btn:hover {
+    background-color: white;
+    color: #008CBA;
+    border: 1px solid #008CBA;
+}
+
+
+.sigma-file-content {
+    background: #f9f9f9;
+    border-left: 4px solid #0056b3;
+    margin: 10px 0;
+    padding: 15px 20px;
+    border-radius: 5px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    line-height: 1.6;
+    color: #333;
+    position: relative;
+  }
+  
+  .sigma-file-content h2 {
+    color: #0056b3;
+    margin-bottom: 10px;
+  }
+  
+  .sigma-file-content pre {
+    white-space: pre-wrap;       /* CSS 3 */
+    white-space: -moz-pre-wrap;  /* Mozilla, since 1999 */
+    white-space: -pre-wrap;      /* Opera 4-6 */
+    white-space: -o-pre-wrap;    /* Opera 7 */
+    word-wrap: break-word;       /* Internet Explorer 5.5+ */
+    background: #fff;
+    border: 1px solid #ddd;
+    padding: 10px;
+    border-radius: 4px;
+    max-height: 400px;
+    overflow-y: auto;
+  }
+
+  .sigma-convert-icon {
+    display: inline-block;
+    cursor: pointer;
+    font-size: 1.2em;
+    margin-left: 10px;
+}
+
+
+   .sigma-convert-icon i {
+    color: #0056b3;
+}
+
+.sigma-convert-icon:hover i {
+    color: #003975;
+}
