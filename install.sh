@@ -445,7 +445,7 @@ echo "The 'rules' folder has been successfully copied to $DEST_PATH"
 pip install sigma-cli
 sigma plugin install elasticsearch
 sigma plugin install splunk
-sigma plugin install qradar -f
+#sigma plugin install qradar -f
 
     sudo chmod -R 775 /var/www/html/
     sudo chmod -R 77 /var/www/html/uploads/
