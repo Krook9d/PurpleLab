@@ -334,6 +334,7 @@ Atomic Red Team Test Execution: Initiate Atomic Red Team tests on the PurpleLab 
 Threat Hunting Dashboard: Utilize a dedicated dashboard within Splunk for efficient threat hunting, powered by data from PurpleLab.
 Seamless Integration: Easy setup and configuration to interconnect PurpleLab with Splunk for enhanced security operations.
 
+https://github.com/Krook9d/TA-Purplelab-Splunk/assets/40600995/eb5d0c27-06e5-416d-b707-af806c02323e
 
 # Cortex Analyzer
 
@@ -341,6 +342,8 @@ https://github.com/Krook9d/PurpleLab-Cortex-Analyzer
 
 PurpleLab Cortex Analyzer enhances TheHive incident responses by automating uploads and detonations of executables tied to cases.
 This tool streamlines SOC workflows, improving threat analysis and security outcomes. 
+
+https://github.com/Krook9d/PurpleLab-Cortex-Analyzer/assets/40600995/690a8728-4ba7-4fda-a12e-48708e9b7d1d
 
 # API documentation
 
