@@ -218,7 +218,9 @@ echo -e "\n\e[32mAll checks passed. Continuing with the installation...\e[0m\n"
     mv sandbox.ova /var/www/html/
 
     mv PurpleLab/* /var/www/html/
-
+    mv /var/www/html/Web/* /var/www/html/
+    rm -r /var/www/html/Web
+    
     rm -R PurpleLab
 
     sleep 1
