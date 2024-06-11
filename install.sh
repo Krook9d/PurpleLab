@@ -452,4 +452,6 @@ sigma plugin install splunk
     sudo chmod -R 777 -R /var/www/html/Downloaded/malware_upload/
     sudo chmod -R 755 /var/www/html/admin.php
     sudo mkdir /var/www/html/Downloaded/upload/
+    sudo mkdir /var/www/html/config/
+    sudo chmod 750 /var/www/html/config/
 
