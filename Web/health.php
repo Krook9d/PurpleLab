@@ -344,69 +344,57 @@ $vmInfo['IP'] = $vmIP;
 <div class="health-section">
     <h2 class="health-section-title"><i class="fas fa-server"></i> VM Management</h2>
     <div class="health-dashboard">
-        <div class="health-card no-hover">
+        <div class="health-card-management">
             <div>
+                <!-- VM Info -->
+                <h3><i class="fas fa-info-circle"></i> VM Information</h3>
+                <?php
+                foreach ($vmInfo as $key => $value) {
+                    if (is_array($value)) {
+                        foreach ($value as $subKey => $subValue) {
+                            $formattedLine = formatInfoLine($subKey, $subValue);
+                            $formattedLine = str_replace('output:', '', $formattedLine); 
+                            echo preg_replace('/([A-Z][a-z]+)/', '<br>$1', $formattedLine);
+                        }
+                    } else {
+                        $formattedLine = formatInfoLine($key, $value);
+                        $formattedLine = str_replace('output:', '', $formattedLine); 
+                        echo preg_replace('/([A-Z][a-z]+)/', '<br>$1', $formattedLine);
+                    }
+                }
 
-<!-- VM Info -->
-    <h3><i class="fas fa-info-circle"></i> VM Information</h3>
+                function formatInfoLine($key, $value) {
+                    $boldTerms = ['sandbox', 'Snapshot1', 'running', 'powered off'];
+                    foreach ($boldTerms as $term) {
+                        if (strpos($value, $term) !== false) {
+                            if ($term == 'running') {
+                                $value = str_replace($term, "<strong style='color: green;'>$term</strong>", $value);
+                            } elseif ($term == 'powered off') {
+                                $value = str_replace($term, "<strong style='color: red;'>$term</strong>", $value);
+                            } else {
+                                $value = str_replace($term, "<strong style='color: green;'>$term</strong>", $value);
+                            }
+                        }
+                    }
 
-        <?php
-   
-   foreach ($vmInfo as $key => $value) {
-    if (is_array($value)) {
-        foreach ($value as $subKey => $subValue) {
-            $formattedLine = formatInfoLine($subKey, $subValue);
-            $formattedLine = str_replace('output:', '', $formattedLine); 
-            echo preg_replace('/([A-Z][a-z]+)/', '<br>$1', $formattedLine);
-        }
-    } else {
-        $formattedLine = formatInfoLine($key, $value);
-        $formattedLine = str_replace('output:', '', $formattedLine); 
-        echo preg_replace('/([A-Z][a-z]+)/', '<br>$1', $formattedLine);
-    }
-}
+                    if ($key == 'IP') {
+                        $value = "<span style='color: blue;'>$value</span>";
+                    }
 
-
-function formatInfoLine($key, $value) {
-    $boldTerms = ['sandbox', 'Snapshot1', 'running', 'powered off'];
-    foreach ($boldTerms as $term) {
-        if (strpos($value, $term) !== false) {
-            if ($term == 'running') {
-                $value = str_replace($term, "<strong style='color: green;'>$term</strong>", $value);
-            } elseif ($term == 'powered off') {
-                $value = str_replace($term, "<strong style='color: red;'>$term</strong>", $value);
-            } else {
-                $value = str_replace($term, "<strong style='color: green;'>$term</strong>", $value);
-            }
-        }
-    }
-
- 
-    if ($key == 'IP') {
-        $value = "<span style='color: blue;'>$value</span>";
-    }
-
-    return "<div><strong>$key:</strong> $value</div>";
-}
-
-
-        ?>
-
+                    return "<div class='info-line'><strong>$key:</strong> $value</div>";
+                }
+                ?>
 
                 <!-- Actions -->
                 <h3><i class="fas fa-cogs"></i> Actions</h3><br>
                 <button id="restoreButton" onclick="restoreSnapshot()">Restore Windows VM snapshot</button>
-                <!-- Power Off VM Button -->
                 <button id="powerOffButton" onclick="powerOffVM()">Power Off VM</button>
-                <!-- Start VM Headless Button -->
                 <button id="startVmButton" onclick="startVMHeadless()">Start VM Headless</button>
-                <!-- Restart Winlogbeat Service Button -->
                 <button id="restartWinlogbeatButton" onclick="restartWinlogbeat()">Restart Winlogbeat Service</button>
 
                 <!-- Antivirus Toggle -->
                 <div><br>
-
-                <h3><i class="fas fa-shield-alt"></i> Antivirus</h3><br>
+                    <h3><i class="fas fa-shield-alt"></i> Antivirus</h3><br>
                     <label class="switch">
                         <input type="checkbox" id="antivirusSwitch" checked>
                         <span class="slider round"></span>
@@ -414,10 +402,86 @@ function formatInfoLine($key, $value) {
                     <span id="antivirusStatusLabel"></span>
                 </div>
 
+<!-- Forensic Information -->
+<div><br>
+    <h3><i class="fas fa-search"></i> Forensic Acquisition</h3><br>
+    
+    <button class="forensic-button" id="memoryAcquisitionButton" onclick="memoryAcquisition()">Memory Acquisition</button><br><br><br>
+    <button class="forensic-button" id="diskAcquisitionButton" onclick="diskAcquisition()">Disk Acquisition</button>
+    <div id="acquisitionStatus"></div>
+
+</div>
+
+<script>
+    function memoryAcquisition() {
+        document.getElementById('acquisitionStatus').innerText = 'Memory acquisition in progress...';
+        fetch('http://' + window.location.hostname + ':5000/forensic_acquisition', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ type: 'memory' })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.output) {
+                let filename = 'sandbox.dmp';
+                downloadFile(filename);
+            } else {
+                alert('Error: ' + data.error);
+                document.getElementById('acquisitionStatus').innerText = '';
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            document.getElementById('acquisitionStatus').innerText = '';
+        });
+    }
+
+    function diskAcquisition() {
+        document.getElementById('acquisitionStatus').innerText = 'Disk acquisition in progress...';
+        fetch('http://' + window.location.hostname + ':5000/forensic_acquisition', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ type: 'disk' })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.output) {
+                let filename = 'sandbox.vdi';
+                downloadFile(filename);
+            } else {
+                alert('Error: ' + data.error);
+                document.getElementById('acquisitionStatus').innerText = '';
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            document.getElementById('acquisitionStatus').innerText = '';
+        });
+    }
+
+    function downloadFile(filename) {
+        const link = document.createElement('a');
+        link.href = 'http://' + window.location.hostname + ':5000/download/' + filename;
+        link.download = filename;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        document.getElementById('acquisitionStatus').innerText = 'Acquisition completed. Downloading ' + filename;
+    }
+</script>
+
+               
+
+
             </div>
         </div>
     </div>
 </div>
+
 
 <script>
 
