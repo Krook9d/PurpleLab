@@ -580,6 +580,24 @@ form select {
     
 }
 
+.health-card-management {
+    background: white;
+    border: none;
+    border-radius: 35px;
+    padding: 10px; 
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    display: flex;
+    flex-direction: column;
+    align-items: center; 
+    justify-content: space-between;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    max-width: 50%; 
+    box-sizing: border-box; 
+    margin-bottom: 20px; 
+   
+}
+
+
 .health-card:hover {
     transform: translateY(-5px); 
     box-shadow: 0 10px 20px rgba(0,0,0,0.2);
@@ -744,6 +762,29 @@ form select {
     background-color: #FFB300; /* Darker yellow on hover */
     box-shadow: 0 4px 8px 0 rgba(0,0,0,0.24), 0 6px 20px 0 rgba(0,0,0,0.19);
 }
+
+
+.forensic-button {
+    background-color: #007bff; 
+    border: none;
+    color: white;
+    padding: 10px 20px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+    margin: 4px 2px;
+    transition-duration: 0.4s;
+    cursor: pointer;
+    border-radius: 12px; 
+}
+
+.forensic-button:hover {
+    background-color: white;
+    color: black;
+    border: 2px solid #007bff;
+}
+
 
 
 /* The switch - the box around the slider */
