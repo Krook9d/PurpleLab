@@ -1,4 +1,4 @@
-from flask import Flask, request, jsonify, current_app
+from flask import Flask, request, jsonify, current_app, send_from_directory
 from flask_cors import CORS, cross_origin
 from flask_jwt_extended import JWTManager, jwt_required, create_access_token, get_jwt_identity
 import subprocess
@@ -544,6 +544,29 @@ def convert_sigma():
             "details": str(e)
         }), 500
     
+
+@app.route('/forensic_acquisition', methods=['POST'])
+@cross_origin()
+def forensic_acquisition():
+    acquisition_type = request.json.get('type')
+
+    if acquisition_type not in ['memory', 'disk']:
+        return jsonify({"error": "Invalid type parameter. Use 'memory' or 'disk'."}), 400
+
+    script_path = '/var/www/html/scripts/forensic_acquisition.py'
+
+    result = subprocess.run(['sudo', 'python3', script_path, acquisition_type], capture_output=True, text=True)
+
+    if result.returncode == 0:
+        return jsonify({"output": result.stdout}), 200
+    else:
+        return jsonify({"error": result.stderr}), 400
+
+@app.route('/download/<filename>', methods=['GET'])
+@cross_origin()
+def download_file(filename):
+    directory = '/var/www/html/Downloaded/Forensic'
+    return send_from_directory(directory, filename)
 
 
 @app.route('/update_sigma_rules', methods=['POST'])
