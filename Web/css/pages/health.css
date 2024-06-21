@@ -1,0 +1,136 @@
+.health-dashboard {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 20px;
+    padding: 20px;
+    margin-top: 50px;
+    transition: margin 0.3s;
+}
+
+.health-card {
+    background: white;
+    border: none;
+    border-radius: 15px;
+    padding: 10px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-between; 
+    transition: transform 0.3s ease, box-shadow 0.3s ease; 
+    
+}
+
+.health-card-management {
+    background: white;
+    border: none;
+    border-radius: 35px;
+    padding: 10px; 
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    display: flex;
+    flex-direction: column;
+    align-items: center; 
+    justify-content: space-between;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    max-width: 50%; 
+    box-sizing: border-box; 
+    margin-bottom: 20px; 
+   
+}
+
+
+.health-card:hover {
+    transform: translateY(-5px); 
+    box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+}
+
+.health-card h2 {
+    margin: 0 0 15px 0; 
+    color: #333;
+    font-size: 1.2em; 
+}
+
+
+.health-status {
+    font-size: 1em; 
+    margin-bottom: 15px; 
+    padding: 5px 10px; 
+    border-radius: 5px; 
+    width: fit-content; 
+}
+
+.health-status.running {
+    background-color: #C8E6C9; 
+    color: #256029; 
+}
+
+.health-status.stopped {
+    background-color: #FFCDD2; 
+    color: #C63737; 
+}
+
+.health-metric {
+    width: calc(100% - 240px); 
+    background-color: #f0f0f0;
+    border-radius: 8px;
+    overflow: hidden;
+    margin-bottom: 10px;
+}
+
+.health-metric div {
+    height: 50px;
+    background-color: #2196F3;
+    text-align: center;
+    line-height: 35px;
+    color: white;
+    transition: width 0.5s ease;
+}
+
+.health-metric p {
+    color: #555;
+    margin: 0;
+    font-size: 0.9em;
+    text-align: center;
+}
+
+.animate-bar {
+    width: 0;
+    animation: fillBar 1s ease forwards;
+}
+
+@keyframes fillBar {
+    from { width: 0; }
+    to { width: var(--target-width); }
+}
+
+
+
+.health-section {
+    margin-bottom: 20px; 
+
+}
+
+#service-status {
+    margin-left: 200px; 
+}
+
+
+.health-section-title {
+    font-size: 24px; 
+    color: #333; 
+    margin-bottom: 10px; 
+    text-align: center; 
+ 
+}
+
+.health-section-separator {
+    height: 4px; 
+    background-color: #d9d9d9; 
+    margin-bottom: 50px; 
+}
+
+
+.health-card.no-hover:hover {
+    transform: none;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+}

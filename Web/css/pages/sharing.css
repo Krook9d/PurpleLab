@@ -1,0 +1,79 @@
+/* pages/sharing.css */
+.textarea-container {
+    position: relative;
+    margin-top: 10px;
+}
+
+#sharing-textarea {
+    width: 100%;
+    height: 150px;
+    padding: 10px 40px 10px 10px; 
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-size: 14px;
+    resize: vertical;
+}
+
+.copy-button {
+    position: absolute;
+    top: 5px; 
+    right: 5px; 
+    background: transparent;
+    border: none;
+    color: #4CAF50;
+    cursor: pointer;
+}
+
+.copy-button i {
+    font-size: 20px; 
+}
+
+.input-file-container {
+    position: relative;
+    width: 250px; 
+    height: 40px; 
+    overflow: hidden;
+    display: inline-block;
+    cursor: pointer;
+    background-color: #4CAF50; 
+    border-radius: 5px;
+    text-align: center;
+    line-height: 40px; 
+    color: white; 
+    font-weight: bold; 
+    transition: background-color 0.3s; 
+}
+
+.input-file-trigger {
+    display: block;
+    padding: 0 20px; 
+}
+
+.input-file {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    opacity: 0; 
+    cursor: pointer;
+}
+
+.input-file-container:hover {
+    background-color: #45a049; 
+}
+
+@media (max-width: 480px) {
+    .input-file-container {
+        width: 100%; 
+        margin-bottom: 15px; 
+    }
+}
+
+.file-name {
+    display: inline-block;
+    vertical-align: middle;
+    max-width: 150px; 
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis; 
+    margin-left: 10px; 
+}

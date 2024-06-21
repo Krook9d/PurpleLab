@@ -1,0 +1,80 @@
+/* layout/user-info-bar.css */
+.user-info-bar {
+    position: absolute;
+    right: 0;
+    top: 0;
+    background-color: #3498db;
+    width: 15%;
+    height: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    padding: 10px 80px 10px 10px;
+    border-radius: 0 0 0 20px;
+  }
+  
+  .user-info-bar img {
+    height: 60px;
+    width: 60px;
+    border-radius: 50%;
+    object-fit: cover;
+    margin-right: 30px; 
+    border: 3px solid #3498db;
+    box-shadow: 0px 0px 10px #888;
+  }
+  
+  .user-info-bar h2 {
+    color: white;
+    margin: 0;
+  }
+  
+  .avatar-info {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  .user-info-bar .user-button {
+    background-color: rgba(255, 255, 255, 0.2);
+    color: #fff;
+    padding: 10px 20px; 
+    font-size: 18px; 
+    border-radius: 5px;
+    border: none;
+    cursor: pointer;
+    position: relative;
+    display: inline-block;
+    transition: background-color 0.3s;
+  }
+  
+  .dropdown-content {
+    display: none;
+    position: absolute;
+    background-color: #f9f9f9;
+    min-width: 160px;
+    box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+    z-index: 1;
+    top: 100%;
+    left: 0;
+  }
+  
+  .dropdown-content a {
+    color: black;
+    padding: 12px 16px;
+    text-decoration: none;
+    display: block;
+  }
+  
+  .user-button:hover .dropdown-content {
+    display: block;
+  }
+  
+  .user-button:hover {
+    background-color: rgba(255, 255, 255, 0.4);
+  }
+  
+  .dropdown-content a:hover {
+    background-color: #7ec1ff;
+    color: white;
+  }
+  

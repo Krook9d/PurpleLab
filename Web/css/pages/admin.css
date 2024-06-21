@@ -1,0 +1,54 @@
+/* pages/admin.css */
+.admin-container {
+    width: 80%;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+.admin-button {
+    background-color: #4CAF50; 
+    color: white;
+    padding: 10px 20px;
+    margin: 10px 5px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+    transition: background-color 0.3s ease;
+}
+
+.admin-button:hover {
+    background-color: #367c39; 
+}
+
+.admin-table {
+    margin-top: 20px;
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.admin-table th, .admin-table td {
+    padding: 10px;
+    border: 1px solid #ddd;
+    text-align: left;
+}
+
+.admin-table th {
+    background-color: #f2f2f2;
+}
+
+.admin-input {
+    padding: 10px;
+    margin-bottom: 10px;
+    width: calc(100% - 22px); 
+    border-radius: 5px;
+    border: 1px solid #ddd;
+}
+
+.token-field {
+    border: none;
+    background-color: transparent;
+    font-family: monospace;
+    width: 100%;
+    text-overflow: ellipsis;
+}
