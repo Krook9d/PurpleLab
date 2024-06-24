@@ -23,7 +23,7 @@ if(!in_array($extension, ['exe', 'dll', 'bin', 'py', 'ps1', 'pdf', 'ods', 'xlsx'
 
 // Try to download the file
 if (move_uploaded_file($_FILES["file"]["tmp_name"], $target_file)) {
-    echo "Le fichier ". htmlspecialchars(basename($_FILES["file"]["name"])) . " a été téléchargé.";
+    echo "The file ". htmlspecialchars(basename($_FILES["file"]["name"])) . " has been downloaded.";
 
     
     $curl = curl_init();
