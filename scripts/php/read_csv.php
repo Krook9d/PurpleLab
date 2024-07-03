@@ -8,7 +8,7 @@ $techniqueId = $_GET['techniqueId'];
 $csvData = [];
 $isHeader = true; 
 
-if (($handle = fopen("/var/www/html/enterprise-attack/index.csv", "r")) !== FALSE) {
+if (($handle = fopen("/var/www/html/enterprise-attack/index_atomic.csv", "r")) !== FALSE) {
     while (($data = fgetcsv($handle, 1000, ";")) !== FALSE) {
         if ($isHeader) {
             $isHeader = false; 
