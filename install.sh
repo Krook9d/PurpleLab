@@ -310,6 +310,16 @@ DB_USER="toor"
 DB_PASS="root"
 DB_NAME="myDatabase"
 CSV_FILE="/var/www/html/enterprise-attack/index.csv"
+MYSQL_CNF="/etc/mysql/mysql.conf.d/mysql.cnf"
+
+# Add local_infile=1 to [mysql] sections if not already present
+sudo grep -qxF 'local_infile=1' $MYSQL_CNF || echo 'local_infile=1' | sudo tee -a $MYSQL_CNF
+
+# Restart MySQL service to apply the changes
+sudo service mysql restart
+
+# Enable local infile globally
+mysql -u root -p$DB_PASS -e "SET GLOBAL local_infile=1;"
 
 # Create database and user
 mysql -e "CREATE DATABASE IF NOT EXISTS $DB_NAME;"
