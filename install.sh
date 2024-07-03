@@ -306,7 +306,10 @@ sudo VBoxManage modifyvm sandbox --nic1 bridged --bridgeadapter1 "$INTERFACE_CHO
     fi
 
 # Variables for MySQL connection
+DB_USER="toor"
+DB_PASS="root"
 DB_NAME="myDatabase"
+CSV_FILE="/var/www/html/enterprise-attack/index.csv"
 
 # Create database and user
 mysql -e "CREATE DATABASE IF NOT EXISTS $DB_NAME;"
@@ -332,6 +335,38 @@ mysql -e "USE $DB_NAME; CREATE TABLE IF NOT EXISTS contents (
     author_id INT NOT NULL,
     FOREIGN KEY (author_id) REFERENCES users(id)
 );"
+
+# Create the atomic_tests table
+mysql -u $DB_USER -p$DB_PASS -e "
+USE $DB_NAME;
+CREATE TABLE IF NOT EXISTS atomic_tests (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    tactic VARCHAR(255),
+    technique_id VARCHAR(255),
+    technique_name VARCHAR(255),
+    test VARCHAR(255),
+    test_name VARCHAR(255),
+    Test_GUID VARCHAR(255),
+    Executor_Name VARCHAR(255)
+);"
+
+# Load data from CSV into the atomic_tests table
+mysql -u $DB_USER -p$DB_PASS --local-infile=1 -e "
+LOAD DATA LOCAL INFILE '$CSV_FILE'
+INTO TABLE $DB_NAME.atomic_tests
+FIELDS TERMINATED BY ',' 
+ENCLOSED BY '\"'
+LINES TERMINATED BY '\n'
+IGNORE 1 ROWS
+(tactic, technique_id, technique_name, test, test_name, Test_GUID, Executor_Name)
+SET
+    technique_id = NULLIF(technique_id, ''),
+    technique_name = NULLIF(technique_name, ''),
+    test = NULLIF(test, ''),
+    test_name = NULLIF(test_name, ''),
+    Test_GUID = NULLIF(Test_GUID, ''),
+    Executor_Name = NULLIF(Executor_Name, '');"
+
 
 # Randomly generate a secure password
 ADMIN_PASSWORD=$(< /dev/urandom tr -dc 'A-Za-z0-9!@#$%^&*()' | head -c 12)
