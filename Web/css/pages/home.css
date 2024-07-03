@@ -1,0 +1,274 @@
+
+/* Section for background image */
+.background-image-section {
+    flex-grow: 1; 
+    background-image: url('/MD_image/connexionbg.jpg');
+    background-size: cover; 
+    background-position: center center; 
+    background-repeat: no-repeat; 
+}
+
+
+
+/* Logo positioning */
+#logo-container {
+  position: absolute;
+  top: -1%;
+  left: 70%;
+  width: 350px; 
+  height: auto; 
+}
+
+#logo-container img {
+  width: 100%; 
+  height: auto; 
+}
+
+
+/* Credit positioning */
+#credit-container {
+    position: fixed;
+    bottom: 80px;
+    right: 20px;
+    text-align: right;
+}
+
+#credit-link {
+    color: #ffffff; 
+    text-decoration: none; 
+    font-size: 16px; 
+}
+
+#credit-link:hover {
+    text-decoration: underline; 
+}
+
+#github-icon {
+    width: 20px; 
+    vertical-align: middle; 
+    margin-right: 5px; 
+}
+
+
+
+#connexionchart {
+  width: 70%;
+  height: 400px;
+}
+
+
+.separation {
+    border: 1px solid #ddd; 
+    margin: 50px 0; 
+}
+
+
+
+/* The switch - the box around the slider */
+.switch {
+  position: relative;
+  display: inline-block;
+  width: 60px;
+  height: 34px;
+}
+
+/* Hide default HTML checkbox */
+.switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+/* The slider */
+.slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(45deg, #6A0DAD, #8A2BE2, #DA70D6);
+  -webkit-transition: .4s;
+  transition: .4s;
+  border-radius: 34px;
+}
+
+.slider:before {
+  position: absolute;
+  content: "";
+  height: 26px;
+  width: 26px;
+  left: 4px;
+  bottom: 4px;
+  background-color: white;
+  -webkit-transition: .4s;
+  transition: .4s;
+  border-radius: 50%;
+}
+
+/* Disabled state for the slider */
+.slider:disabled {
+  cursor: not-allowed;
+  opacity: 0.5; 
+}
+
+/* Disabled state for the slider label */
+.slider:disabled:before {
+  background-color: #cccccc;
+}
+
+input:checked + .slider {
+  background: linear-gradient(45deg, #8A2BE2, #DA70D6, #EE82EE);
+}
+
+input:focus + .slider {
+  box-shadow: 0 0 1px #8A2BE2;
+}
+
+input:checked + .slider:before {
+  -webkit-transform: translateX(26px);
+  -ms-transform: translateX(26px);
+  transform: translateX(26px);
+}
+
+/* Rounded sliders */
+.slider.round {
+  border-radius: 34px;
+}
+
+.slider.round:before {
+  border-radius: 50%;
+}
+
+  
+
+.register-container {
+  width: 100%;
+  max-width: 600px;
+  background-color: #ffffff;
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  margin: 0 auto;
+}
+
+
+.register-form-title {
+  font-size: 48px;
+  font-weight: 300;
+  color: #000000;
+  margin-top: 0;
+}
+
+
+.register-form-description {
+  font-size: 24px;
+  font-weight: 300;
+  color: #919191;
+  margin-top: 10px;
+  margin-bottom: 20px;
+}
+
+
+.register-input-container {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 20px;
+}
+
+
+.register-input-container label {
+  font-size: 16px;
+  color: #333333;
+  margin-bottom: 5px;
+}
+
+
+.register-input {
+  padding: 12px;
+  font-size: 16px;
+  border-radius: 5px;
+  border: 1px solid #444851;
+  background-color: #ffffff;
+  color: #333333;
+  box-sizing: border-box;
+}
+
+
+.register-input:focus {
+  border-color: #824ed9;
+  box-shadow: 0 0 5px rgba(130, 78, 217, 0.5);
+}
+
+
+.register-select {
+  padding: 12px;
+  font-size: 16px;
+  border-radius: 5px;
+  border: 1px solid #444851;
+  background-color: #ffffff;
+  color: #333333;
+  box-sizing: border-box;
+}
+
+
+.register-file-input {
+  display: flex;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+
+.register-file-input label {
+  font-size: 16px;
+  color: #333333;
+  margin-right: 10px;
+}
+
+
+.register-file-trigger {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 12px 20px;
+  font-size: 16px;
+  background: linear-gradient(45deg, #6A0DAD, #8A2BE2, #DA70D6);
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  text-align: center;
+  transition: background 0.3s ease;
+}
+
+
+.register-file-trigger:hover {
+  background: linear-gradient(45deg, #8A2BE2, #DA70D6, #EE82EE);
+}
+
+
+#show-password-button {
+  border: none;
+  background: none;
+  cursor: pointer;
+}
+
+
+#show-password-button:hover svg,
+#show-password-button:focus svg {
+  fill: #666;
+}
+
+
+#show-password-button svg {
+  fill: #333;
+  transition: fill 0.2s ease-in-out;
+}
+
+
+    
+
+
+
+
+

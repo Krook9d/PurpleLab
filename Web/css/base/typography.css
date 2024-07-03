@@ -1,0 +1,34 @@
+/* base/typography.css */
+
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@500&display=swap'); 
+
+body {
+    font-family: Arial, sans-serif;
+    color: #ffffff;
+    margin: 0;
+    padding: 0;
+    background-color: #151934;
+}
+
+.content {
+    margin-left: 210px;
+    padding: 10px;
+}
+
+
+.body-container {
+    display: flex; 
+    min-height: 100vh; 
+    overflow: hidden; 
+}
+
+.title {
+    font-family: 'Roboto', sans-serif; 
+    font-size: 2em; 
+    font-weight: 500; 
+    color: #ffffff; 
+    border-bottom: 2px solid #8a2be2; 
+    padding-bottom: 5px; 
+    margin-bottom: 20px; 
+    display: inline-block; 
+}

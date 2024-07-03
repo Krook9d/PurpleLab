@@ -1,0 +1,108 @@
+/* pages/usecase.css */
+.usecase-content {
+    font-family: 'Arial', sans-serif;
+    line-height: 1.6;
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px;
+    background-color: #13254d; 
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3); 
+}
+
+.usecase-h1 {
+    color: #cbd3da; 
+    text-align: center;
+    margin-bottom: 30px; 
+}
+
+.usecase-p {
+    text-align: justify;
+    color: #cbd3da; 
+}
+
+.usecase-select {
+    width: 100%;
+    padding: 12px;
+    margin-bottom: 20px;
+    border: 1px solid #444851; 
+    border-radius: 5px;
+    background-color: #3a3f44; 
+    color: #cbd3da; 
+    box-sizing: border-box; 
+}
+
+.usecase-select:focus {
+    border-color: #824ed9; 
+    box-shadow: 0 0 0 0.2rem rgba(130, 78, 217, 0.25);
+}
+
+.usecase-buttons {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.usecase-button {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    background: linear-gradient(45deg, #6A0DAD, #8A2BE2, #DA70D6); 
+    color: white;
+    cursor: pointer;
+    margin-right: 10px;
+    transition: background 0.3s ease, transform 0.3s ease; 
+}
+
+.usecase-button:hover {
+    background: linear-gradient(45deg, #8A2BE2, #DA70D6, #EE82EE);
+    transform: scale(1.05); 
+}
+
+.usecase-details {
+    background-color: #1f1f2e; 
+    padding: 15px;
+    border-radius: 5px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3); 
+    display: none; 
+}
+
+.usecase-details h3 {
+    color: #cbd3da; 
+    margin-bottom: 10px;
+}
+
+.usecase-details p {
+    margin-bottom: 10px;
+    color: #cbd3da; 
+}
+
+.usecase-details span {
+    color: #cbd3da; 
+    font-weight: bold;
+}
+
+.usecase-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+}
+
+.usecase-table th,
+.usecase-table td {
+    border: 1px solid #3a3a3a; 
+    padding: 8px;
+    color: #cbd3da; 
+}
+
+.usecase-table th {
+    background-color: #2e2e3e; 
+    text-align: left;
+}
+
+.usecase-table td {
+    background-color: #1f1f2e; 
+}
+
+.usecase-table tr:hover {
+    background-color: #38384f; 
+}

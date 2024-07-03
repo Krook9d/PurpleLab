@@ -1,0 +1,95 @@
+/* layout/nav-bar.css */
+.nav-bar {
+    width: 200px;
+    height: 100vh;
+    position: fixed;
+    left: 0;
+    top: 0;
+    background-color: #13254d;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: stretch;
+    padding-top: 20px;
+  }
+  
+  .nav-bar ul {
+      list-style-type: none;
+      padding: 0;
+      margin: 0;
+      margin-top: 20px; 
+  }
+  
+  .nav-bar li {
+    margin: 0; 
+    padding: 0; 
+    align-items: center; 
+  }
+  
+  .nav-bar a {
+    text-decoration: none;
+    color: #ffffff;
+    background-color: rgba(255, 255, 255, 0.2);
+    padding: 10px 20px; 
+    border-radius: 5px;
+    transition: background-color 0.3s;
+    display: block;
+    text-align: left; 
+    line-height: 2; 
+    align-items: center; 
+  }
+  
+  .nav-bar a:hover {
+    background-color: rgba(255, 255, 255, 0.4);
+  }
+  
+  .nav-bar i {
+      width: 25px; 
+      text-align: center; 
+      margin-right: 2px; 
+  }
+  
+  .nav-logo {
+      margin-bottom: 0; 
+      padding-bottom: 0;
+  }
+  
+  .nav-logo img {
+      display: block; 
+      width: 100%; 
+      height: auto;
+  }
+  
+  .software-version {
+      color: #e4e4e4; 
+      background-color: transparent; 
+      padding: 0 20px; 
+      text-align: center; 
+      font-size: 0.8em; 
+      font-style: italic; 
+      border-bottom: none; 
+      margin-top: 0; 
+      margin-bottom: 20px; 
+  }
+  
+  .nav-footer {
+      position: absolute;
+      bottom: 0;
+      width: 100%; 
+  }
+  
+  .credit-link {
+      color: #4a4a4a;
+      text-decoration: none;
+      font-size: 16px;
+      padding: 10px 20px; 
+      display: flex;
+      align-items: center; 
+  }
+  
+  .github-icon {
+      height: 25px;
+      vertical-align: middle;
+      margin-right: 5px;
+  }
+  

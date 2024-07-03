@@ -1,0 +1,77 @@
+/* components/forms.css */
+.form-section {
+    flex-basis: 40%; 
+    background-color: #ffffff; 
+    display: flex;
+    align-items: center; 
+    justify-content: center; 
+    padding: 2em; 
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+#form-container {
+    width: 100%;
+    max-width: 400px;
+    color: #cbd3da;
+}
+
+h1 {
+    font-size: 48px; 
+    font-weight: 300; 
+    margin-top: 0px; 
+    color: #000000; 
+}
+
+p {
+    font-size: 24px; 
+    font-weight: 300; 
+    color: #919191; 
+    margin-top: 10px; 
+    margin-bottom: 20px; 
+}
+
+.input-container {
+    position: relative; 
+    display: flex;
+    align-items: center; 
+    width: 100%; 
+    margin-bottom: 20px; 
+}
+
+.input-icon {
+    position: absolute;
+    left: 15px; 
+    fill: #726f6f; 
+    z-index: 10;
+    pointer-events: none;
+    width: 24px;
+    height: 24px;
+}
+
+input[type="email"],
+input[type="password"] {
+    padding: 12px 20px 12px 50px; 
+    font-size: 16px; 
+    border-radius: 5px;
+    border: 1px solid #444851;
+    width: 100%; 
+    box-sizing: border-box; 
+    background-color: #ffffff; 
+    color: #000000; 
+}
+
+input[type="email"]:focus,
+input[type="password"]:focus {
+    border-color: #824ed9; 
+    box-shadow: 0 0 5px rgba(130, 78, 217, 0.5); 
+}
+
+form input[type="text"],
+form select {
+    padding: 10px;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+    margin-bottom: 20px;
+}
+

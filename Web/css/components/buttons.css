@@ -1,0 +1,224 @@
+/* components/buttons.css */
+
+.login-button {
+    margin-top: 20px;
+    margin-right: 10px;
+    background: linear-gradient(45deg, #6A0DAD, #8A2BE2, #DA70D6); 
+    color: #fff;
+    padding: 15px 50px; 
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background 0.3s, box-shadow 0.3s;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    display: inline-block;
+    font-size: 16px;
+}
+
+.login-button:hover {
+    background: linear-gradient(45deg, #8A2BE2, #DA70D6, #EE82EE); 
+    box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+}
+
+.register-button {
+    margin-top: 20px;
+    background: linear-gradient(45deg, #FFA500, #FF8C00, #FF4500); 
+    color: #fff;
+    padding: 15px 50px; 
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background 0.3s, box-shadow 0.3s;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    display: inline-block;
+    font-size: 16px;
+}
+
+.register-button:hover {
+    background: linear-gradient(45deg, #FF8C00, #FF4500, #FF6347); 
+    box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+}
+
+
+
+
+#show-password-button {
+    border: none;
+    background: none;
+    cursor: pointer;
+}
+
+#show-password-button:hover svg,
+#show-password-button:focus svg {
+    fill: #666;
+}
+
+/* Styles for password display icon */
+#show-password-button svg {
+    fill: #333;
+    transition: fill 0.2s ease-in-out;
+}
+
+.malwarebazarbutton {
+    padding: 10px 20px;
+    background: linear-gradient(90deg, #8a2be2, #4b0082); 
+    border: none;
+    color: white;
+    font-size: 16px;
+    font-weight: bold;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background 0.3s ease;
+}
+
+.malwarebazarbutton:hover {
+    background: linear-gradient(90deg, #7a1cdb, #3b0070); 
+}
+
+
+.runMalware {
+    background-color: #5865F2; 
+    color: #ffffff; 
+    padding: 8px 12px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.runMalware:hover {
+    background-color: #4753c7; 
+}
+
+.displaycsvcontent {
+    padding: 10px 20px;
+    background: linear-gradient(90deg, #8a2be2, #4b0082); 
+    border: none;
+    color: white;
+    font-size: 16px;
+    font-weight: bold;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background 0.3s ease;
+}
+
+.displaycsvcontent:hover {
+    background: linear-gradient(90deg, #7a1cdb, #3b0070); 
+}
+
+.displaycsvcontent:disabled {
+    background: #555555; 
+    cursor: not-allowed;
+}
+
+
+#restoreButton {
+    background: linear-gradient(45deg, #6A0DAD, #8A2BE2, #DA70D6);
+    border: none;
+    color: white;
+    padding: 15px 32px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+    margin: 4px 2px;
+    cursor: pointer;
+    border-radius: 4px;
+    transition-duration: 0.4s;
+    box-shadow: 0 2px 2px 0 rgba(0,0,0,0.24), 0 5px 5px 0 rgba(0,0,0,0.19);
+}
+
+#restoreButton:hover {
+    background: linear-gradient(45deg, #8A2BE2, #DA70D6, #EE82EE);
+    box-shadow: 0 4px 8px 0 rgba(0,0,0,0.24), 0 6px 20px 0 rgba(0,0,0,0.19);
+}
+
+#powerOffButton {
+    background-color: #ff4c4c; 
+    border: none;
+    color: white;
+    padding: 15px 32px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+    margin: 4px 2px;
+    cursor: pointer;
+    border-radius: 4px;
+    transition-duration: 0.4s;
+    box-shadow: 0 2px 2px 0 rgba(0,0,0,0.24), 0 5px 5px 0 rgba(0,0,0,0.19);
+}
+
+#powerOffButton:hover {
+    background-color: #d32f2f;
+    box-shadow: 0 4px 8px 0 rgba(0,0,0,0.24), 0 6px 20px 0 rgba(0,0,0,0.19);
+}
+
+#startVmButton {
+    background: linear-gradient(45deg, #2196F3, #6A0DAD); 
+    border: none;
+    color: white;
+    padding: 15px 32px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+    margin: 4px 2px;
+    cursor: pointer;
+    border-radius: 4px;
+    transition-duration: 0.4s;
+    box-shadow: 0 2px 2px 0 rgba(0,0,0,0.24), 0 5px 5px 0 rgba(0,0,0,0.19);
+}
+
+#startVmButton:hover {
+    background: linear-gradient(45deg, #1976D2, #8A2BE2);
+    box-shadow: 0 4px 8px 0 rgba(0,0,0,0.24), 0 6px 20px 0 rgba(0,0,0,0.19);
+}
+
+#restartWinlogbeatButton {
+    background: linear-gradient(45deg, #6A0DAD, #8A2BE2, #DA70D6); 
+    border: none;
+    color: white;
+    padding: 15px 32px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+    margin: 4px 2px;
+    cursor: pointer;
+    border-radius: 4px;
+    transition-duration: 0.4s;
+    box-shadow: 0 2px 2px 0 rgba(0,0,0,0.24), 0 5px 5px 0 rgba(0,0,0,0.19);
+}
+
+#restartWinlogbeatButton:hover {
+    background: linear-gradient(45deg, #8A2BE2, #DA70D6, #EE82EE);
+    box-shadow: 0 4px 8px 0 rgba(0,0,0,0.24), 0 6px 20px 0 rgba(0,0,0,0.19);
+}
+
+
+.forensic-button {
+    background: linear-gradient(45deg, #DA70D6, #8A2BE2, #6A0DAD);
+    border: 2px solid transparent; 
+    color: white;
+    padding: 10px 15px; 
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+    margin: 8px 0; 
+    transition: background 0.4s, border-color 0.4s, color 0.4s; 
+    cursor: pointer;
+    border-radius: 12px;
+    width: 20%; 
+    box-sizing: border-box; 
+}
+
+.forensic-button:hover {
+    background: linear-gradient(45deg, #EE82EE, #DA70D6, #8A2BE2);
+    color: black;
+    border-color: #DA70D6; 
+}
+
+
+

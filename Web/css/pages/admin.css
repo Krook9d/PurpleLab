@@ -1,0 +1,63 @@
+/* pages/admin.css */
+
+.admin-button {
+    background: linear-gradient(45deg, #6A0DAD, #8A2BE2, #DA70D6); 
+    color: white;
+    padding: 10px 20px;
+    margin: 10px 5px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+    transition: background 0.3s ease, transform 0.3s ease;
+}
+
+.admin-button:hover {
+    background: linear-gradient(45deg, #8A2BE2, #DA70D6, #EE82EE); 
+    transform: scale(1.05);
+}
+
+.admin-table {
+    margin-top: 20px;
+    width: 100%;
+    border-collapse: collapse;
+    background-color: #1f1f2e;
+    border-radius: 10px;
+    overflow: hidden; 
+}
+
+.admin-table th, .admin-table td {
+    padding: 10px;
+    border: 1px solid #3a3a3a; 
+    text-align: left;
+    color: #cbd3da; 
+}
+
+.admin-table th {
+    background-color: #2e2e3e; 
+    font-weight: bold;
+}
+
+.admin-input {
+    padding: 10px;
+    margin-bottom: 10px;
+    width: calc(100% - 22px); 
+    border-radius: 5px;
+    border: 1px solid #3a3a3a; 
+    background-color: #3a3f44; 
+    color: #cbd3da; 
+}
+
+.admin-input:focus {
+    border-color: #824ed9; 
+    box-shadow: 0 0 5px rgba(130, 78, 217, 0.5); 
+}
+
+.token-field {
+    border: none;
+    background-color: transparent;
+    font-family: monospace;
+    width: 100%;
+    text-overflow: ellipsis;
+    color: #cbd3da; 
+}
