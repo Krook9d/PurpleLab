@@ -313,12 +313,15 @@ CSV_FILE="/var/www/html/enterprise-attack/index.csv"
 
 # Create database and user
 mysql -e "CREATE DATABASE IF NOT EXISTS $DB_NAME;"
-mysql -e "CREATE USER IF NOT EXISTS 'toor'@'localhost' IDENTIFIED WITH mysql_native_password BY 'root';"
-mysql -e "GRANT ALL ON $DB_NAME.* TO 'toor'@'localhost';"
+mysql -e "CREATE USER IF NOT EXISTS '$DB_USER'@'localhost' IDENTIFIED WITH mysql_native_password BY '$DB_PASS';"
+mysql -e "GRANT ALL ON $DB_NAME.* TO '$DB_USER'@'localhost';"
 mysql -e "FLUSH PRIVILEGES;"
 
-# Create the users table
-mysql -e "USE $DB_NAME; CREATE TABLE IF NOT EXISTS users (
+# Create tables and load data from CSV
+mysql --local-infile=1 -u $DB_USER -p$DB_PASS -e "
+USE $DB_NAME;
+
+CREATE TABLE IF NOT EXISTS users (
     id INT AUTO_INCREMENT PRIMARY KEY,
     first_name VARCHAR(100) NOT NULL,
     last_name VARCHAR(100) NOT NULL,
@@ -326,19 +329,15 @@ mysql -e "USE $DB_NAME; CREATE TABLE IF NOT EXISTS users (
     analyst_level VARCHAR(50) NOT NULL,
     avatar VARCHAR(255) NOT NULL,
     password VARCHAR(255) NOT NULL
-);"
+);
 
-# Create the contents table with author_id as a foreign key
-mysql -e "USE $DB_NAME; CREATE TABLE IF NOT EXISTS contents (
+CREATE TABLE IF NOT EXISTS contents (
     id INT AUTO_INCREMENT PRIMARY KEY,
     content TEXT NOT NULL,
     author_id INT NOT NULL,
     FOREIGN KEY (author_id) REFERENCES users(id)
-);"
+);
 
-# Create the atomic_tests table
-mysql -u $DB_USER -p$DB_PASS -e "
-USE $DB_NAME;
 CREATE TABLE IF NOT EXISTS atomic_tests (
     id INT AUTO_INCREMENT PRIMARY KEY,
     tactic VARCHAR(255),
@@ -348,12 +347,10 @@ CREATE TABLE IF NOT EXISTS atomic_tests (
     test_name VARCHAR(255),
     Test_GUID VARCHAR(255),
     Executor_Name VARCHAR(255)
-);"
+);
 
-# Load data from CSV into the atomic_tests table
-mysql -u $DB_USER -p$DB_PASS --local-infile=1 -e "
 LOAD DATA LOCAL INFILE '$CSV_FILE'
-INTO TABLE $DB_NAME.atomic_tests
+INTO TABLE atomic_tests
 FIELDS TERMINATED BY ',' 
 ENCLOSED BY '\"'
 LINES TERMINATED BY '\n'
@@ -365,8 +362,8 @@ SET
     test = NULLIF(test, ''),
     test_name = NULLIF(test_name, ''),
     Test_GUID = NULLIF(Test_GUID, ''),
-    Executor_Name = NULLIF(Executor_Name, '');"
-
+    Executor_Name = NULLIF(Executor_Name, '');
+"
 
 # Randomly generate a secure password
 ADMIN_PASSWORD=$(< /dev/urandom tr -dc 'A-Za-z0-9!@#$%^&*()' | head -c 12)
