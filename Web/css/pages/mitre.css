@@ -18,9 +18,13 @@
 
 .loading-icon {
     text-align: center; 
-    margin-top: 10px; 
+    margin-top: 50px; 
 }
 
+.loading-icon img {
+    width: 100px; 
+    height: auto; 
+}
 
 .search-container-mittre {
     margin: 20px auto;
