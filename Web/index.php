@@ -1,8 +1,6 @@
   <!-- start Connexion -->
 <?php
 
-
-
 error_reporting(0);
 
 session_start();
@@ -820,14 +818,18 @@ var bubbleData = <?php
 </script>
 
 <script>
-var ctx = document.getElementById('myBubbleChart').getContext('2d');
-var myBubbleChart = new Chart(ctx, {
+var bubbleCtx = document.getElementById('myBubbleChart').getContext('2d');
+var myBubbleChart = new Chart(bubbleCtx, {
     type: 'bubble',
     data: {
         datasets: [{
             data: bubbleData,
             backgroundColor: function(context) {
-                return context.raw.backgroundColor;
+                
+                if (context && context.raw) {
+                    return context.raw.backgroundColor || 'rgba(0, 0, 0, 0.1)';
+                }
+                return 'rgba(0, 0, 0, 0.1)';
             }
         }]
     },
@@ -847,14 +849,13 @@ var myBubbleChart = new Chart(ctx, {
         plugins: {
             legend: {
                 display: false,
-                
             },
             tooltip: {
                 enabled: false, 
                 mode: 'nearest',
                 position: 'nearest',
                 external: function(context) {
-                    
+                  
                 }
             }
         },
@@ -869,17 +870,17 @@ var myBubbleChart = new Chart(ctx, {
     },
     plugins: [{
         afterDatasetsDraw: function(chart, easing) {
-            var ctx = chart.ctx;
+            var bubbleCtx = chart.ctx;
             chart.data.datasets.forEach(function(dataset, i) {
                 var meta = chart.getDatasetMeta(i);
                 if (!meta.hidden) {
                     meta.data.forEach(function(element, index) {
                         
-                        ctx.fillStyle = 'rgb(255, 255, 255)';
+                        bubbleCtx.fillStyle = 'rgb(255, 255, 255)';
                         var fontSize = 16;
                         var fontStyle = 'normal';
                         var fontFamily = 'Helvetica Neue';
-                        ctx.font = Chart.helpers.fontString(fontSize, fontStyle, fontFamily);
+                        bubbleCtx.font = Chart.helpers.fontString(fontSize, fontStyle, fontFamily);
 
                         
                         var data = dataset.data[index];
@@ -889,11 +890,11 @@ var myBubbleChart = new Chart(ctx, {
                         var position = element.getCenterPoint();
                         
                         
-                        ctx.textAlign = 'center';
-                        ctx.textBaseline = 'middle';
+                        bubbleCtx.textAlign = 'center';
+                        bubbleCtx.textBaseline = 'middle';
                         
                         
-                        ctx.fillText(label, position.x, position.y);
+                        bubbleCtx.fillText(label, position.x, position.y);
                     });
                 }
             });
@@ -901,6 +902,8 @@ var myBubbleChart = new Chart(ctx, {
     }]
 });
 </script>
+
+
 
 <script>
 document.addEventListener('DOMContentLoaded', (event) => {
@@ -933,6 +936,8 @@ function animateValue(element, finalValue) {
 }
 
 </script>
+
+
 <script>
 am5.ready(function() {
     var root = am5.Root.new("sankeyChartdiv");
@@ -950,28 +955,41 @@ am5.ready(function() {
         nodePadding: 30
     }));
 
-    series.nodes.get("colors").set("step", 2);
+    if (series.nodes && series.nodes.get("colors")) {
+        series.nodes.get("colors").set("step", 2);
+    }
 
     var seriesData = <?php echo json_encode($graphData); ?>;
     series.data.setAll(seriesData);
 
-    series.nodes.template.events.on("sizechanged", function(ev) {
-        var label = ev.target.children.getIndex(0);
-        var cellWidth = ev.target.pixelWidth;
-        label.maxWidth = cellWidth;
-    });
+    if (series.nodes && series.nodes.template && series.nodes.template.events) {
+        series.nodes.template.events.on("sizechanged", function(ev) {
+            var label = ev.target.children.getIndex(0);
+            if (label) {
+                var cellWidth = ev.target.pixelWidth;
+                label.maxWidth = cellWidth;
+              
+                label.set("fill", am5.color(0xFFFFFF));
+            }
+        });
+    }
 
-    
-    series.labels.template.setAll({
-        fill: am5.color(0xFFFFFF), 
-        truncate: true,
-        maxWidth: 150
+    if (series.labels && series.labels.template) {
+        series.labels.template.setAll({
+            fill: am5.color(0xFFFFFF), 
+            truncate: true,
+            maxWidth: 150
+        });
+    }
+
+ 
+    series.nodes.labels.template.setAll({
+        fill: am5.color(0xFFFFFF)
     });
 
     series.appear(1000, 100);
-}); 
+});
 </script>
-
 
 </body>
 </html>
