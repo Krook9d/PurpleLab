@@ -282,8 +282,7 @@ This page is a simple sharing platform. When you have found a good query or dete
 This page will allow you to search for sigma rules with key words, this can be technique IDs or words like "powershell", the list of concerned rules is displayed
 Once a rule is selected it is displayed, on the top right side of the rule is an icon with arrows, once clicked it displays two buttons "Splunk" and "Lucene" and when a button is clicked it converts the sigma rule with the chosen language. 
 
-![image](https://github.com/Krook9d/PurpleLab/assets/40600995/1207555f-407f-4e49-8430-6a811e7185d0)
-
+<img src="/MD_image/sigma.png" width="800" alt="Health Page">
 
 ## Health Page  🩺
 
