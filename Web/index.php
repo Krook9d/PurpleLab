@@ -64,6 +64,7 @@ $conn->close();
 
 
 $username = 'elastic';
+$elasticPassword = getenv('ELASTIC_PASSWORD');
 
 // KPI 1 gauge request
 
