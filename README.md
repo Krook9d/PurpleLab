@@ -344,3 +344,4 @@ https://github.com/Krook9d/PurpleLab-Cortex-Analyzer/assets/40600995/690a8728-4b
 
 For more information on using the PurpleLab API, see [API Documentation](/Documentation/flask_app_documentation.md).
 
+.
