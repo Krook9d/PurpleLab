@@ -91,7 +91,8 @@ At the start of the installation, a dialog box will ask you whether you want to 
 
 #### Admin Account
 
-An admin account is created by default, stored in your home directory in the admin.txt file and then hashed into the database.
+An admin account is created by default, stored in your home directory in the admin.txt file in this form ( admin@local.com:password) and then hashed into the database.
+
 
 #### User Account
 
