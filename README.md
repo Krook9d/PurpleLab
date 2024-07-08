@@ -117,7 +117,7 @@ sudo /usr/share/elasticsearch/bin/elasticsearch-create-enrollment-token --scope 
 ```
 Then go to the "Hunting" page to open ELK and copy the token when prompted.
 
-4. After pasting the enrolment token, you'll be asked for a verification code. Here's how to obtain it
+2. After pasting the enrolment token, you'll be asked for a verification code. Here's how to obtain it
 ```bash
 sudo /usr/share/kibana/bin/kibana-verification-code
 ```
