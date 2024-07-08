@@ -497,3 +497,23 @@ sigma plugin install splunk
     sudo mkdir /var/www/html/config/
     sudo chmod 750 /var/www/html/config/
 
+SERVER_IP=$(hostname -I | awk '{print $1}')
+
+GREEN='\033[0;32m'
+NC='\033[0m' 
+
+MESSAGE="
+*********************************************
+*                                           *
+*        PURPLELAB by Krook9d               *
+*                                           *
+*********************************************
+
+Connect to: ${GREEN}http://${SERVER_IP}${NC}
+
+The necessary passwords for the application are in admin.txt.
+For better security, change them and harden the server.
+"
+
+echo -e "$MESSAGE"
+
