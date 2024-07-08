@@ -111,11 +111,13 @@ You have to set up your accounts. after installation :
 ### ELK Configuration
 
 
-1. In the admin.txt file on your home directory, copy the enrolment token 
-The token is located below the line "he generated password for the elastic built-in superuser is". 
-Then go to the "Hunting" page to open ELK and copy it when prompted.
+1. On the server do :
+```bash
+sudo /usr/share/elasticsearch/bin/elasticsearch-create-enrollment-token --scope kibana
+```
+Then go to the "Hunting" page to open ELK and copy the token when prompted.
 
-2. After pasting the enrolment token, you'll be asked for a verification code. Here's how to obtain it
+4. After pasting the enrolment token, you'll be asked for a verification code. Here's how to obtain it
 ```bash
 sudo /usr/share/kibana/bin/kibana-verification-code
 ```
@@ -145,7 +147,7 @@ cd 'C:\Program Files\winlogbeat'
 Change :
 the password at "password:" (put the password you have in admin.txt)
 
-Replace All the Ip that corresponding to 192.168.142.130 with the address of your ELK server
+Replace All the Ip that corresponding to 192.168.142.130 or other with the address of your ELK server
 
 Replace the ca_trusted_fingerprint, to have it, run this command in the purplelab server :
 
