@@ -47,6 +47,7 @@ The lab contains :
 > ⚠️ NOTE: This lab has not been hardened in any way and runs with basic credentials. Please do not connect or bridge it to any networks you care about, or secure it yourself with a PKI, better authentication systems, etc.
 
 At the start of installation, the script will test 3 Requirements, which are explained in the next chapter.
+
 During installation, you will be asked twice, once whether you want to install siem ELK with the application, and again to choose the network interface to be used for the application.
 
 
