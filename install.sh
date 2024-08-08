@@ -211,10 +211,10 @@ echo -e "\n\e[32mAll checks passed. Continuing with the installation...\e[0m\n"
 
 
     # Download the sandbox.ova file
-
-    curl -L -o sandbox.ova -H "User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3" "https://dl-0tnr1rp1.swisstransfer.com/api/download/aeb212c2-e1cb-4660-b863-c81e9e39449a/b70b626f-854f-4836-875d-d787db43cc54"
-    #curl -L -o sandbox.ova -H "User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3" "https://dl-wj4hmh39.swisstransfer.com/api/download/38bf88a3-a4c1-4125-8bea-a525aec74c55/0bf2fb2c-f616-4724-89f1-0cf88be6fda8"
-  
+    
+    curl -L -o sandbox.ova -H "User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3" "https://dl-v3d22o3c.swisstransfer.com/api/download/cef5b732-c78d-4c04-838e-eb86f5e16505/e03c3409-6651-4eff-88a2-a9e6668021ce"
+    #curl -L -o sandbox.ova -H "User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3" "https://dl-0tnr1rp1.swisstransfer.com/api/download/aeb212c2-e1cb-4660-b863-c81e9e39449a/b70b626f-854f-4836-875d-d787db43cc54"
+    
     mv sandbox.ova /var/www/html/
 
     mv PurpleLab/* /var/www/html/
