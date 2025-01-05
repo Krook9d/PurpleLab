@@ -144,22 +144,23 @@ You have to connect to the VM, edit the winlogbeats.yml and do some commands
 1. Connect to the VM (you have the IP adress on the health.php page or you can do `sudo VBoxManage guestproperty get sandbox "/VirtualBox/GuestInfo/Net/0/V4/IP"
 `)
 
-2. Open an Administrator Powershell Prompt and go to this folder :
 
-```bash
-cd 'C:\Program Files\winlogbeat'
-```
-
-3. Open the file `C:\Program Files\winlogbeat` with notepadd or other
+2. Open the file `C:\Program Files\winlogbeat` with notepadd or other
 Change :
 the password at "password:" (put the password "elastic built-in superuser" you have in admin.txt)
 
-Replace All the Ip that corresponding to 192.168.142.130 or other with the address of your ELK server
+Replace All the Ip that corresponding to 192.168.142.130 or other **with the address of your ELK server**
 
-Replace the ca_trusted_fingerprint, to have it, run this command in the purplelab server :
+Replace the ca_trusted_fingerprint, to have it, run this command **in the purplelab server** :
 
 ```bash
 sudo openssl x509 -fingerprint -sha256 -in /etc/elasticsearch/certs/http_ca.crt | awk -F '=' '/Fingerprint/{print $2}' | tr -d ':'
+```
+
+3. Open an Administrator Powershell Prompt and go to this folder :
+
+```bash
+cd 'C:\Program Files\winlogbeat'
 ```
 
 4. test the configuration with : 
