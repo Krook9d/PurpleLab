@@ -152,7 +152,7 @@ cd 'C:\Program Files\winlogbeat'
 
 3. Open the file `C:\Program Files\winlogbeat` with notepadd or other
 Change :
-the password at "password:" (put the password you have in admin.txt)
+the password at "password:" (put the password "elastic built-in superuser" you have in admin.txt)
 
 Replace All the Ip that corresponding to 192.168.142.130 or other with the address of your ELK server
 
