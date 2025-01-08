@@ -1,0 +1,299 @@
+/* pages/custom-payloads.css */
+.title {
+    color: #824ed9;
+    margin-bottom: 30px;
+    font-size: 2em;
+    text-align: center;
+}
+
+.payload-form {
+    background: linear-gradient(145deg, #1f1f2e, #2a2a3d);
+    padding: 20px;
+    border-radius: 5px;
+    margin: 0 auto 40px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+    width: 90%;
+    max-width: 800px;
+    position: relative;
+}
+
+.payload-input {
+    width: 100%;
+    padding: 12px;
+    margin-bottom: 15px;
+    border: 1px solid #3a3a3a;
+    border-radius: 5px;
+    background: #2e2e3e;
+    color: #cbd3da;
+    box-sizing: border-box;
+}
+
+.payload-textarea {
+    width: 100%;
+    height: 200px;
+    padding: 12px;
+    margin-bottom: 15px;
+    border: 1px solid #3a3a3a;
+    border-radius: 5px;
+    background: #2e2e3e;
+    color: #cbd3da;
+    font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+    font-size: 14px;
+    line-height: 1.5;
+    resize: none;
+    box-sizing: border-box;
+}
+
+.payload-submit-button {
+    background: linear-gradient(45deg, #6A0DAD, #8A2BE2, #DA70D6);
+    color: white;
+    padding: 12px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.payload-submit-button:hover {
+    background: linear-gradient(45deg, #8A2BE2, #DA70D6, #EE82EE);
+    transform: scale(1.05);
+}
+
+.payloads-section-title {
+    color: #cbd3da;
+    font-size: 1.5em;
+    margin: 40px 0 20px 80px;
+}
+
+.payloads-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 20px;
+    padding: 20px;
+    margin-left: 80px;
+    width: calc(100% - 100px);
+}
+
+.payload-card {
+    background: #1f1f2e;
+    padding: 15px;
+    border-radius: 5px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+    cursor: pointer;
+    transition: transform 0.2s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+    position: relative;
+    overflow: hidden;
+    border: 1px solid transparent;
+}
+
+.payload-card:hover {
+    transform: translateY(-5px);
+    border-color: #824ed9;
+    box-shadow: 0 5px 15px rgba(130, 78, 217, 0.3);
+}
+
+.payload-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 2px;
+    background: linear-gradient(to right, transparent, #824ed9, transparent);
+    transition: left 0.5s ease;
+}
+
+.payload-card:hover::before {
+    left: 100%;
+}
+
+.payload-name {
+    color: #824ed9;
+    margin-bottom: 10px;
+    font-size: 1.2em;
+}
+
+.payload-author {
+    color: #cbd3da;
+    font-size: 0.9em;
+}
+
+/* Modal styles */
+.payload-modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.7);
+    z-index: 1000;
+    justify-content: center;
+    align-items: center;
+}
+
+.payload-modal-content {
+    background: linear-gradient(145deg, #1f1f2e, #2a2a3d);
+    padding: 25px;
+    border-radius: 8px;
+    width: 90%;
+    max-width: 800px;
+    max-height: 80vh;
+    overflow-y: auto;
+    position: relative;
+    border: 1px solid rgba(130, 78, 217, 0.2);
+    animation: modalSlideIn 0.3s ease;
+}
+
+@keyframes modalSlideIn {
+    from {
+        transform: translateY(-20px);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+.modal-close {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    font-size: 24px;
+    color: #cbd3da;
+    cursor: pointer;
+    transition: color 0.3s ease;
+}
+
+.modal-close:hover {
+    color: #ff4c4c;
+}
+
+.payload-actions {
+    display: flex;
+    gap: 10px;
+    margin-top: 20px;
+}
+
+.payload-execute-button,
+.payload-delete-button {
+    padding: 8px 15px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    color: white;
+}
+
+.payload-execute-button {
+    background: linear-gradient(45deg, #2196F3, #6A0DAD);
+}
+
+.payload-execute-button:hover {
+    background: linear-gradient(45deg, #1976D2, #8A2BE2);
+    transform: scale(1.05);
+}
+
+.payload-delete-button {
+    background: #ff4c4c;
+}
+
+.payload-delete-button:hover {
+    background: #d32f2f;
+    transform: scale(1.05);
+}
+
+.payload-content {
+    background: #2e2e3e;
+    padding: 15px;
+    border-radius: 5px;
+    border-left: 4px solid #824ed9;
+    color: #cbd3da;
+    font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+    font-size: 14px;
+    line-height: 1.5;
+    overflow-x: auto;
+    margin: 15px 0;
+}
+
+.separator {
+    height: 1px;
+    background: linear-gradient(to right, transparent, #824ed9, transparent);
+    margin: 0 auto 40px;
+    width: 90%;
+    max-width: 1200px;
+}
+
+.payload-input:focus,
+.payload-textarea:focus {
+    border-color: #824ed9;
+    box-shadow: 0 0 0 2px rgba(130, 78, 217, 0.2);
+    outline: none;
+    transition: all 0.3s ease;
+}
+
+.payload-form::before {
+    content: '';
+    position: absolute;
+    top: -2px;
+    left: -2px;
+    right: -2px;
+    bottom: -2px;
+    background: linear-gradient(45deg, #6A0DAD, #8A2BE2, #DA70D6);
+    border-radius: 7px;
+    z-index: -1;
+    opacity: 0.5;
+}
+
+.payload-stats {
+    display: flex;
+    justify-content: center;
+    gap: 30px;
+    margin-bottom: 30px;
+}
+
+.stat-item {
+    text-align: center;
+    padding: 15px 25px;
+    background: #1f1f2e;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+}
+
+.stat-value {
+    display: block;
+    font-size: 24px;
+    font-weight: bold;
+    color: #824ed9;
+    margin-bottom: 5px;
+}
+
+.stat-label {
+    color: #cbd3da;
+    font-size: 14px;
+}
+
+#modalPayloadName {
+    color: #824ed9;
+    font-size: 1.8em;
+    margin-bottom: 10px;
+    border-bottom: 2px solid rgba(130, 78, 217, 0.2);
+    padding-bottom: 10px;
+}
+
+#modalPayloadAuthor {
+    color: #cbd3da;
+    font-style: italic;
+    margin-bottom: 20px;
+}
+
+.payload-card.loading {
+    animation: cardPulse 1.5s ease infinite;
+}
+
+@keyframes cardPulse {
+    0% { opacity: 1; }
+    50% { opacity: 0.6; }
+    100% { opacity: 1; }
+} 
