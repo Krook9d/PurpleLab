@@ -52,7 +52,7 @@ def clear_upload_folder():
 @jwt_required()
 def upload_file():
     """ Route to upload files. Clears upload folder at the start. """
-    clear_upload_folder()  # Clear the folder right at the start
+    clear_upload_folder()  # 
 
     if 'file' not in request.files:
         return jsonify({"error": "No file part"}), 400
@@ -65,7 +65,6 @@ def upload_file():
     file_path = os.path.join(current_app.config['UPLOAD_FOLDER'], filename)
     file.save(file_path)
     
-    # Run the extension script and wait for it to finish
     script_path = '/var/www/html/scripts/extension.py'
     subprocess.run(f"sudo python3 {script_path}", shell=True, check=True)
 
@@ -137,12 +136,12 @@ def api_mitre_attack_execution():
     if request.remote_addr != "127.0.0.1" and not get_jwt_identity():
         return jsonify({"msg": "Access denied"}), 401
 
-    # Récupérer l'argument technique_id
+    
     technique_id = request.args.get('technique_id')
     if not technique_id:
         return jsonify({"msg": "technique_id is required"}), 400
 
-    # Format the PowerShell command
+  
     powershell_command = f"\"& {{Import-Module 'C:\\\\AtomicRedTeam\\\\invoke-atomicredteam\\\\Invoke-AtomicRedTeam.psd1' -Force; Invoke-AtomicTest {technique_id}}}\""
 
     # Execute the command using VBoxManage
@@ -587,6 +586,46 @@ def handle_unprocessable_entity(err):
     response = jsonify({'error': 'Unprocessable Entity', 'message': str(err)})
     return response, 422
 
+
+@app.route('/api/execute_payload', methods=['POST'])
+@jwt_required(optional=True)
+def execute_payload():
+    if request.remote_addr != "127.0.0.1" and not get_jwt_identity():
+        return jsonify({"msg": "Access denied"}), 401
+
+    payload_content = request.json.get('content')
+    if not payload_content:
+        return jsonify({"error": "Missing payload content"}), 400
+
+    powershell_command = f"{payload_content}"
+
+    try:
+        # Execute the command using VBoxManage
+        result = subprocess.run(
+            ['VBoxManage', 'guestcontrol', 'sandbox', 
+             '--username', 'oem', '--password', 'oem', 
+             'run', '--exe', 'C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe', 
+             '--', 'powershell.exe', '-NoProfile', '-NonInteractive', 
+             '-Command', powershell_command],
+            check=True,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            text=True
+        )
+        
+        return jsonify({
+            "status": "success",
+            "output": result.stdout,
+            "error": result.stderr
+        }), 200
+
+    except subprocess.CalledProcessError as e:
+        return jsonify({
+            "status": "error",
+            "message": "Command execution failed",
+            "error": str(e),
+            "stderr": e.stderr
+        }), 500
 
 
 if __name__ == '__main__':
