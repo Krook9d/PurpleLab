@@ -288,7 +288,7 @@ sudo VBoxManage modifyvm sandbox --nic1 bridged --bridgeadapter1 "$INTERFACE_CHO
     sudo VBoxManage startvm "sandbox" --type headless
 
     # Wait for VM to be started
-    echo "Waiting for VM to start..."
+    echo "Waiting for VM configuration..."
     while ! VBoxManage showvminfo "sandbox" | grep -q "State.*running"; do
     sleep 1s
     done
