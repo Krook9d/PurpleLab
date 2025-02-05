@@ -212,8 +212,8 @@ echo -e "\n\e[32mAll checks passed. Continuing with the installation...\e[0m\n"
 
     # Download the sandbox.ova file
     
-    curl -L -o sandbox.ova -H "User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3" "https://dl-15ur2kes.swisstransfer.com/api/download/88c4eede-91db-4016-b8a6-57f7282dbab7/c367102d-17c1-4e5c-8161-3233f98c83b0"
-    #curl -L -o sandbox.ova -H "User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3" "https://dl-0tnr1rp1.swisstransfer.com/api/download/aeb212c2-e1cb-4660-b863-c81e9e39449a/b70b626f-854f-4836-875d-d787db43cc54"
+    #curl -L -o sandbox.ova -H "User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3" "https://dl-15ur2kes.swisstransfer.com/api/download/88c4eede-91db-4016-b8a6-57f7282dbab7/c367102d-17c1-4e5c-8161-3233f98c83b0"
+    curl -L -o sandbox.ova -H "User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3" "https://dl-m6jmv1ql.swisstransfer.com/api/download/a992e2b6-96c0-4334-96da-c50a9cda1cae/0a9752f0-dc26-47c6-8470-fe3e28ae1aff"
     
     mv sandbox.ova /var/www/html/
 
