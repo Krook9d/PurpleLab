@@ -54,7 +54,7 @@ During installation, you will be asked twice, once whether you want to install s
 ## Requirements
 
 Minimum Hardware resources : 
-- 200Go 
+- 200GB 
 - 8 cores
 - 13GB RAM
 
