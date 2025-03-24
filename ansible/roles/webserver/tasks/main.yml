@@ -1,0 +1,99 @@
+---
+- name: Configuration de VirtualHost Apache
+  copy:
+    content: |
+      <VirtualHost *:80>
+          DirectoryIndex index.php
+      </VirtualHost>
+    dest: /etc/apache2/sites-available/000-default.conf
+  notify: Redémarrer Apache
+
+- name: Installation de Composer
+  shell: |
+    curl -sS https://getcomposer.org/installer | php
+    mv composer.phar /usr/local/bin/composer
+  args:
+    creates: /usr/local/bin/composer
+
+- name: Téléchargement du fichier OVA de sandbox
+  get_url:
+    url: https://dl-udx0dzf1.swisstransfer.com/api/download/c7973e3a-0456-460f-8f23-aa175a6b21c7/41a14b9d-40e9-4819-bb0f-e32f9ac91320
+    dest: /var/www/html/sandbox.ova
+    headers:
+      User-Agent: "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3"
+
+- name: Ajouter les informations VM au fichier admin.txt
+  lineinfile:
+    path: "/home/{{ ansible_user }}/admin.txt"
+    line: 'W10 "sandbox" VM credentials: user = oem password = oem'
+    state: present
+
+- name: Décompression et déplacement des fichiers PurpleLab
+  unarchive:
+    src: PurpleLab.zip  # Assurez-vous d'avoir ce fichier disponible
+    dest: /tmp/
+  register: purplelab_extracted
+  ignore_errors: yes  # Cette tâche nécessitera probablement d'ajuster la source selon votre setup
+
+- name: Déplacer les fichiers PurpleLab vers le webroot
+  shell: |
+    mv /tmp/PurpleLab/* /var/www/html/
+    mv /var/www/html/Web/* /var/www/html/
+    rm -r /var/www/html/Web
+    rm -r /tmp/PurpleLab
+  when: purplelab_extracted is success
+  ignore_errors: yes
+
+- name: Déplacer app.py vers le répertoire de l'utilisateur
+  copy:
+    src: files/app.py
+    dest: "/home/{{ ansible_user }}/app.py"
+    remote_src: yes
+    mode: '0755'
+
+- name: Installation de PhpSpreadsheet
+  composer:
+    command: require
+    arguments: phpoffice/phpspreadsheet
+    working_dir: /var/www/html
+
+- name: Supprimer index.html par défaut
+  file:
+    path: /var/www/html/index.html
+    state: absent
+
+- name: Définir les permissions appropriées
+  file:
+    path: "{{ item.path }}"
+    state: directory
+    mode: "{{ item.mode }}"
+    recurse: "{{ item.recurse | default(no) }}"
+  with_items:
+    - { path: '/var/www/html/', mode: '0775', recurse: yes }
+    - { path: '/var/www/html/uploads/', mode: '0770', recurse: yes }
+    - { path: '/var/www/html/Downloaded/malware_upload/', mode: '0777', recurse: yes }
+    - { path: '/var/www/html/config/', mode: '0750', recurse: no }
+
+- name: Définir les permissions pour admin.php
+  file:
+    path: /var/www/html/admin.php
+    mode: '0755'
+    state: file
+
+- name: Ajouter les variables d'environnement à Apache
+  lineinfile:
+    path: /etc/apache2/envvars
+    line: "{{ item }}"
+  with_items:
+    - "export DB_HOST='localhost'"
+    - "export DB_USER='{{ db_user }}'"
+    - "export DB_PASS='{{ db_pass }}'"
+    - "export DB_NAME='{{ db_name }}'"
+    - "export ENCRYPTION_KEY='{{ encryption_key }}'"
+  notify: Redémarrer Apache
+
+- handlers:
+    - name: Redémarrer Apache
+      service:
+        name: apache2
+        state: restarted 

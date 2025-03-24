@@ -1,0 +1,122 @@
+---
+- name: Installation de MySQL
+  apt:
+    name: mysql-server
+    state: present
+
+- name: Démarrage et activation du service MySQL
+  service:
+    name: mysql
+    state: started
+    enabled: yes
+
+- name: Configuration de local_infile dans MySQL
+  lineinfile:
+    path: /etc/mysql/mysql.conf.d/mysql.cnf
+    line: "local_infile=1"
+    insertafter: "[mysql]"
+    create: yes
+
+- name: Redémarrer le service MySQL
+  service:
+    name: mysql
+    state: restarted
+
+- name: Activer local_infile globalement
+  shell: mysql -e "SET GLOBAL local_infile=1;"
+  changed_when: false
+
+- name: Création de la base de données
+  mysql_db:
+    name: "{{ db_name }}"
+    state: present
+
+- name: Création de l'utilisateur MySQL
+  mysql_user:
+    name: "{{ db_user }}"
+    password: "{{ db_pass }}"
+    priv: "{{ db_name }}.*:ALL"
+    host: localhost
+    state: present
+
+- name: Création des tables dans la base de données
+  mysql_query:
+    login_user: "{{ db_user }}"
+    login_password: "{{ db_pass }}"
+    db: "{{ db_name }}"
+    query: |
+      CREATE TABLE IF NOT EXISTS users (
+          id INT AUTO_INCREMENT PRIMARY KEY,
+          first_name VARCHAR(100) NOT NULL,
+          last_name VARCHAR(100) NOT NULL,
+          email VARCHAR(100) NOT NULL UNIQUE,
+          analyst_level VARCHAR(50) NOT NULL,
+          avatar VARCHAR(255) NOT NULL,
+          password VARCHAR(255) NOT NULL
+      );
+
+      CREATE TABLE IF NOT EXISTS contents (
+          id INT AUTO_INCREMENT PRIMARY KEY,
+          content TEXT NOT NULL,
+          author_id INT NOT NULL,
+          FOREIGN KEY (author_id) REFERENCES users(id)
+      );
+
+      CREATE TABLE IF NOT EXISTS custom_payloads (
+          id INT AUTO_INCREMENT PRIMARY KEY,
+          name VARCHAR(255) NOT NULL,
+          content TEXT NOT NULL,
+          author_id INT NOT NULL,
+          created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+          FOREIGN KEY (author_id) REFERENCES users(id)
+      );
+
+      CREATE TABLE IF NOT EXISTS atomic_tests (
+          id INT AUTO_INCREMENT PRIMARY KEY,
+          tactic VARCHAR(255),
+          technique_id VARCHAR(255),
+          technique_name VARCHAR(255),
+          test VARCHAR(255),
+          test_name VARCHAR(255),
+          Test_GUID VARCHAR(255),
+          Executor_Name VARCHAR(255)
+      );
+
+- name: Importer les données CSV pour atomic_tests
+  shell: |
+    mysql --local-infile=1 -u {{ db_user }} -p{{ db_pass }} {{ db_name }} -e "
+    LOAD DATA LOCAL INFILE '/var/www/html/enterprise-attack/index.csv'
+    INTO TABLE atomic_tests
+    FIELDS TERMINATED BY ',' 
+    ENCLOSED BY '\"'
+    LINES TERMINATED BY '\n'
+    IGNORE 1 ROWS
+    (tactic, technique_id, technique_name, test, test_name, Test_GUID, Executor_Name)
+    SET
+        technique_id = NULLIF(technique_id, ''),
+        technique_name = NULLIF(technique_name, ''),
+        test = NULLIF(test, ''),
+        test_name = NULLIF(test_name, ''),
+        Test_GUID = NULLIF(Test_GUID, ''),
+        Executor_Name = NULLIF(Executor_Name, '');"
+  ignore_errors: yes
+  register: import_result
+
+- name: Hacher le mot de passe administrateur
+  shell: php -r "echo password_hash('{{ admin_password }}', PASSWORD_DEFAULT);"
+  register: hashed_password
+  changed_when: false
+
+- name: Création de l'utilisateur administrateur
+  mysql_query:
+    login_user: "{{ db_user }}"
+    login_password: "{{ db_pass }}"
+    db: "{{ db_name }}"
+    query: "INSERT INTO users (first_name, last_name, email, analyst_level, avatar, password) VALUES ('Admin', 'Admin', 'admin@local.com', 'n3', '/MD_image/admin.png', '{{ hashed_password.stdout }}');"
+  ignore_errors: yes
+
+- name: Ajouter les informations d'identification de l'administrateur au fichier admin.txt
+  lineinfile:
+    path: "/home/{{ ansible_user }}/admin.txt"
+    line: "admin@local.com:{{ admin_password }}"
+    state: present 

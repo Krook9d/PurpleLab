@@ -1,0 +1,123 @@
+---
+- name: Suppression de needrestart
+  apt:
+    name: needrestart
+    state: absent
+
+- name: Mise à jour des paquets
+  apt:
+    update_cache: yes
+
+- name: Installation des paquets de base
+  apt:
+    name:
+      - dialog
+      - apache2
+      - php
+      - libapache2-mod-php
+      - php-curl
+      - php-mysqli
+      - python3-pip
+      - p7zip-full
+      - apt-transport-https
+      - libapache2-mod-ldap-userdir
+      - php-xml
+      - php-gd
+      - php-mbstring
+      - php-zip
+      - openjdk-11-jdk
+      - curl
+    state: present
+
+- name: Activation des modules Apache
+  apache2_module:
+    name: "{{ item }}"
+    state: present
+  with_items:
+    - ldap
+    - authnz_ldap
+  notify: Redémarrer Apache
+
+- name: Activation du module mysqli
+  shell: phpenmod mysqli
+  args:
+    creates: /etc/php/*/cli/conf.d/*-mysqli.ini
+  notify: Redémarrer Apache
+
+- name: Installation des modules pip
+  pip:
+    name:
+      - pandas
+      - flask
+      - flask-cors
+      - loguru
+      - stix2
+      - mitreattack-python
+      - Flask-JWT-Extended
+      - sigma-cli
+    state: present
+
+- name: Configuration du pare-feu pour permettre les connexions HTTP et HTTPS
+  ufw:
+    rule: allow
+    name: "Apache Full"
+
+- name: Configurer Apache pour utiliser l'adresse IP de la machine
+  lineinfile:
+    path: /etc/apache2/apache2.conf
+    line: "ServerName {{ ansible_default_ipv4.address }}"
+    state: present
+
+- name: Créer le fichier admin.txt
+  file:
+    path: "/home/{{ ansible_user }}/admin.txt"
+    state: touch
+    mode: '0644'
+
+- name: Créer le répertoire de téléchargement
+  file:
+    path: "{{ item }}"
+    state: directory
+    mode: '0755'
+  with_items:
+    - /var/www/html/Downloaded
+    - /var/www/html/Downloaded/Log_simulation
+    - /var/www/html/Downloaded/malware_upload
+    - /var/www/html/Downloaded/upload
+    - /var/www/html/config
+
+- name: Installation de Sigma
+  shell: |
+    sigma plugin install elasticsearch
+    sigma plugin install splunk
+  args:
+    creates: /usr/local/bin/sigma
+
+- name: Clone du dépôt Sigma
+  git:
+    repo: https://github.com/SigmaHQ/sigma.git
+    dest: /tmp/sigma_clone
+    clone: yes
+
+- name: Créer le répertoire de destination pour Sigma
+  file:
+    path: /var/www/html/Downloaded/Sigma
+    state: directory
+    mode: '0755'
+
+- name: Copier les règles Sigma
+  copy:
+    src: /tmp/sigma_clone/rules/
+    dest: /var/www/html/Downloaded/Sigma/rules/
+    remote_src: yes
+
+- name: Supprimer le clone temporaire de Sigma
+  file:
+    path: /tmp/sigma_clone
+    state: absent
+
+- handlers:
+    - name: Redémarrer Apache
+      service:
+        name: apache2
+        state: restarted 

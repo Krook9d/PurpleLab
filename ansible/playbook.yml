@@ -1,0 +1,100 @@
+---
+- name: Installation de PurpleLab
+  hosts: all
+  become: yes
+  vars:
+    db_user: "toor"
+    db_pass: "root"
+    db_name: "myDatabase"
+    vm_name: "sandbox"
+    vm_memory: 4096
+    vm_cpus: 2
+    vm_password: "oem"
+    encryption_key: "{{ lookup('password', '/dev/null chars=ascii_letters,digits,hexdigits length=32') }}"
+    admin_password: "{{ lookup('password', '/dev/null chars=ascii_letters,digits,special length=12') }}"
+
+  pre_tasks:
+    - name: Vérification de la connexion Internet
+      uri:
+        url: https://www.google.com
+        timeout: 5
+      register: internet_check
+      failed_when: internet_check.status != 200
+      ignore_errors: yes
+
+    - name: Échec en cas d'absence de connexion Internet
+      fail:
+        msg: "Pas de connexion Internet. Veuillez vous assurer d'avoir une connexion Internet active."
+      when: internet_check.status is not defined or internet_check.status != 200
+
+    - name: Vérification de la RAM
+      shell: awk '/MemTotal/ {print $2}' /proc/meminfo
+      register: ram_info
+      changed_when: false
+
+    - name: Vérification de la RAM suffisante
+      fail:
+        msg: "RAM insuffisante. Un minimum de 7,9 Go de RAM est requis."
+      when: (ram_info.stdout | int) < 8000000
+
+    - name: Vérification de la virtualisation matérielle
+      shell: grep -E 'vmx|svm' /proc/cpuinfo
+      register: virt_check
+      changed_when: false
+      ignore_errors: yes
+
+    - name: Échec si la virtualisation matérielle est désactivée
+      fail:
+        msg: "La virtualisation matérielle est désactivée. Veuillez l'activer dans les paramètres BIOS."
+      when: virt_check.rc != 0
+
+  roles:
+    - common
+    - webserver
+    - database
+    - opensearch
+    - virtualbox
+
+  post_tasks:
+    - name: Affichage du message final
+      debug:
+        msg: |
+          *********************************************
+          *                                           *
+          *        PURPLELAB by Krook9d               *
+          *                                           *
+          *********************************************
+
+          Connect to: http://{{ ansible_default_ipv4.address }}
+
+          The necessary passwords for the application are in admin.txt.
+          For better security, change them and harden the server.
+
+    - name: Mise à jour des paquets
+      shell: apt-get update
+
+    - name: Installation des dépendances nécessaires
+      shell: apt-get install -y software-properties-common git python3 python3-pip curl unzip
+
+    - name: Clonage du dépôt PurpleLab
+      shell: git clone https://github.com/Krook9d/PurpleLab.git /tmp/PurpleLab
+
+    - name: Installation d'Ansible
+      shell: apt-add-repository --yes --update ppa:ansible/ansible
+      shell: apt-get install -y ansible
+
+    - name: Installation de PyMySQL
+      shell: pip install PyMySQL
+
+    - name: Déplacer les fichiers PurpleLab vers le webroot
+      shell: |
+        if [ -d "/tmp/PurpleLab" ]; then
+          cp -r /tmp/PurpleLab/* /var/www/html/
+          if [ -d "/var/www/html/Web" ]; then
+            cp -r /var/www/html/Web/* /var/www/html/
+            rm -r /var/www/html/Web
+          fi
+        fi
+      args:
+        executable: /bin/bash
+      ignore_errors: yes 

@@ -1,0 +1,20 @@
+filebeat.inputs:
+- type: log
+  enabled: true
+  paths:
+    - /var/www/html/Downloaded/Log_simulation/*.json
+  json.keys_under_root: true
+  json.add_error_key: true
+  json.message_key: log
+  fields_under_root: true
+  fields:
+    timestamp: date
+  date_formats:
+    - 'MMM dd HH:mm:ss'
+
+output.elasticsearch:
+  hosts: ["localhost:9200"]
+  protocol: "https"
+  username: "admin"
+  password: "{{ opensearch_password.stdout }}"
+  ssl.verification_mode: "none" 

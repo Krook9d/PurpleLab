@@ -1,0 +1,122 @@
+---
+- name: Installation de la clé GPG pour OpenSearch
+  apt_key:
+    url: https://artifacts.opensearch.org/publickeys/opensearch.pgp
+    state: present
+
+- name: Ajout du dépôt OpenSearch
+  apt_repository:
+    repo: "deb https://artifacts.opensearch.org/releases/bundle/opensearch/2.x/apt stable main"
+    state: present
+    filename: opensearch-2.x
+
+- name: Mise à jour des paquets
+  apt:
+    update_cache: yes
+
+- name: Installation d'OpenSearch
+  apt:
+    name: opensearch
+    state: present
+  register: opensearch_install
+
+- name: Extraction du mot de passe admin de l'installation OpenSearch
+  shell: grep -oP 'The generated password for the opensearch user is \K.*' /var/log/opensearch/opensearch.log | head -1
+  register: opensearch_password
+  changed_when: false
+  when: opensearch_install.changed
+
+- name: Enregistrer le mot de passe OpenSearch dans admin.txt
+  lineinfile:
+    path: "/home/{{ ansible_user }}/admin.txt"
+    line: "The generated password for the opensearch built-in superuser is : {{ opensearch_password.stdout }}"
+    state: present
+  when: opensearch_install.changed and opensearch_password.stdout != ""
+
+- name: Installation d'OpenSearch Dashboards
+  apt:
+    name: opensearch-dashboards
+    state: present
+
+- name: Installation de Filebeat
+  apt:
+    name: filebeat
+    state: present
+
+- name: Activation de Filebeat
+  systemd:
+    name: filebeat
+    enabled: yes
+
+- name: Configuration d'OpenSearch pour écouter sur toutes les interfaces
+  lineinfile:
+    path: /etc/opensearch/opensearch.yml
+    regexp: "{{ item.regexp }}"
+    line: "{{ item.line }}"
+  with_items:
+    - { regexp: "^#?network.host:", line: "network.host: 0.0.0.0" }
+    - { regexp: "^#?discovery.type:", line: "discovery.type: single-node" }
+    - { regexp: "^#?xpack.security.authc.api_key.enabled:", line: "xpack.security.authc.api_key.enabled: true" }
+  notify: Redémarrer OpenSearch
+
+- name: Configuration d'OpenSearch Dashboards pour écouter sur toutes les interfaces
+  lineinfile:
+    path: /etc/opensearch-dashboards/opensearch_dashboards.yml
+    regexp: "^#?server.host:"
+    line: "server.host: 0.0.0.0"
+  notify: Redémarrer OpenSearch Dashboards
+
+- name: Configuration JVM Heap Size pour OpenSearch
+  copy:
+    content: |
+      # OpenSearch JVM Heap Size
+      -Xms4g
+      -Xmx4g
+    dest: /etc/opensearch/jvm.options.d/custom.options
+  notify: Redémarrer OpenSearch
+
+- name: Configuration de Filebeat pour OpenSearch
+  template:
+    src: filebeat.yml.j2  # Vous devrez créer ce template
+    dest: /etc/filebeat/filebeat.yml
+  notify: Redémarrer Filebeat
+
+- name: Activer et démarrer OpenSearch
+  systemd:
+    name: opensearch
+    state: started
+    enabled: yes
+
+- name: Activer et démarrer OpenSearch Dashboards
+  systemd:
+    name: opensearch-dashboards
+    state: started
+    enabled: yes
+
+- name: Ajouter la variable d'environnement OPENSEARCH_PASSWORD à Apache
+  lineinfile:
+    path: /etc/apache2/envvars
+    line: "export OPENSEARCH_PASSWORD='{{ opensearch_password.stdout }}'"
+  when: opensearch_password.stdout is defined and opensearch_password.stdout != ""
+  notify: Redémarrer Apache
+
+- handlers:
+    - name: Redémarrer OpenSearch
+      systemd:
+        name: opensearch
+        state: restarted
+
+    - name: Redémarrer OpenSearch Dashboards
+      systemd:
+        name: opensearch-dashboards
+        state: restarted
+
+    - name: Redémarrer Filebeat
+      systemd:
+        name: filebeat
+        state: restarted
+
+    - name: Redémarrer Apache
+      systemd:
+        name: apache2
+        state: restarted 
