@@ -15,33 +15,13 @@
   args:
     creates: /usr/local/bin/composer
 
-- name: Téléchargement du fichier OVA de sandbox
-  get_url:
-    url: https://dl-udx0dzf1.swisstransfer.com/api/download/c7973e3a-0456-460f-8f23-aa175a6b21c7/41a14b9d-40e9-4819-bb0f-e32f9ac91320
-    dest: /var/www/html/sandbox.ova
-    headers:
-      User-Agent: "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3"
-
-- name: Ajouter les informations VM au fichier admin.txt
-  lineinfile:
-    path: "/home/{{ ansible_user }}/admin.txt"
-    line: 'W10 "sandbox" VM credentials: user = oem password = oem'
-    state: present
-
-- name: Décompression et déplacement des fichiers PurpleLab
-  unarchive:
-    src: PurpleLab.zip  # Assurez-vous d'avoir ce fichier disponible
-    dest: /tmp/
-  register: purplelab_extracted
-  ignore_errors: yes  # Cette tâche nécessitera probablement d'ajuster la source selon votre setup
-
 - name: Déplacer les fichiers PurpleLab vers le webroot
   shell: |
-    mv /tmp/PurpleLab/* /var/www/html/
-    mv /var/www/html/Web/* /var/www/html/
-    rm -r /var/www/html/Web
-    rm -r /tmp/PurpleLab
-  when: purplelab_extracted is success
+    cp -r /home/{{ ansible_user }}/PurpleLab/* /var/www/html/
+    if [ -d "/var/www/html/Web" ]; then
+      cp -r /var/www/html/Web/* /var/www/html/
+      rm -rf /var/www/html/Web
+    fi
   ignore_errors: yes
 
 - name: Déplacer app.py vers le répertoire de l'utilisateur
@@ -52,10 +32,13 @@
     mode: '0755'
 
 - name: Installation de PhpSpreadsheet
+  become_user: www-data
   composer:
     command: require
     arguments: phpoffice/phpspreadsheet
     working_dir: /var/www/html
+    no_dev: yes
+  ignore_errors: yes
 
 - name: Supprimer index.html par défaut
   file:
@@ -90,10 +73,4 @@
     - "export DB_PASS='{{ db_pass }}'"
     - "export DB_NAME='{{ db_name }}'"
     - "export ENCRYPTION_KEY='{{ encryption_key }}'"
-  notify: Redémarrer Apache
-
-- handlers:
-    - name: Redémarrer Apache
-      service:
-        name: apache2
-        state: restarted 
+  notify: Redémarrer Apache 
