@@ -6,12 +6,9 @@
     db_user: "toor"
     db_pass: "root"
     db_name: "myDatabase"
-    vm_name: "sandbox"
-    vm_memory: 4096
-    vm_cpus: 2
-    vm_password: "oem"
     encryption_key: "{{ lookup('password', '/dev/null chars=ascii_letters,digits,hexdigits length=32') }}"
     admin_password: "{{ lookup('password', '/dev/null chars=ascii_letters,digits,special length=12') }}"
+    ansible_user: "purplelab"
 
   pre_tasks:
     - name: Vérification de la connexion Internet
@@ -53,7 +50,6 @@
     - webserver
     - database
     # - opensearch  # Désactivé temporairement pour éviter les erreurs d'installation
-    - virtualbox
 
   post_tasks:
     - name: Affichage du message final
