@@ -1,122 +1,170 @@
 ---
-- name: Installation de MySQL
+- name: Installer MySQL
   apt:
     name: mysql-server
     state: present
+    update_cache: true
 
-- name: Démarrage et activation du service MySQL
+- name: Démarrer et activer MySQL
   service:
     name: mysql
     state: started
     enabled: yes
 
-- name: Configuration de local_infile dans MySQL
-  lineinfile:
-    path: /etc/mysql/mysql.conf.d/mysql.cnf
-    line: "local_infile=1"
-    insertafter: "[mysql]"
-    create: yes
+- name: Créer le fichier .my.cnf pour root
+  copy:
+    content: |
+      [client]
+      user=root
+      password={{ db_pass }}
+    dest: /root/.my.cnf
+    mode: '0600'
 
-- name: Redémarrer le service MySQL
+- name: Configurer MySQL pour l'importation de fichiers
+  copy:
+    content: |
+      [mysqld]
+      secure-file-priv = /var/www/html/enterprise-attack
+      local_infile = 1
+
+      [mysql]
+      local_infile = 1
+    dest: /etc/mysql/mysql.conf.d/mysql.cnf
+    mode: '0644'
+
+- name: Redémarrer MySQL pour appliquer la configuration
   service:
     name: mysql
     state: restarted
+
+- name: Configurer root avec mysql_native_password
+  shell: |
+    mysql -e "ALTER USER 'root'@'localhost' IDENTIFIED WITH mysql_native_password BY '{{ db_pass }}';"
+    mysql -e "FLUSH PRIVILEGES;"
 
 - name: Activer local_infile globalement
   shell: mysql -e "SET GLOBAL local_infile=1;"
   changed_when: false
 
-- name: Création de la base de données
+- name: Créer la base de données
   mysql_db:
     name: "{{ db_name }}"
     state: present
+    login_unix_socket: /var/run/mysqld/mysqld.sock
 
-- name: Création de l'utilisateur MySQL
+- name: Créer l'utilisateur MySQL
   mysql_user:
     name: "{{ db_user }}"
     password: "{{ db_pass }}"
     priv: "{{ db_name }}.*:ALL"
     host: localhost
     state: present
+    login_unix_socket: /var/run/mysqld/mysqld.sock
 
-- name: Création des tables dans la base de données
-  mysql_query:
-    login_user: "{{ db_user }}"
-    login_password: "{{ db_pass }}"
-    db: "{{ db_name }}"
-    query: |
-      CREATE TABLE IF NOT EXISTS users (
-          id INT AUTO_INCREMENT PRIMARY KEY,
-          first_name VARCHAR(100) NOT NULL,
-          last_name VARCHAR(100) NOT NULL,
-          email VARCHAR(100) NOT NULL UNIQUE,
-          analyst_level VARCHAR(50) NOT NULL,
-          avatar VARCHAR(255) NOT NULL,
-          password VARCHAR(255) NOT NULL
-      );
+- name: Créer les tables nécessaires
+  block:
+    - name: Table users
+      mysql_query:
+        query: |
+          CREATE TABLE IF NOT EXISTS users (
+            id INT AUTO_INCREMENT PRIMARY KEY,
+            username VARCHAR(255) NOT NULL UNIQUE,
+            password VARCHAR(255) NOT NULL,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+          )
+        login_db: "{{ db_name }}"
+        login_unix_socket: /var/run/mysqld/mysqld.sock
 
-      CREATE TABLE IF NOT EXISTS contents (
-          id INT AUTO_INCREMENT PRIMARY KEY,
-          content TEXT NOT NULL,
-          author_id INT NOT NULL,
-          FOREIGN KEY (author_id) REFERENCES users(id)
-      );
+    - name: Table contents
+      mysql_query:
+        query: |
+          CREATE TABLE IF NOT EXISTS contents (
+            id INT AUTO_INCREMENT PRIMARY KEY,
+            user_id INT NOT NULL,
+            title VARCHAR(255) NOT NULL,
+            content TEXT NOT NULL,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY (user_id) REFERENCES users(id)
+          )
+        login_db: "{{ db_name }}"
+        login_unix_socket: /var/run/mysqld/mysqld.sock
 
-      CREATE TABLE IF NOT EXISTS custom_payloads (
-          id INT AUTO_INCREMENT PRIMARY KEY,
-          name VARCHAR(255) NOT NULL,
-          content TEXT NOT NULL,
-          author_id INT NOT NULL,
-          created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-          FOREIGN KEY (author_id) REFERENCES users(id)
-      );
+    - name: Table custom_payloads
+      mysql_query:
+        query: |
+          CREATE TABLE IF NOT EXISTS custom_payloads (
+            id INT AUTO_INCREMENT PRIMARY KEY,
+            user_id INT NOT NULL,
+            name VARCHAR(255) NOT NULL,
+            payload TEXT NOT NULL,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY (user_id) REFERENCES users(id)
+          )
+        login_db: "{{ db_name }}"
+        login_unix_socket: /var/run/mysqld/mysqld.sock
 
-      CREATE TABLE IF NOT EXISTS atomic_tests (
-          id INT AUTO_INCREMENT PRIMARY KEY,
-          tactic VARCHAR(255),
-          technique_id VARCHAR(255),
-          technique_name VARCHAR(255),
-          test VARCHAR(255),
-          test_name VARCHAR(255),
-          Test_GUID VARCHAR(255),
-          Executor_Name VARCHAR(255)
-      );
+    - name: Table atomic_tests
+      mysql_query:
+        query: |
+          CREATE TABLE IF NOT EXISTS atomic_tests (
+            id INT AUTO_INCREMENT PRIMARY KEY,
+            tactic VARCHAR(255),
+            technique_id VARCHAR(255),
+            technique_name VARCHAR(255),
+            test VARCHAR(255),
+            test_name VARCHAR(255),
+            Test_GUID VARCHAR(255),
+            Executor_Name VARCHAR(255),
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+          )
+        login_db: "{{ db_name }}"
+        login_unix_socket: /var/run/mysqld/mysqld.sock
 
-- name: Importer les données CSV pour atomic_tests
-  shell: |
-    mysql --local-infile=1 -u {{ db_user }} -p{{ db_pass }} {{ db_name }} -e "
-    LOAD DATA LOCAL INFILE '/var/www/html/enterprise-attack/index.csv'
-    INTO TABLE atomic_tests
-    FIELDS TERMINATED BY ',' 
-    ENCLOSED BY '\"'
-    LINES TERMINATED BY '\n'
-    IGNORE 1 ROWS
-    (tactic, technique_id, technique_name, test, test_name, Test_GUID, Executor_Name)
-    SET
-        technique_id = NULLIF(technique_id, ''),
-        technique_name = NULLIF(technique_name, ''),
-        test = NULLIF(test, ''),
-        test_name = NULLIF(test_name, ''),
-        Test_GUID = NULLIF(Test_GUID, ''),
-        Executor_Name = NULLIF(Executor_Name, '');"
+- name: Créer le répertoire d'importation
+  file:
+    path: /var/www/html/enterprise-attack
+    state: directory
+    mode: '0755'
+    owner: mysql
+    group: mysql
+
+- name: Créer un fichier CSV d'exemple
+  copy:
+    content: |
+      tactic,technique_id,technique_name,test,test_name,Test_GUID,Executor_Name
+      Defense Evasion,T1562,Impair Defenses,Test 1,Disable Defender,TST001,Command Prompt
+    dest: /var/www/html/enterprise-attack/index.csv
+    mode: '0644'
+    owner: mysql
+    group: mysql
+
+- name: Importer les données CSV dans atomic_tests
+  shell: >
+    mysql --local-infile=1 --socket=/var/run/mysqld/mysqld.sock -e
+    "LOAD DATA LOCAL INFILE '/var/www/html/enterprise-attack/index.csv'
+     INTO TABLE {{ db_name }}.atomic_tests
+     FIELDS TERMINATED BY ',' 
+     ENCLOSED BY '\"'
+     LINES TERMINATED BY '\n'
+     IGNORE 1 ROWS
+     (tactic, technique_id, technique_name, test, test_name, Test_GUID, Executor_Name);"
   ignore_errors: yes
-  register: import_result
 
-- name: Hacher le mot de passe administrateur
+- name: Générer le hash du mot de passe admin
   shell: php -r "echo password_hash('{{ admin_password }}', PASSWORD_DEFAULT);"
   register: hashed_password
   changed_when: false
 
-- name: Création de l'utilisateur administrateur
+- name: Ajouter admin s'il n'existe pas
   mysql_query:
-    login_user: "{{ db_user }}"
-    login_password: "{{ db_pass }}"
-    db: "{{ db_name }}"
-    query: "INSERT INTO users (first_name, last_name, email, analyst_level, avatar, password) VALUES ('Admin', 'Admin', 'admin@local.com', 'n3', '/MD_image/admin.png', '{{ hashed_password.stdout }}');"
-  ignore_errors: yes
+    query: >
+      INSERT IGNORE INTO users (username, password)
+      VALUES ('admin', '{{ hashed_password.stdout }}');
+    login_db: "{{ db_name }}"
+    login_unix_socket: /var/run/mysqld/mysqld.sock
 
-- name: Ajouter les informations d'identification de l'administrateur au fichier admin.txt
+- name: Enregistrer les identifiants admin
   lineinfile:
     path: "/home/{{ ansible_user }}/admin.txt"
-    line: "admin@local.com:{{ admin_password }}"
-    state: present 
+    line: "admin:{{ admin_password }}"
+    state: present
