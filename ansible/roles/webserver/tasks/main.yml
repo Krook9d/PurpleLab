@@ -32,12 +32,11 @@
     mode: '0755'
 
 - name: Installation de PhpSpreadsheet
-  become_user: www-data
-  composer:
-    command: require
-    arguments: phpoffice/phpspreadsheet
-    working_dir: /var/www/html
-    no_dev: yes
+  shell: |
+    cd /var/www/html
+    sudo -u www-data composer require phpoffice/phpspreadsheet --no-dev
+  args:
+    executable: /bin/bash
   ignore_errors: yes
 
 - name: Supprimer index.html par défaut
