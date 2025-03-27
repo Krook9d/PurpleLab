@@ -114,10 +114,4 @@
 - name: Supprimer le clone temporaire de Sigma
   file:
     path: /tmp/sigma_clone
-    state: absent
-
-- handlers:
-    - name: Redémarrer Apache
-      service:
-        name: apache2
-        state: restarted 
+    state: absent 
