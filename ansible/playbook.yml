@@ -66,37 +66,11 @@
           The necessary passwords for the application are in admin.txt.
           For better security, change them and harden the server.
 
-    - name: Mise à jour des paquets
-      shell: apt-get update
-
-    - name: Installation des dépendances nécessaires
-      shell: apt-get install -y software-properties-common git python3 python3-pip curl unzip
-
-    - name: Clonage du dépôt PurpleLab
-      shell: git clone https://github.com/Krook9d/PurpleLab.git /tmp/PurpleLab
-
-    - name: Ajout du dépôt Ansible
-      shell: apt-add-repository --yes --update ppa:ansible/ansible
-
-    - name: Installation d'Ansible
-      shell: apt-get install -y ansible
-
-    - name: Installation de PyMySQL
-      shell: pip install PyMySQL
-
-    - name: Déplacer les fichiers PurpleLab vers le webroot
-      shell: |
-        if [ -d "/tmp/PurpleLab" ]; then
-          # Copier tous les dossiers et fichiers du dépôt vers le webroot
-          cp -r /tmp/PurpleLab/* /var/www/html/
-          # Supprimer le dossier Web s'il existe car son contenu a déjà été copié
-          if [ -d "/var/www/html/Web" ]; then
-            rm -rf /var/www/html/Web
-          fi
-          # S'assurer que les permissions sont correctes
-          chown -R www-data:www-data /var/www/html
-          chmod -R 775 /var/www/html
-        fi
-      args:
-        executable: /bin/bash
-      ignore_errors: yes 
+    - name: Correction des permissions pour composer
+      file:
+        path: /var/www/html
+        state: directory
+        owner: www-data
+        group: www-data
+        mode: '0775'
+        recurse: yes 
