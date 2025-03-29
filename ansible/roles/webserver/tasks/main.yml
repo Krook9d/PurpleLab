@@ -94,12 +94,25 @@
     owner: www-data
     group: www-data
 
+- name: Créer le fichier composer.json
+  copy:
+    content: |
+      {
+          "require": {
+              "phpoffice/phpspreadsheet": "^1.29"
+          }
+      }
+    dest: /var/www/html/composer.json
+    mode: '0644'
+    owner: www-data
+    group: www-data
+
 - name: Installation de PhpSpreadsheet
   shell: |
     cd /var/www/html
-    COMPOSER_HOME=/tmp COMPOSER_CACHE_DIR=/tmp yes | composer require phpoffice/phpspreadsheet
-  become: yes
-  become_user: www-data
+    sudo -u www-data composer require phpoffice/phpspreadsheet --no-interaction
+  args:
+    executable: /bin/bash
 
 - name: Supprimer le répertoire temporaire
   file:
