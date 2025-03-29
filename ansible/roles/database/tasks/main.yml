@@ -68,7 +68,11 @@
         query: |
           CREATE TABLE IF NOT EXISTS users (
             id INT AUTO_INCREMENT PRIMARY KEY,
-            username VARCHAR(255) NOT NULL UNIQUE,
+            first_name VARCHAR(255) NOT NULL,
+            last_name VARCHAR(255) NOT NULL,
+            email VARCHAR(255) NOT NULL UNIQUE,
+            analyst_level VARCHAR(255) NOT NULL,
+            avatar VARCHAR(255) NOT NULL,
             password VARCHAR(255) NOT NULL,
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
           )
@@ -151,20 +155,24 @@
   ignore_errors: yes
 
 - name: Générer le hash du mot de passe admin
-  shell: php -r "echo password_hash('{{ admin_password }}', PASSWORD_DEFAULT);"
+  shell: |
+    cd /var/www/html
+    php -r "echo password_hash('{{ admin_password }}', PASSWORD_DEFAULT);"
   register: hashed_password
   changed_when: false
 
-- name: Ajouter admin s'il n'existe pas
+- name: Supprimer l'utilisateur admin s'il existe
   mysql_query:
-    query: >
-      INSERT IGNORE INTO users (username, password)
-      VALUES ('admin', '{{ hashed_password.stdout }}');
+    query: "DELETE FROM users WHERE email='admin@local.com';"
     login_db: "{{ db_name }}"
     login_unix_socket: /var/run/mysqld/mysqld.sock
+
+- name: Ajouter l'utilisateur admin
+  shell: |
+    mysql -e "USE {{ db_name }}; INSERT INTO users (first_name, last_name, email, analyst_level, avatar, password) VALUES ('Admin', 'Admin', 'admin@local.com', 'n3', '/MD_image/admin.png', '{{ hashed_password.stdout }}');"
 
 - name: Enregistrer les identifiants admin
   lineinfile:
     path: "/home/{{ ansible_user }}/admin.txt"
-    line: "admin:{{ admin_password }}"
+    line: "admin@local.com:{{ admin_password }}"
     state: present
