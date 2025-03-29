@@ -145,7 +145,7 @@
     mysql --local-infile=1 --socket=/var/run/mysqld/mysqld.sock -e
     "LOAD DATA LOCAL INFILE '/var/www/html/enterprise-attack/index.csv'
      INTO TABLE {{ db_name }}.atomic_tests
-     FIELDS TERMINATED BY ',' 
+     FIELDS TERMINATED BY ';' 
      ENCLOSED BY '\"'
      LINES TERMINATED BY '\n'
      IGNORE 1 ROWS
