@@ -165,28 +165,30 @@
   register: admin_password
   changed_when: false
 
-- name: Créer le script PHP temporaire pour le hash
-  copy:
-    content: |
-      <?php
-      echo password_hash('{{ admin_password.stdout }}', PASSWORD_DEFAULT);
-      ?>
-    dest: /tmp/hash_password.php
-    mode: '0644'
-
-- name: Générer le hash du mot de passe
-  shell: php /tmp/hash_password.php
+- name: Générer le hash du mot de passe directement avec PHP
+  shell: |
+    php -r "echo password_hash('{{ admin_password.stdout }}', PASSWORD_DEFAULT);"
   register: hashed_password
   changed_when: false
 
-- name: Supprimer le script PHP temporaire
-  file:
-    path: /tmp/hash_password.php
-    state: absent
+- name: Afficher le hash généré
+  debug:
+    var: hashed_password.stdout
+
+- name: Créer un fichier temporaire pour le hash
+  copy:
+    content: "{{ hashed_password.stdout }}"
+    dest: /tmp/admin_hash.txt
+    mode: '0600'
 
 - name: Ajouter l'utilisateur admin
   shell: |
-    mysql -e "USE {{ db_name }}; INSERT INTO users (first_name, last_name, email, analyst_level, avatar, password) VALUES ('Admin', 'Admin', 'admin@local.com', 'n3', '/MD_image/admin.png', '{{ hashed_password.stdout }}');"
+    mysql -u {{ db_user }} -p{{ db_pass }} -e "USE {{ db_name }}; INSERT INTO users (first_name, last_name, email, analyst_level, avatar, password) VALUES ('Admin', 'Admin', 'admin@local.com', 'n3', '/MD_image/admin.png', '$(cat /tmp/admin_hash.txt)');"
+
+- name: Supprimer le fichier temporaire
+  file:
+    path: /tmp/admin_hash.txt
+    state: absent
 
 - name: Enregistrer les identifiants admin
   lineinfile:
