@@ -132,11 +132,9 @@
     owner: mysql
     group: mysql
 
-- name: Créer un fichier CSV d'exemple
+- name: Copier le fichier CSV des tests atomiques
   copy:
-    content: |
-      tactic,technique_id,technique_name,test,test_name,Test_GUID,Executor_Name
-      Defense Evasion,T1562,Impair Defenses,Test 1,Disable Defender,TST001,Command Prompt
+    src: ../../enterprise-attack/index_atomic.csv
     dest: /var/www/html/enterprise-attack/index.csv
     mode: '0644'
     owner: mysql
