@@ -160,11 +160,16 @@
     login_db: "{{ db_name }}"
     login_unix_socket: /var/run/mysqld/mysqld.sock
 
+- name: Générer un mot de passe aléatoire sécurisé
+  shell: tr -dc 'A-Za-z0-9!@#$%^&*()' < /dev/urandom | head -c 12
+  register: admin_password
+  changed_when: false
+
 - name: Créer le script PHP temporaire pour le hash
   copy:
     content: |
       <?php
-      echo password_hash('{{ admin_password }}', PASSWORD_DEFAULT);
+      echo password_hash('{{ admin_password.stdout }}', PASSWORD_DEFAULT);
       ?>
     dest: /tmp/hash_password.php
     mode: '0644'
@@ -186,5 +191,5 @@
 - name: Enregistrer les identifiants admin
   lineinfile:
     path: "/home/{{ ansible_user }}/admin.txt"
-    line: "admin@local.com:{{ admin_password }}"
+    line: "admin@local.com:{{ admin_password.stdout }}"
     state: present
