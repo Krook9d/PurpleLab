@@ -154,18 +154,30 @@
      (tactic, technique_id, technique_name, test, test_name, Test_GUID, Executor_Name);"
   ignore_errors: yes
 
-- name: Générer le hash du mot de passe admin
-  shell: |
-    cd /var/www/html
-    php -r "echo password_hash('{{ admin_password }}', PASSWORD_DEFAULT);"
-  register: hashed_password
-  changed_when: false
-
 - name: Supprimer l'utilisateur admin s'il existe
   mysql_query:
     query: "DELETE FROM users WHERE email='admin@local.com';"
     login_db: "{{ db_name }}"
     login_unix_socket: /var/run/mysqld/mysqld.sock
+
+- name: Créer le script PHP temporaire pour le hash
+  copy:
+    content: |
+      <?php
+      echo password_hash('{{ admin_password }}', PASSWORD_DEFAULT);
+      ?>
+    dest: /tmp/hash_password.php
+    mode: '0644'
+
+- name: Générer le hash du mot de passe
+  shell: php /tmp/hash_password.php
+  register: hashed_password
+  changed_when: false
+
+- name: Supprimer le script PHP temporaire
+  file:
+    path: /tmp/hash_password.php
+    state: absent
 
 - name: Ajouter l'utilisateur admin
   shell: |
