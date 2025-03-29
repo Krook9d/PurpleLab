@@ -8,12 +8,67 @@
     dest: /etc/apache2/sites-available/000-default.conf
   notify: Redémarrer Apache
 
-- name: Installation de Composer
+- name: Installer Apache et PHP
+  apt:
+    name: 
+      - apache2
+      - php
+      - libapache2-mod-php
+      - php-curl
+      - php-mysqli
+      - python3-pip
+      - p7zip-full
+      - apt-transport-https
+      - libapache2-mod-ldap-userdir
+      - php-xml
+      - php-gd
+      - php-mbstring
+      - php-zip
+    state: present
+    update_cache: true
+
+- name: Activer les modules Apache
+  apache2_module:
+    name: "{{ item }}"
+    state: present
+  with_items:
+    - ldap
+    - authnz_ldap
+    - rewrite
+
+- name: Activer le module mysqli
+  shell: phpenmod mysqli
+  changed_when: false
+
+- name: Installer les dépendances Python
+  pip:
+    name: 
+      - pandas
+      - flask
+      - flask-cors
+      - loguru
+      - stix2
+      - mitreattack-python
+      - Flask-JWT-Extended
+    state: present
+
+- name: Démarrer et activer Apache
+  service:
+    name: apache2
+    state: started
+    enabled: yes
+
+- name: Installer Composer
   shell: |
-    curl -sS https://getcomposer.org/installer | php
-    mv composer.phar /usr/local/bin/composer
+    curl -sS https://getcomposer.org/installer -o /tmp/composer-installer
+    php /tmp/composer-installer --install-dir=/usr/local/bin --filename=composer
   args:
     creates: /usr/local/bin/composer
+
+- name: Supprimer l'installateur Composer
+  file:
+    path: /tmp/composer-installer
+    state: absent
 
 - name: Déplacer les fichiers PurpleLab vers le webroot
   shell: |
@@ -31,13 +86,25 @@
     remote_src: yes
     mode: '0755'
 
+- name: Créer un répertoire temporaire pour composer
+  file:
+    path: /tmp/composer
+    state: directory
+    mode: '0755'
+    owner: www-data
+    group: www-data
+
 - name: Installation de PhpSpreadsheet
   shell: |
     cd /var/www/html
-    sudo -u www-data composer require phpoffice/phpspreadsheet --no-dev
-  args:
-    executable: /bin/bash
-  ignore_errors: yes
+    COMPOSER_HOME=/tmp COMPOSER_CACHE_DIR=/tmp yes | composer require phpoffice/phpspreadsheet
+  become: yes
+  become_user: www-data
+
+- name: Supprimer le répertoire temporaire
+  file:
+    path: /tmp/composer
+    state: absent
 
 - name: Supprimer index.html par défaut
   file:
