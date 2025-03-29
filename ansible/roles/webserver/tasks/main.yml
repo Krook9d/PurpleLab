@@ -107,6 +107,33 @@
     owner: www-data
     group: www-data
 
+- name: Créer le répertoire de cache de composer
+  file:
+    path: /var/www/.cache/composer
+    state: directory
+    mode: '0755'
+    owner: www-data
+    group: www-data
+    recurse: yes
+
+- name: Créer le répertoire de cache de composer pour packagist
+  file:
+    path: /var/www/.cache/composer/repo/https---repo.packagist.org
+    state: directory
+    mode: '0755'
+    owner: www-data
+    group: www-data
+    recurse: yes
+
+- name: S'assurer que le répertoire du projet est accessible en écriture
+  file:
+    path: /var/www/html
+    state: directory
+    mode: '0775'
+    owner: www-data
+    group: www-data
+    recurse: yes
+
 - name: Installation de PhpSpreadsheet
   shell: |
     cd /var/www/html
