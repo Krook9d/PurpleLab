@@ -37,13 +37,26 @@
     name: mysql
     state: restarted
 
-- name: Configurer root avec mysql_native_password
-  shell: |
-    mysql -e "ALTER USER 'root'@'localhost' IDENTIFIED WITH mysql_native_password BY '{{ db_pass }}';"
-    mysql -e "FLUSH PRIVILEGES;"
+- name: Configurer root avec mysql_native_password (première installation)
+  command: mysql -e "ALTER USER 'root'@'localhost' IDENTIFIED WITH mysql_native_password BY 'root';"
+  register: mysql_first_config
+  ignore_errors: yes
+
+- name: Configurer root avec mysql_native_password (installation existante)
+  command: mysql --defaults-file=/root/.my.cnf -e "ALTER USER 'root'@'localhost' IDENTIFIED WITH mysql_native_password BY 'root';"
+  register: mysql_existing_config
+  when: mysql_first_config.failed is defined and mysql_first_config.failed
+  ignore_errors: yes
+
+- name: Vérifier si la configuration a échoué
+  fail:
+    msg: "Impossible de configurer MySQL. Veuillez vérifier les logs."
+  when: >
+    (mysql_first_config.failed is defined and mysql_first_config.failed) and
+    (mysql_existing_config.failed is defined and mysql_existing_config.failed)
 
 - name: Activer local_infile globalement
-  shell: mysql -e "SET GLOBAL local_infile=1;"
+  shell: mysql --defaults-file=/root/.my.cnf -e "SET GLOBAL local_infile=1;"
   changed_when: false
 
 - name: Créer la base de données
