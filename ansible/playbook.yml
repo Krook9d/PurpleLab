@@ -49,6 +49,7 @@
     - common
     - webserver
     - database
+    - virtualbox
     # - opensearch  # Désactivé temporairement pour éviter les erreurs d'installation
 
   post_tasks:
