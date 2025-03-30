@@ -1,0 +1,179 @@
+---
+- name: Définir le nom de la VM
+  set_fact:
+    vm_name: "sandbox"
+
+- name: Configuration de la licence virtualbox-ext-pack
+  shell: |
+    echo "virtualbox-ext-pack virtualbox-ext-pack/license select true" | debconf-set-selections
+    echo "virtualbox-ext-pack virtualbox-ext-pack/license/accepted boolean true" | debconf-set-selections
+
+- name: Installation de VirtualBox et ses dépendances de base
+  apt:
+    name:
+      - virtualbox
+      - virtualbox-dkms
+      - virtualbox-qt
+    state: present
+    update_cache: yes
+
+- name: Installation de virtualbox-ext-pack
+  apt:
+    name: virtualbox-ext-pack
+    state: present
+
+- name: Ajout de l'utilisateur au groupe vboxusers
+  user:
+    name: "{{ ansible_user }}"
+    groups: vboxusers
+    append: yes
+
+- name: Création du répertoire pour les VMs
+  file:
+    path: /var/lib/virtualbox
+    state: directory
+    mode: '0755'
+
+- name: Configuration de VBOX_USER_HOME
+  lineinfile:
+    path: /etc/environment
+    line: 'VBOX_USER_HOME=/var/lib/virtualbox'
+    state: present
+
+- name: Redémarrage du service VirtualBox
+  service:
+    name: virtualbox
+    state: restarted
+
+- name: Installation de wget
+  apt:
+    name: wget
+    state: present
+
+- name: Installation de unzip
+  apt:
+    name: unzip
+    state: present
+
+- name: Installation de Vagrant
+  apt:
+    name: vagrant
+    state: present
+    update_cache: yes
+
+- name: Création du répertoire Vagrant
+  file:
+    path: "/home/purplelab/.vagrant.d"
+    state: directory
+    owner: purplelab
+    group: purplelab
+    mode: '0755'
+
+- name: Vérification de l'existence de l'image Vagrant
+  stat:
+    path: "/home/purplelab/.vagrant.d/boxes/StefanScherer-VAGRANTSLASH-windows_2019"
+  register: vagrant_box
+
+- name: Suppression de l'image si elle existe mais est corrompue
+  file:
+    path: "/home/purplelab/.vagrant.d/boxes/StefanScherer-VAGRANTSLASH-windows_2019"
+    state: absent
+  when: vagrant_box.stat.exists
+
+- name: Téléchargement de l'image Windows Server 2019
+  command: vagrant box add StefanScherer/windows_2019 --provider virtualbox --force
+  environment:
+    VAGRANT_HOME: "/home/purplelab/.vagrant.d"
+  become: yes
+  become_user: purplelab
+  register: vagrant_box_add
+  changed_when: "'Successfully added box' in vagrant_box_add.stdout"
+  failed_when: 
+    - vagrant_box_add.rc != 0
+    - "'box already exists' not in vagrant_box_add.stderr"
+
+- name: Vérification du téléchargement de l'image
+  stat:
+    path: "/home/purplelab/.vagrant.d/boxes/StefanScherer-VAGRANTSLASH-windows_2019/2021.05.15/virtualbox/WindowsServer2019-disk001.vmdk"
+  register: box_file
+  failed_when: not box_file.stat.exists
+
+- name: Obtenir la liste des interfaces réseau disponibles
+  command: VBoxManage list bridgedifs
+  register: bridged_interfaces
+  changed_when: false
+
+- name: Extraire la première interface active
+  set_fact:
+    network_interface: "{{ bridged_interfaces.stdout_lines | select('match', '^Name:.*') | first | regex_replace('^Name:\\s+', '') }}"
+  when: bridged_interfaces.stdout_lines | select('match', '^Name:.*') | list | length > 0
+
+- name: Téléchargement de Terraform
+  get_url:
+    url: https://releases.hashicorp.com/terraform/1.5.7/terraform_1.5.7_linux_amd64.zip
+    dest: /tmp/terraform.zip
+    mode: '0644'
+
+- name: Décompression de Terraform
+  unarchive:
+    src: /tmp/terraform.zip
+    dest: /usr/local/bin
+    remote_src: yes
+    mode: '0755'
+
+- name: Création du répertoire de travail Terraform
+  file:
+    path: "{{ playbook_dir }}/roles/virtualbox/files"
+    state: directory
+    mode: '0755'
+
+- name: Copie des fichiers de configuration Terraform
+  copy:
+    src: "{{ item.src }}"
+    dest: "{{ playbook_dir }}/roles/virtualbox/files/{{ item.dest }}"
+    mode: '0644'
+  with_items:
+    - { src: 'main.tf', dest: 'main.tf' }
+    - { src: 'user_data.ps1', dest: 'user_data.ps1' }
+
+- name: Copie des variables Terraform avec l'interface réseau détectée
+  template:
+    src: terraform.tfvars.j2
+    dest: "{{ playbook_dir }}/roles/virtualbox/files/terraform.tfvars"
+    mode: '0644'
+  vars:
+    vm_network_interface: "{{ network_interface }}"
+
+- name: Initialisation de Terraform
+  command: terraform init
+  args:
+    chdir: "{{ playbook_dir }}/roles/virtualbox/files"
+    creates: "{{ playbook_dir }}/roles/virtualbox/files/.terraform"
+
+- name: Application de la configuration Terraform
+  command: terraform apply -auto-approve
+  args:
+    chdir: "{{ playbook_dir }}/roles/virtualbox/files"
+  environment:
+    TF_VAR_vm_network_interface: "{{ network_interface }}"
+
+- name: Attendre que la VM démarre
+  pause:
+    seconds: 30
+
+- name: Obtenir l'IP de la VM Windows
+  shell: |
+    VBoxManage guestproperty enumerate "{{ vm_name }}" | grep "IP" | grep -oE "\b([0-9]{1,3}\.){3}[0-9]{1,3}\b" || true
+  register: vm_ip_result
+  until: vm_ip_result.stdout != ""
+  retries: 30
+  delay: 10
+  changed_when: false
+
+- name: Attente que la VM soit accessible
+  wait_for:
+    host: "{{ vm_ip_result.stdout }}"
+    port: 3389
+    timeout: 300
+    delay: 10
+  when: vm_ip_result.stdout != ""
