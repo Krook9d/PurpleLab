@@ -80,6 +80,10 @@ resource "null_resource" "windows_vm" {
         fi
       done
       
+      # Créer le dossier temporaire
+      echo "Création du dossier temporaire..." >> terraform.log
+      VBoxManage guestcontrol "${var.vm_name}" execute --username vagrant --password vagrant --image "C:\\Windows\\System32\\cmd.exe" --arguments "/c mkdir C:\\Windows\\Temp" || exit 1
+      
       # Copier et exécuter le script de configuration
       echo "Application de la configuration..." >> terraform.log
       VBoxManage guestcontrol "${var.vm_name}" copyto --username vagrant --password vagrant "C:\\Windows\\Temp\\user_data.ps1" "/home/purplelab/PurpleLab/ansible/roles/virtualbox/files/user_data.ps1" || exit 1
