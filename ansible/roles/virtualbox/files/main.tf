@@ -46,6 +46,12 @@ resource "null_resource" "windows_vm" {
       # Créer la VM
       echo "Création de la VM ${var.vm_name}..." >> terraform.log
       VBoxManage import "/home/purplelab/.vagrant.d/boxes/StefanScherer-VAGRANTSLASH-windows_2019/2021.05.15/virtualbox/box.ovf" --vsys 0 --vmname "${var.vm_name}" || exit 1
+      
+      # Copier le fichier unattend.xml
+      VBoxManage guestcontrol "${var.vm_name}" copyto --username vagrant --password vagrant "/home/purplelab/PurpleLab/ansible/roles/virtualbox/files/unattend.xml" "C:\\Windows\\System32\\Sysprep\\unattend.xml" || exit 1
+      
+      # Lancer sysprep avec le fichier unattend.xml
+      VBoxManage guestcontrol "${var.vm_name}" run --username vagrant --password vagrant --exe "C:\\Windows\\System32\\Sysprep\\sysprep.exe" -- /quiet /generalize /oobe /quit /unattend:C:\\Windows\\System32\\Sysprep\\unattend.xml || exit 1
 
       # Configurer la VM
       echo "Configuration des ressources de la VM..." >> terraform.log
@@ -82,8 +88,35 @@ resource "null_resource" "windows_vm" {
       
       # Copier et exécuter le script de configuration
       echo "Application de la configuration..." >> terraform.log
-      VBoxManage guestcontrol "${var.vm_name}" copyto --username vagrant --password vagrant "C:\\Users\\vagrant\\user_data.ps1" "/home/purplelab/PurpleLab/ansible/roles/virtualbox/files/user_data.ps1" || exit 1
-      VBoxManage guestcontrol "${var.vm_name}" execute --username vagrant --password vagrant --image "C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe" --arguments "-ExecutionPolicy Bypass -File C:\\Users\\vagrant\\user_data.ps1" || exit 1
+      
+      # Désactiver l'UAC via le registre
+      echo "Désactivation de l'UAC..." >> terraform.log
+      VBoxManage guestcontrol "${var.vm_name}" run --username vagrant --password vagrant --exe "C:\\Windows\\System32\\reg.exe" -- ADD "HKLM\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Policies\\System" /v EnableLUA /t REG_DWORD /d 0 /f || exit 1
+      
+      # Redémarrer pour appliquer les changements
+      echo "Redémarrage pour appliquer les changements..." >> terraform.log
+      VBoxManage guestcontrol "${var.vm_name}" run --username vagrant --password vagrant --exe "C:\\Windows\\System32\\shutdown.exe" -- /r /t 0 || true
+      
+      # Attendre le redémarrage
+      echo "Attente du redémarrage..." >> terraform.log
+      sleep 120
+      
+      # Attendre que les Guest Additions soient prêts à nouveau
+      echo "Attente des Guest Additions..." >> terraform.log
+      for i in {1..30}; do
+        if VBoxManage guestproperty get "${var.vm_name}" "/VirtualBox/GuestAdd/Version" 2>/dev/null | grep -q "Value:"; then
+          break
+        fi
+        sleep 10
+        if [ $i -eq 30 ]; then
+          echo "Les Guest Additions ne sont pas prêts après 5 minutes" >> terraform.log
+          exit 1
+        fi
+      done
+      
+      # Copier et exécuter le script de configuration
+      VBoxManage guestcontrol "${var.vm_name}" copyto --username vagrant --password vagrant "/home/purplelab/PurpleLab/ansible/roles/virtualbox/files/user_data.ps1" "C:\\Users\\vagrant\\user_data.ps1" || exit 1
+      VBoxManage guestcontrol "${var.vm_name}" run --username vagrant --password vagrant --exe "C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe" -- -NoProfile -ExecutionPolicy Bypass -File "C:\\Users\\vagrant\\user_data.ps1" || exit 1
       
       echo "VM ${var.vm_name} créée et configurée avec succès" >> terraform.log
     EOT
