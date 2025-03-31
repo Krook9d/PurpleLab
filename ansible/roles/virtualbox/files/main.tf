@@ -61,7 +61,24 @@ resource "null_resource" "windows_vm" {
       
       # Attendre que la VM soit prête
       echo "Attente que la VM soit prête..." >> terraform.log
-      sleep 60
+      sleep 120
+      
+      # Vérifier que la VM est en cours d'exécution
+      echo "Vérification de l'état de la VM..." >> terraform.log
+      VBoxManage showvminfo "${var.vm_name}" | grep -q "running" || exit 1
+      
+      # Attendre que les Guest Additions soient prêts
+      echo "Attente des Guest Additions..." >> terraform.log
+      for i in {1..30}; do
+        if VBoxManage guestproperty get "${var.vm_name}" "/VirtualBox/GuestAdd/Version" 2>/dev/null | grep -q "Value:"; then
+          break
+        fi
+        sleep 10
+        if [ $i -eq 30 ]; then
+          echo "Les Guest Additions ne sont pas prêts après 5 minutes" >> terraform.log
+          exit 1
+        fi
+      done
       
       # Copier et exécuter le script de configuration
       echo "Application de la configuration..." >> terraform.log
