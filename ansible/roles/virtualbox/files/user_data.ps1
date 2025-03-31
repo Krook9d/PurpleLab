@@ -12,9 +12,12 @@ if ($adapter) {
 }
 
 # Créer un utilisateur administrateur
-$password = ConvertTo-SecureString "PurpleLab123!" -AsPlainText -Force
-New-LocalUser -Name "purplelab" -Password $password -FullName "PurpleLab Admin" -Description "PurpleLab Administrator"
-Add-LocalGroupMember -Group "Administrators" -Member "purplelab"
+$password = ConvertTo-SecureString "oem" -AsPlainText -Force
+New-LocalUser -Name "oem" -Password $password -FullName "OEM Admin" -Description "OEM Administrator"
+Add-LocalGroupMember -Group "Administrators" -Member "oem"
+
+# Supprimer l'utilisateur vagrant s'il existe
+Remove-LocalUser -Name "vagrant" -ErrorAction SilentlyContinue
 
 # Installer Chocolatey
 Set-ExecutionPolicy Bypass -Scope Process -Force
@@ -27,7 +30,7 @@ choco install -y python
 
 
 # Configurer le pare-feu Windows
-New-NetFirewallRule -DisplayName "Allow PurpleLab Ports" -Direction Inbound -Action Allow -Protocol TCP -LocalPort 80,443,3306,8080
+New-NetFirewallRule -DisplayName "Allow OEM Ports" -Direction Inbound -Action Allow -Protocol TCP -LocalPort 80,443,3306,8080
 
 # Redémarrer la machine
 Restart-Computer -Force 
