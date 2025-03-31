@@ -61,7 +61,7 @@ resource "null_resource" "windows_vm" {
       
       # Attendre que la VM soit prête
       echo "Attente que la VM soit prête..." >> terraform.log
-      sleep 120
+      sleep 180
       
       # Vérifier que la VM est en cours d'exécution
       echo "Vérification de l'état de la VM..." >> terraform.log
@@ -80,9 +80,13 @@ resource "null_resource" "windows_vm" {
         fi
       done
       
-      # Copier le fichier unattend.xml
+      # Copier le fichier unattend.xml dans le répertoire temporaire
       echo "Copie du fichier unattend.xml..." >> terraform.log
-      VBoxManage guestcontrol "${var.vm_name}" copyto --username vagrant --password vagrant "/home/purplelab/PurpleLab/ansible/roles/virtualbox/files/unattend.xml" "C:\\Windows\\System32\\Sysprep\\unattend.xml" || exit 1
+      VBoxManage guestcontrol "${var.vm_name}" copyto --username vagrant --password vagrant "/home/purplelab/PurpleLab/ansible/roles/virtualbox/files/unattend.xml" "C:\\Users\\vagrant\\unattend.xml" || exit 1
+      
+      # Déplacer le fichier avec PowerShell avec privilèges élevés
+      echo "Déplacement du fichier unattend.xml..." >> terraform.log
+      VBoxManage guestcontrol "${var.vm_name}" run --username vagrant --password vagrant --exe "C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe" -- -NoProfile -ExecutionPolicy Bypass -Command "Start-Process powershell -ArgumentList '-NoProfile -ExecutionPolicy Bypass -Command \"Move-Item -Path C:\\Users\\vagrant\\unattend.xml -Destination C:\\Windows\\System32\\Sysprep\\unattend.xml -Force\"' -Verb RunAs" || exit 1
       
       # Lancer sysprep avec le fichier unattend.xml
       echo "Exécution de sysprep..." >> terraform.log
