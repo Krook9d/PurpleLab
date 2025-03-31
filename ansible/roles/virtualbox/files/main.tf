@@ -47,12 +47,6 @@ resource "null_resource" "windows_vm" {
       echo "Création de la VM ${var.vm_name}..." >> terraform.log
       VBoxManage import "/home/purplelab/.vagrant.d/boxes/StefanScherer-VAGRANTSLASH-windows_2019/2021.05.15/virtualbox/box.ovf" --vsys 0 --vmname "${var.vm_name}" || exit 1
       
-      # Copier le fichier unattend.xml
-      VBoxManage guestcontrol "${var.vm_name}" copyto --username vagrant --password vagrant "/home/purplelab/PurpleLab/ansible/roles/virtualbox/files/unattend.xml" "C:\\Windows\\System32\\Sysprep\\unattend.xml" || exit 1
-      
-      # Lancer sysprep avec le fichier unattend.xml
-      VBoxManage guestcontrol "${var.vm_name}" run --username vagrant --password vagrant --exe "C:\\Windows\\System32\\Sysprep\\sysprep.exe" -- /quiet /generalize /oobe /quit /unattend:C:\\Windows\\System32\\Sysprep\\unattend.xml || exit 1
-
       # Configurer la VM
       echo "Configuration des ressources de la VM..." >> terraform.log
       VBoxManage modifyvm "${var.vm_name}" --cpus ${var.vm_cpus} --memory ${var.vm_memory} --acpi on --boot1 disk || exit 1
@@ -85,6 +79,14 @@ resource "null_resource" "windows_vm" {
           exit 1
         fi
       done
+      
+      # Copier le fichier unattend.xml
+      echo "Copie du fichier unattend.xml..." >> terraform.log
+      VBoxManage guestcontrol "${var.vm_name}" copyto --username vagrant --password vagrant "/home/purplelab/PurpleLab/ansible/roles/virtualbox/files/unattend.xml" "C:\\Windows\\System32\\Sysprep\\unattend.xml" || exit 1
+      
+      # Lancer sysprep avec le fichier unattend.xml
+      echo "Exécution de sysprep..." >> terraform.log
+      VBoxManage guestcontrol "${var.vm_name}" run --username vagrant --password vagrant --exe "C:\\Windows\\System32\\Sysprep\\sysprep.exe" -- /quiet /generalize /oobe /quit /unattend:C:\\Windows\\System32\\Sysprep\\unattend.xml || exit 1
       
       # Copier et exécuter le script de configuration
       echo "Application de la configuration..." >> terraform.log
