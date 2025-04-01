@@ -54,7 +54,7 @@
 
   post_tasks:
     - name: Configuration de la VM Windows
-      include_tasks: roles/virtualbox/tasks/configure_vm_playbook.yml
+      import_tasks: roles/virtualbox/tasks/configure_vm_playbook.yml
       tags: 
         - configure_vm
         - vm_config
