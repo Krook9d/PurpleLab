@@ -134,7 +134,6 @@
     mode: '0644'
   with_items:
     - { src: 'main.tf', dest: 'main.tf' }
-    - { src: 'user_data.ps1', dest: 'user_data.ps1' }
 
 - name: Copie des variables Terraform avec l'interface réseau détectée
   template:
