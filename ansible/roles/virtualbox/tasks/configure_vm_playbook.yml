@@ -1,105 +1,156 @@
 ---
-- name: Configuration de la VM Windows
-  hosts: localhost
-  gather_facts: no
-  tasks:
-    - name: Définir le nom de la VM
-      set_fact:
-        vm_name: "sandbox"
+- name: Définir le nom de la VM
+  set_fact:
+    vm_name: "sandbox"
 
-    - name: Obtenir l'IP de la VM Windows
-      shell: |
-        sudo VBoxManage guestproperty enumerate "{{ vm_name }}" | grep "IP" | grep -oE "\b([0-9]{1,3}\.){3}[0-9]{1,3}\b" || true
-      register: vm_ip_result
-      until: vm_ip_result.stdout != ""
-      retries: 30
-      delay: 10
-      changed_when: false
+- name: Obtenir l'IP de la VM Windows
+  shell: |
+    sudo VBoxManage guestproperty enumerate "{{ vm_name }}" | grep "IP" | grep -oE "\b([0-9]{1,3}\.){3}[0-9]{1,3}\b" || true
+  register: vm_ip_result
+  until: vm_ip_result.stdout != ""
+  retries: 30
+  delay: 10
+  changed_when: false
 
-    - name: Afficher l'adresse IP de la VM
-      debug:
-        msg: "L'adresse IP de la VM {{ vm_name }} est {{ vm_ip_result.stdout }}"
-      when: vm_ip_result.stdout != ""
+- name: Afficher l'adresse IP de la VM
+  debug:
+    msg: "L'adresse IP de la VM {{ vm_name }} est {{ vm_ip_result.stdout }}"
+  when: vm_ip_result.stdout != ""
 
-    - name: Attente que la VM soit accessible
-      wait_for:
-        host: "{{ vm_ip_result.stdout }}"
-        port: 5985
-        timeout: 300
-        delay: 10
-      when: vm_ip_result.stdout != ""
+- name: Attente que la VM soit accessible
+  wait_for:
+    host: "{{ vm_ip_result.stdout }}"
+    port: 5985
+    timeout: 300
+    delay: 10
+  when: vm_ip_result.stdout != ""
 
-    - name: Configurer les règles de pare-feu pour WinRM
-      win_shell: |
-        netsh advfirewall firewall add rule name="WinRM-HTTP" dir=in localport=5985 protocol=TCP action=allow
-        netsh advfirewall firewall add rule name="WinRM-HTTPS" dir=in localport=5986 protocol=TCP action=allow
-      delegate_to: "{{ vm_ip_result.stdout }}"
-      become: no
-      vars:
-        ansible_user: vagrant
-        ansible_password: vagrant
-        ansible_connection: winrm
-        ansible_winrm_transport: basic
-        ansible_winrm_server_cert_validation: ignore
-        ansible_port: 5985
+- name: Configurer les règles de pare-feu pour WinRM
+  win_shell: |
+    netsh advfirewall firewall add rule name="WinRM-HTTP" dir=in localport=5985 protocol=TCP action=allow
+    netsh advfirewall firewall add rule name="WinRM-HTTPS" dir=in localport=5986 protocol=TCP action=allow
+  delegate_to: "{{ vm_ip_result.stdout }}"
+  become: no
+  vars:
+    ansible_user: vagrant
+    ansible_password: vagrant
+    ansible_connection: winrm
+    ansible_winrm_transport: basic
+    ansible_winrm_server_cert_validation: ignore
+    ansible_port: 5985
 
-    - name: Désactiver la politique de complexité des mots de passe
-      win_shell: |
-        try {
-          # Désactiver la politique de complexité des mots de passe
-          secedit /export /cfg C:\secpol.cfg
-          (Get-Content C:\secpol.cfg) -replace "PasswordComplexity = 1", "PasswordComplexity = 0" | Out-File C:\secpol.cfg
-          secedit /configure /db C:\Windows\security\local.sdb /cfg C:\secpol.cfg /areas SECURITYPOLICY
-          Remove-Item -Path C:\secpol.cfg -Force
-          Write-Output "Politique de complexité des mots de passe désactivée"
-        } catch {
-          Write-Output "Erreur lors de la désactivation de la politique de complexité: $_"
-          exit 1
-        }
-      delegate_to: "{{ vm_ip_result.stdout }}"
-      become: no
-      register: disable_policy_result
-      vars:
-        ansible_user: vagrant
-        ansible_password: vagrant
-        ansible_connection: winrm
-        ansible_winrm_transport: basic
-        ansible_winrm_server_cert_validation: ignore
-        ansible_port: 5985
+- name: Désactiver la politique de complexité des mots de passe
+  win_shell: |
+    try {
+      # Désactiver la politique de complexité des mots de passe
+      secedit /export /cfg C:\secpol.cfg
+      (Get-Content C:\secpol.cfg) -replace "PasswordComplexity = 1", "PasswordComplexity = 0" | Out-File C:\secpol.cfg
+      secedit /configure /db C:\Windows\security\local.sdb /cfg C:\secpol.cfg /areas SECURITYPOLICY
+      Remove-Item -Path C:\secpol.cfg -Force
+      Write-Output "Politique de complexité des mots de passe désactivée"
+    } catch {
+      Write-Output "Erreur lors de la désactivation de la politique de complexité: $_"
+      exit 1
+    }
+  delegate_to: "{{ vm_ip_result.stdout }}"
+  become: no
+  register: disable_policy_result
+  vars:
+    ansible_user: vagrant
+    ansible_password: vagrant
+    ansible_connection: winrm
+    ansible_winrm_transport: basic
+    ansible_winrm_server_cert_validation: ignore
+    ansible_port: 5985
 
-    - name: Afficher le résultat de la désactivation de la politique
-      debug:
-        var: disable_policy_result.stdout_lines
-      when: disable_policy_result is defined
+- name: Afficher le résultat de la désactivation de la politique
+  debug:
+    var: disable_policy_result.stdout_lines
+  when: disable_policy_result is defined
 
-    - name: Création de l'utilisateur administrateur OEM via PowerShell
-      win_shell: |
-        try {
-          $password = ConvertTo-SecureString "oem" -AsPlainText -Force
-          New-LocalUser -Name "oem" -Password $password -FullName "OEM Admin" -Description "OEM Administrator" -ErrorAction Stop
-          Add-LocalGroupMember -Group "Administrators" -Member "oem" -ErrorAction Stop
-          Write-Output "Utilisateur oem créé avec succès"
-        } catch {
-          Write-Output "Erreur lors de la création de l'utilisateur: $_"
-          if ($_.Exception.Message -like "*nom d'utilisateur existe déjà*" -or $_.Exception.Message -like "*already exists*") {
-            Write-Output "L'utilisateur oem existe déjà"
-            exit 0
-          } else {
-            exit 1
-          }
-        }
-      delegate_to: "{{ vm_ip_result.stdout }}"
-      become: no
-      register: create_user_result
-      vars:
-        ansible_user: vagrant
-        ansible_password: vagrant
-        ansible_connection: winrm
-        ansible_winrm_transport: basic
-        ansible_winrm_server_cert_validation: ignore
-        ansible_port: 5985
+- name: Création de l'utilisateur administrateur OEM via PowerShell
+  win_shell: |
+    try {
+      $password = ConvertTo-SecureString "oem" -AsPlainText -Force
+      New-LocalUser -Name "oem" -Password $password -FullName "OEM Admin" -Description "OEM Administrator" -ErrorAction Stop
+      Add-LocalGroupMember -Group "Administrators" -Member "oem" -ErrorAction Stop
+      Write-Output "Utilisateur oem créé avec succès"
+    } catch {
+      Write-Output "Erreur lors de la création de l'utilisateur: $_"
+      if ($_.Exception.Message -like "*nom d'utilisateur existe déjà*" -or $_.Exception.Message -like "*already exists*") {
+        Write-Output "L'utilisateur oem existe déjà"
+        exit 0
+      } else {
+        exit 1
+      }
+    }
+  delegate_to: "{{ vm_ip_result.stdout }}"
+  become: no
+  register: create_user_result
+  vars:
+    ansible_user: vagrant
+    ansible_password: vagrant
+    ansible_connection: winrm
+    ansible_winrm_transport: basic
+    ansible_winrm_server_cert_validation: ignore
+    ansible_port: 5985
 
-    - name: Afficher le résultat de la création de l'utilisateur
-      debug:
-        var: create_user_result.stdout_lines
-      when: create_user_result is defined 
+- name: Afficher le résultat de la création de l'utilisateur
+  debug:
+    var: create_user_result.stdout_lines
+  when: create_user_result is defined
+
+- name: Installation de Chocolatey avec l'utilisateur OEM
+  win_shell: |
+    try {
+      Set-ExecutionPolicy Bypass -Scope Process -Force
+      [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072
+      Invoke-Expression ((New-Object System.Net.WebClient).DownloadString('https://chocolatey.org/install.ps1'))
+      Write-Output "Chocolatey installé avec succès"
+    } catch {
+      Write-Output "Erreur lors de l'installation de Chocolatey: $_"
+      exit 1
+    }
+  delegate_to: "{{ vm_ip_result.stdout }}"
+  become: no
+  register: install_choco_result
+  vars:
+    ansible_user: oem
+    ansible_password: oem
+    ansible_connection: winrm
+    ansible_winrm_transport: basic
+    ansible_winrm_server_cert_validation: ignore
+    ansible_port: 5985
+
+- name: Afficher le résultat de l'installation de Chocolatey
+  debug:
+    var: install_choco_result.stdout_lines
+  when: install_choco_result is defined
+
+- name: Installation de Python avec l'utilisateur OEM
+  win_shell: |
+    try {
+      choco install python -y
+      Write-Output "Python installé avec succès"
+      # Ajout de Python au PATH si nécessaire
+      $env:Path = [System.Environment]::GetEnvironmentVariable("Path","Machine") + ";" + [System.Environment]::GetEnvironmentVariable("Path","User")
+      python --version
+    } catch {
+      Write-Output "Erreur lors de l'installation de Python: $_"
+      exit 1
+    }
+  delegate_to: "{{ vm_ip_result.stdout }}"
+  become: no
+  register: install_python_result
+  vars:
+    ansible_user: oem
+    ansible_password: oem
+    ansible_connection: winrm
+    ansible_winrm_transport: basic
+    ansible_winrm_server_cert_validation: ignore
+    ansible_port: 5985
+
+- name: Afficher le résultat de l'installation de Python
+  debug:
+    var: install_python_result.stdout_lines
+  when: install_python_result is defined 
