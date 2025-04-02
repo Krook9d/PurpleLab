@@ -143,10 +143,12 @@
     ansible_winrm_transport: basic
     ansible_winrm_server_cert_validation: ignore
     ansible_port: 5985
+  ignore_errors: yes
+  failed_when: install_dotnet.rc != 0 and install_dotnet.rc != 3010
 
 - name: Redémarrer la VM si .NET Framework a été installé
   win_reboot:
-  when: install_dotnet is defined and install_dotnet.changed
+  when: install_dotnet is defined and install_dotnet.rc == 3010
   delegate_to: "{{ vm_ip_result.stdout }}"
   vars:
     ansible_user: oem
