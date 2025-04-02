@@ -200,3 +200,74 @@
   debug:
     var: python_version.stdout
   when: python_version is defined
+
+- name: Télécharger Sysmon
+  win_get_url:
+    url: https://download.sysinternals.com/files/Sysmon.zip
+    dest: C:\Windows\Temp\Sysmon.zip
+  delegate_to: "{{ vm_ip_result.stdout }}"
+  vars:
+    ansible_user: oem
+    ansible_password: oem
+    ansible_connection: winrm
+    ansible_winrm_transport: basic
+    ansible_winrm_server_cert_validation: ignore
+    ansible_port: 5985
+
+- name: Extraire Sysmon
+  win_unzip:
+    src: C:\Windows\Temp\Sysmon.zip
+    dest: C:\Windows\Temp\Sysmon
+    creates: C:\Windows\Temp\Sysmon\Sysmon64.exe
+  delegate_to: "{{ vm_ip_result.stdout }}"
+  vars:
+    ansible_user: oem
+    ansible_password: oem
+    ansible_connection: winrm
+    ansible_winrm_transport: basic
+    ansible_winrm_server_cert_validation: ignore
+    ansible_port: 5985
+
+- name: Télécharger la configuration Sysmon de SwiftOnSecurity
+  win_get_url:
+    url: https://raw.githubusercontent.com/SwiftOnSecurity/sysmon-config/master/sysmonconfig-export.xml
+    dest: C:\Windows\Temp\Sysmon\sysmonconfig-export.xml
+  delegate_to: "{{ vm_ip_result.stdout }}"
+  vars:
+    ansible_user: oem
+    ansible_password: oem
+    ansible_connection: winrm
+    ansible_winrm_transport: basic
+    ansible_winrm_server_cert_validation: ignore
+    ansible_port: 5985
+
+- name: Installer Sysmon avec la configuration
+  win_command: C:\Windows\Temp\Sysmon\Sysmon64.exe -accepteula -i C:\Windows\Temp\Sysmon\sysmonconfig-export.xml
+  delegate_to: "{{ vm_ip_result.stdout }}"
+  vars:
+    ansible_user: oem
+    ansible_password: oem
+    ansible_connection: winrm
+    ansible_winrm_transport: basic
+    ansible_winrm_server_cert_validation: ignore
+    ansible_port: 5985
+  register: sysmon_install
+  ignore_errors: yes
+
+- name: Vérifier l'installation de Sysmon
+  win_command: C:\Windows\Temp\Sysmon\Sysmon64.exe -c
+  delegate_to: "{{ vm_ip_result.stdout }}"
+  vars:
+    ansible_user: oem
+    ansible_password: oem
+    ansible_connection: winrm
+    ansible_winrm_transport: basic
+    ansible_winrm_server_cert_validation: ignore
+    ansible_port: 5985
+  register: sysmon_check
+  when: sysmon_install is defined
+
+- name: Afficher le statut de Sysmon
+  debug:
+    var: sysmon_check.stdout_lines
+  when: sysmon_check is defined
