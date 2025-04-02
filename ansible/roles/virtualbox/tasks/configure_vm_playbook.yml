@@ -100,20 +100,15 @@
     var: create_user_result.stdout_lines
   when: create_user_result is defined
 
-- name: Installation de Chocolatey avec l'utilisateur OEM
-  win_shell: |
-    try {
-      Set-ExecutionPolicy Bypass -Scope Process -Force
-      [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072
-      Invoke-Expression ((New-Object System.Net.WebClient).DownloadString('https://chocolatey.org/install.ps1'))
-      Write-Output "Chocolatey installé avec succès"
-    } catch {
-      Write-Output "Erreur lors de l'installation de Chocolatey: $_"
-      exit 1
-    }
+# -------------------------------------
+# Software installation
+# -------------------------------------
+
+- name: Vérifier si .NET Framework 4.8 est présent
+  win_stat:
+    path: 'C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.8'
+  register: dotnet48
   delegate_to: "{{ vm_ip_result.stdout }}"
-  become: no
-  register: install_choco_result
   vars:
     ansible_user: oem
     ansible_password: oem
@@ -122,26 +117,12 @@
     ansible_winrm_server_cert_validation: ignore
     ansible_port: 5985
 
-- name: Afficher le résultat de l'installation de Chocolatey
-  debug:
-    var: install_choco_result.stdout_lines
-  when: install_choco_result is defined
-
-- name: Installation de Python avec l'utilisateur OEM
-  win_shell: |
-    try {
-      choco install python -y
-      Write-Output "Python installé avec succès"
-      # Ajout de Python au PATH si nécessaire
-      $env:Path = [System.Environment]::GetEnvironmentVariable("Path","Machine") + ";" + [System.Environment]::GetEnvironmentVariable("Path","User")
-      python --version
-    } catch {
-      Write-Output "Erreur lors de l'installation de Python: $_"
-      exit 1
-    }
+- name: Télécharger le .NET Framework 4.8 si manquant
+  win_get_url:
+    url: https://go.microsoft.com/fwlink/?linkid=2088631
+    dest: C:\Windows\Temp\ndp48-x86-x64-allos-enu.exe
+  when: not dotnet48.stat.exists
   delegate_to: "{{ vm_ip_result.stdout }}"
-  become: no
-  register: install_python_result
   vars:
     ansible_user: oem
     ansible_password: oem
@@ -150,7 +131,70 @@
     ansible_winrm_server_cert_validation: ignore
     ansible_port: 5985
 
-- name: Afficher le résultat de l'installation de Python
+- name: Installer le .NET Framework 4.8
+  win_command: C:\Windows\Temp\ndp48-x86-x64-allos-enu.exe /q /norestart
+  when: not dotnet48.stat.exists
+  register: install_dotnet
+  delegate_to: "{{ vm_ip_result.stdout }}"
+  vars:
+    ansible_user: oem
+    ansible_password: oem
+    ansible_connection: winrm
+    ansible_winrm_transport: basic
+    ansible_winrm_server_cert_validation: ignore
+    ansible_port: 5985
+
+- name: Redémarrer la VM si .NET Framework a été installé
+  win_reboot:
+  when: install_dotnet is defined and install_dotnet.changed
+  delegate_to: "{{ vm_ip_result.stdout }}"
+  vars:
+    ansible_user: oem
+    ansible_password: oem
+    ansible_connection: winrm
+    ansible_winrm_transport: basic
+    ansible_winrm_server_cert_validation: ignore
+    ansible_port: 5985
+
+- name: Installer Chocolatey
+  win_chocolatey:
+    name: chocolatey
+    state: present
+  delegate_to: "{{ vm_ip_result.stdout }}"
+  vars:
+    ansible_user: oem
+    ansible_password: oem
+    ansible_connection: winrm
+    ansible_winrm_transport: basic
+    ansible_winrm_server_cert_validation: ignore
+    ansible_port: 5985
+
+- name: Installer Python avec Chocolatey
+  win_chocolatey:
+    name: python
+    state: present
+  delegate_to: "{{ vm_ip_result.stdout }}"
+  vars:
+    ansible_user: oem
+    ansible_password: oem
+    ansible_connection: winrm
+    ansible_winrm_transport: basic
+    ansible_winrm_server_cert_validation: ignore
+    ansible_port: 5985
+
+- name: Vérifier la version de Python
+  win_command: python --version
+  register: python_version
+  delegate_to: "{{ vm_ip_result.stdout }}"
+  vars:
+    ansible_user: oem
+    ansible_password: oem
+    ansible_connection: winrm
+    ansible_winrm_transport: basic
+    ansible_winrm_server_cert_validation: ignore
+    ansible_port: 5985
+
+- name: Afficher la version de Python installée
   debug:
-    var: install_python_result.stdout_lines
-  when: install_python_result is defined 
+    var: python_version.stdout
+  when: python_version is defined
