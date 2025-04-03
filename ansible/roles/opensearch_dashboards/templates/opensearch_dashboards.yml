@@ -1,5 +1,5 @@
 server.port: 5601
-server.host: "{{ hostvars[inventory_hostname]['ip'] }}"
+server.host: "0.0.0.0"
 opensearch.hosts: ["{{ os_nodes_dashboards }}"]
 opensearch.ssl.verificationMode: none
 opensearch.username: "kibanaserver"
