@@ -78,14 +78,22 @@ if [ -d "PurpleLab/Web" ]; then
     cp -r PurpleLab/Web/* /var/www/html/
 fi
 
-# Execute the Ansible playbook directly from the cloned directory
-echo -e "${YELLOW}Installing required Ansible collections...${NC}"
+# Execute the playbook
+echo -e "${YELLOW}Executing the playbook...${NC}"
 cd PurpleLab/ansible
 ansible-galaxy collection install -r requirements.yml
 
-# Execute the playbook
-echo -e "${YELLOW}Executing the playbook...${NC}"
-ansible-playbook -i inventory/local/hosts playbook.yml
+# Exécuter la partie principale du playbook (jusqu'à opensearch)
+echo -e "${YELLOW}Installing main components...${NC}"
+ansible-playbook -i inventory/local/hosts playbook.yml --tags "common,webserver,database"
+
+# Exécuter le playbook OpenSearch séparément
+echo -e "${YELLOW}Installing OpenSearch...${NC}"
+ansible-playbook -i inventory/opensearch inventory/opensearch/opensearch_only.yml 
+
+# Exécuter la partie VirtualBox
+echo -e "${YELLOW}Installing VirtualBox and configuring VMs...${NC}"
+ansible-playbook -i inventory/local/hosts playbook.yml --tags "virtualbox" 
 
 # Set permissions
 echo -e "${YELLOW}Setting permissions...${NC}"
