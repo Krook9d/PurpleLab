@@ -49,8 +49,26 @@
     - common
     - webserver
     - database
+
+- name: Installation d'OpenSearch
+  hosts: opensearch_nodes
+  become: true
+  gather_facts: true
+  roles:
+    - opensearch
+
+- name: Installation d'OpenSearch Dashboards
+  hosts: opensearch_dashboards_nodes
+  become: true
+  gather_facts: true
+  roles:
+    - opensearch_dashboards
+
+- name: Suite de l'installation PurpleLab (VirtualBox)
+  hosts: all
+  become: yes
+  roles:
     - virtualbox
-    # - opensearch  # Désactivé temporairement pour éviter les erreurs d'installation
 
   post_tasks:
     - name: Configuration de la VM Windows
@@ -82,4 +100,4 @@
         owner: www-data
         group: www-data
         mode: '0775'
-        recurse: yes 
+        recurse: yes
