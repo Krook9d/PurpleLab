@@ -1,0 +1,51 @@
+# -------------------------------
+# 🔧 OpenSearch Basic Settings
+# -------------------------------
+os_cluster_name: dev-cluster
+os_version: "2.19.1"
+os_dashboards_version: "2.19.1"
+os_download_url: https://artifacts.opensearch.org/releases/bundle/opensearch
+
+cluster_type: single-node
+domain_name: localhost  # pas de DNS requis pour local/test
+
+# -------------------------------
+# 🔐 Authentication
+# -------------------------------
+auth_type: internal
+
+admin_password: admin123
+kibanaserver_password: kibana123
+logstash_password: logstash123
+
+# -------------------------------
+# ⚙️  Java Heap Memory (in GB)
+# -------------------------------
+xms_value: 1
+xmx_value: 1
+
+# -------------------------------
+# 👤 System users (par défaut)
+# -------------------------------
+os_user: opensearch
+os_dashboards_user: opensearch-dashboards
+
+# -------------------------------
+# 📜 Certificats & sécurité
+# -------------------------------
+cert_valid_days: 730
+copy_custom_security_configs: false
+iac_enable: false
+
+# -------------------------------
+# 🔐 OIDC placeholder (inactive)
+# -------------------------------
+oidc:
+  description: "Authenticate via IdP"
+  connect_url: ""
+  subject_key: ""
+  roles_key: ""
+  scopes: ""
+  dashboards_url: ""
+  client_id: ""
+  client_secret: ""
