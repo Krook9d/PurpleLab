@@ -85,7 +85,7 @@ ansible-galaxy collection install -r requirements.yml
 
 # Execute the playbook
 echo -e "${YELLOW}Executing the playbook...${NC}"
-ansible-playbook -c local -i localhost, playbook.yml
+ansible-playbook -i inventory/local/hosts playbook.yml
 
 # Set permissions
 echo -e "${YELLOW}Setting permissions...${NC}"
