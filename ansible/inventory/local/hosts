@@ -1,2 +1,14 @@
 [local]
+localhost ansible_connection=local ansible_user=purplelab
+
+[opensearch_nodes]
+localhost ansible_connection=local
+
+[opensearch_dashboards_nodes]
+localhost ansible_connection=local
+
+[os-cluster]
+localhost ansible_connection=local
+
+[dashboards]
 localhost ansible_connection=local
