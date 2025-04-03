@@ -89,7 +89,7 @@ ansible-playbook -i inventory/local/hosts playbook.yml --tags "common,webserver,
 
 # Exécuter le playbook OpenSearch séparément
 echo -e "${YELLOW}Installing OpenSearch...${NC}"
-ansible-playbook -i inventory/opensearch inventory/opensearch/opensearch_only.yml 
+ansible-playbook -i inventory/opensearch/hosts/hosts inventory/opensearch/opensearch_only.yml 
 
 # Exécuter la partie VirtualBox
 echo -e "${YELLOW}Installing VirtualBox and configuring VMs...${NC}"
