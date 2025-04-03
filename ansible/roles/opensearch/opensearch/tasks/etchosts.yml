@@ -4,7 +4,7 @@
     dest: /etc/hosts
     block: |-
       {% for item in groups['os-cluster'] %}
-      {{ hostvars[item]['ip'] }} {{ item }}.{{ domain_name }} {{ item }}
+      {{ hostvars[item]['ansible_default_ipv4']['address'] if hostvars[item]['ansible_default_ipv4'] is defined else hostvars[item]['ip'] }} {{ item }}.{{ domain_name }} {{ item }}
       {% endfor %}
     state: present
     create: true
