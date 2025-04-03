@@ -1,3 +1,4 @@
+# ansible-playbook -i inventory/opensearch/hosts opensearch_only.yml to test
 ---
 - name: Installation d'OpenSearch
   hosts: opensearch_nodes
