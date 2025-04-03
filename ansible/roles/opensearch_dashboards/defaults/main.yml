@@ -1,6 +1,6 @@
 ---
 os_nodes: |-
-        {% for item in groups['os-cluster'] -%}
+        {% for item in groups['oscluster'] -%}
           {{ hostvars[item]['ip'] }}{% if not loop.last %}","{% endif %}
         {%- endfor %}
 
@@ -12,7 +12,7 @@ os_plugin_bin_path: /usr/share/opensearch-dashboards/bin/opensearch-dashboards-p
 
 os_api_port: 9200
 os_nodes_dashboards: |-
-        {% for item in groups['os-cluster'] -%}
+        {% for item in groups['oscluster'] -%}
           https://{{ hostvars[item]['ip'] }}:{{ os_api_port }}{% if not loop.last %}","{% endif %}
         {%- endfor %}
 
