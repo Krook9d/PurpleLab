@@ -5,11 +5,11 @@
   become: true
   gather_facts: true
   roles:
-    - opensearch
+    - role: ../../roles/opensearch/opensearch
 
 - name: Installation d'OpenSearch Dashboards
   hosts: opensearch_dashboards_nodes
   become: true
   gather_facts: true
   roles:
-    - opensearch_dashboards
+    - role: ../../roles/opensearch_dashboards
