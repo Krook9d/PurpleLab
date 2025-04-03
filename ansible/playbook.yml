@@ -18,57 +18,65 @@
       register: internet_check
       failed_when: internet_check.status != 200
       ignore_errors: yes
+      tags: [common, webserver, database, virtualbox]
 
     - name: Échec en cas d'absence de connexion Internet
       fail:
         msg: "Pas de connexion Internet. Veuillez vous assurer d'avoir une connexion Internet active."
       when: internet_check.status is not defined or internet_check.status != 200
+      tags: [common, webserver, database, virtualbox]
 
     - name: Vérification de la RAM
       shell: awk '/MemTotal/ {print $2}' /proc/meminfo
       register: ram_info
       changed_when: false
+      tags: [common, webserver, database, virtualbox]
 
     - name: Vérification de la RAM suffisante
       fail:
         msg: "RAM insuffisante. Un minimum de 7,9 Go de RAM est requis."
       when: (ram_info.stdout | int) < 8000000
+      tags: [common, webserver, database, virtualbox]
 
     - name: Vérification de la virtualisation matérielle
       shell: grep -E 'vmx|svm' /proc/cpuinfo
       register: virt_check
       changed_when: false
       ignore_errors: yes
+      tags: [common, webserver, database, virtualbox]
 
     - name: Échec si la virtualisation matérielle est désactivée
       fail:
         msg: "La virtualisation matérielle est désactivée. Veuillez l'activer dans les paramètres BIOS."
       when: virt_check.rc != 0
+      tags: [common, webserver, database, virtualbox]
 
   roles:
-    - common
-    - webserver
-    - database
+    - { role: common, tags: ['common'] }
+    - { role: webserver, tags: ['webserver'] }
+    - { role: database, tags: ['database'] }
 
 - name: Installation d'OpenSearch
   hosts: opensearch_nodes
   become: true
   gather_facts: true
   roles:
-    - opensearch
+    - role: roles/opensearch/opensearch
+  tags: [opensearch]
 
 - name: Installation d'OpenSearch Dashboards
   hosts: opensearch_dashboards_nodes
   become: true
   gather_facts: true
   roles:
-    - opensearch_dashboards
+    - role: roles/opensearch_dashboards
+  tags: [opensearch]
 
 - name: Suite de l'installation PurpleLab (VirtualBox)
   hosts: all
   become: yes
   roles:
-    - virtualbox
+    - { role: virtualbox, tags: ['virtualbox'] }
 
   post_tasks:
     - name: Configuration de la VM Windows
@@ -76,6 +84,7 @@
       tags: 
         - configure_vm
         - vm_config
+        - virtualbox
       vars:
         ansible_become: no
 
@@ -92,6 +101,7 @@
 
           The necessary passwords for the application are in admin.txt.
           For better security, change them and harden the server.
+      tags: [common, webserver, database, virtualbox]
 
     - name: Correction des permissions pour composer
       file:
@@ -101,3 +111,4 @@
         group: www-data
         mode: '0775'
         recurse: yes
+      tags: [webserver]
