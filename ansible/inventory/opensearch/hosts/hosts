@@ -1,0 +1,11 @@
+[opensearch_nodes]
+localhost ansible_connection=local
+
+[opensearch_dashboards_nodes]
+localhost ansible_connection=local
+
+[os-cluster]
+localhost ansible_connection=local ip="{{ ansible_default_ipv4.address }}"
+
+[dashboards]
+localhost ansible_connection=local ip="{{ ansible_default_ipv4.address }}" 
