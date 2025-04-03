@@ -49,3 +49,5 @@ oidc:
   dashboards_url: ""
   client_id: ""
   client_secret: ""
+
+populate_inventory_to_hosts_file: true
