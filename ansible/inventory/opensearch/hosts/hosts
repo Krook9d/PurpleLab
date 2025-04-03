@@ -4,7 +4,7 @@ localhost ansible_connection=local
 [opensearch_dashboards_nodes]
 localhost ansible_connection=local
 
-[os-cluster]
+[oscluster]
 localhost ansible_connection=local ip="{{ ansible_default_ipv4.address }}"
 
 [dashboards]
