@@ -1,7 +1,7 @@
 ---
 
 os_nodes: |-
-        {% for item in groups['os-cluster'] -%}
+        {% for item in groups['oscluster'] -%}
           {{ item }}{% if not loop.last %}","{% endif %}
         {%- endfor %}
 
