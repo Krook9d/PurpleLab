@@ -1,0 +1,22 @@
+---
+os_nodes: |-
+        {% for item in groups['os-cluster'] -%}
+          {{ hostvars[item]['ip'] }}{% if not loop.last %}","{% endif %}
+        {%- endfor %}
+
+populate_inventory_to_hosts_file: true
+
+os_dashboards_home: /usr/share/opensearch-dashboards
+os_conf_dir: /usr/share/opensearch-dashboards/config
+os_plugin_bin_path: /usr/share/opensearch-dashboards/bin/opensearch-dashboards-plugin
+
+os_api_port: 9200
+os_nodes_dashboards: |-
+        {% for item in groups['os-cluster'] -%}
+          https://{{ hostvars[item]['ip'] }}:{{ os_api_port }}{% if not loop.last %}","{% endif %}
+        {%- endfor %}
+
+systemctl_path: /etc/systemd/system
+
+# Auth type: 'internal' or 'oidc' (OpenID). Default: internal
+auth_type: internal

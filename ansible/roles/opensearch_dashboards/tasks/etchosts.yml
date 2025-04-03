@@ -1,0 +1,13 @@
+---
+- name: Hosts | populate inventory into hosts file
+  ansible.builtin.blockinfile:
+    dest: /etc/hosts
+    block: |-
+      {% for item in groups['dashboards'] %}
+      {{ hostvars[item]['ip'] }} {{ item }}.{{ domain_name }} {{ item }}
+      {% endfor %}
+    state: present
+    create: true
+    backup: true
+    marker: "# Ansible inventory hosts {mark}"
+  when: populate_inventory_to_hosts_file

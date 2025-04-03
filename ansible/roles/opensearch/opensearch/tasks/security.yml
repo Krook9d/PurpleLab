@@ -1,0 +1,315 @@
+---
+
+## Here we are going to use self-signed certificates for Transport (Node-Node communication) & REST API layer
+## Using searchguard offline TLS tool to create node & root certificates
+- name: Security Plugin configuration | Force remove local temporary directory for certificates generation
+  local_action:
+    module: file
+    path: /tmp/opensearch-nodecerts
+    state: absent
+  run_once: true
+  become: false
+  when: iac_enable
+
+- name: Security Plugin configuration | Create local temporary directory for certificates generation
+  local_action:
+    module: file
+    path: /tmp/opensearch-nodecerts
+    state: directory
+  run_once: true
+  register: configuration
+  become: false
+
+- name: Security Plugin configuration | Download certificates generation tool
+  local_action:
+    module: get_url
+    url: https://search.maven.org/remotecontent?filepath=com/floragunn/search-guard-tlstool/1.5/search-guard-tlstool-1.5.tar.gz
+    dest: /tmp/opensearch-nodecerts/search-guard-tlstool.tar.gz
+  run_once: true
+  when: configuration.changed
+  become: false
+
+- name: Security Plugin configuration | Extract the certificates generation tool
+  local_action: command chdir=/tmp/opensearch-nodecerts tar -xvf search-guard-tlstool.tar.gz
+  run_once: true
+  when: configuration.changed
+  become: false
+
+- name: Security Plugin configuration | Make the executable file
+  local_action:
+    module: file
+    dest: /tmp/opensearch-nodecerts/tools/sgtlstool.sh
+    mode: a+x
+  run_once: true
+  when: configuration.changed
+  become: false
+
+- name: Security Plugin configuration | Prepare the certificates generation template file
+  local_action:
+    module: template
+    src: tlsconfig.yml
+    dest: /tmp/opensearch-nodecerts/config/tlsconfig.yml
+  run_once: true
+  when: configuration.changed
+  become: false
+
+- name: Security Plugin configuration | Generate the node & admin certificates in local
+  local_action:
+    module: command /tmp/opensearch-nodecerts/tools/sgtlstool.sh -c /tmp/opensearch-nodecerts/config/tlsconfig.yml -ca -crt -t /tmp/opensearch-nodecerts/config/
+  run_once: true
+  when: configuration.changed
+  become: false
+
+- name: Security Plugin configuration | IaC enabled - Check certificate
+  when: iac_enable
+  block:
+    - name: Security Plugin configuration | Check cert exists
+      ansible.builtin.stat:
+        path: "{{ item }}"
+        get_attributes: false
+        get_checksum: false
+        get_mime: false
+      register: cert_stat_result
+      with_items:
+        - "{{ os_conf_dir }}/root-ca.pem"
+        - "{{ os_conf_dir }}/root-ca.key"
+        - "{{ os_conf_dir }}/{{ inventory_hostname }}.key"
+        - "{{ os_conf_dir }}/{{ inventory_hostname }}.pem"
+        - "{{ os_conf_dir }}/{{ inventory_hostname }}_http.key"
+        - "{{ os_conf_dir }}/{{ inventory_hostname }}_http.pem"
+        - "{{ os_conf_dir }}/admin.key"
+        - "{{ os_conf_dir }}/admin.pem"
+
+    - name: Security Plugin configuration | Set fact. The initial value "Don't update certs"
+      ansible.builtin.set_fact:
+        force_update_cert: false
+
+    - name: Security Plugin configuration | Set fact. Update certificates if at least one certificate is not found
+      ansible.builtin.set_fact:
+        force_update_cert: true
+      with_items: "{{ cert_stat_result.results }}"
+      when: item.stat.exists == False
+
+    - name: Security Plugin configuration | Show the force_update_cert setting
+      ansible.builtin.debug:
+        msg: "force_update_cert: {{ force_update_cert }}"
+
+    - name: Security Plugin configuration | Count force_update_cert nodes
+      ansible.builtin.set_fact:
+        force_update_cert_nodes_count: "{{ hostvars | dict2items | selectattr('value.force_update_cert', 'defined') | rejectattr('value.force_update_cert', 'equalto', false) | map(attribute='value.force_update_cert') | list | length }}"
+
+    - name: Security Plugin configuration | Show the force_update_cert_nodes_count setting
+      ansible.builtin.debug:
+        msg: "force_update_cert_nodes_count: {{ force_update_cert_nodes_count }}"
+
+    - name: Security Plugin configuration | Do need to update certificates
+      ansible.builtin.debug:
+        msg: "Need to update certificates..."
+      when: force_update_cert_nodes_count | int > 0
+
+- name: Security Plugin configuration | IaC disabled - Count force_update_cert nodes
+  ansible.builtin.set_fact:
+    force_update_cert_nodes_count: 0
+  when: not iac_enable
+
+- name: Security Plugin configuration | Copy the node & admin certificates to opensearch nodes if at least one certificate is not found on at least one server
+  ansible.builtin.copy:
+    src: "/tmp/opensearch-nodecerts/config/{{ item }}"
+    dest: "{{ os_conf_dir }}"
+    mode: 0600
+  with_items:
+    - root-ca.pem
+    - root-ca.key
+    - "{{ inventory_hostname }}.key"
+    - "{{ inventory_hostname }}.pem"
+    - "{{ inventory_hostname }}_http.key"
+    - "{{ inventory_hostname }}_http.pem"
+    - admin.key
+    - admin.pem
+  when: (configuration.changed and not iac_enable) or (iac_enable and force_update_cert_nodes_count | int > 0)
+
+- name: Security Plugin configuration | Copy the security configuration file 1 to cluster
+  ansible.builtin.blockinfile:
+    block: "{{ lookup('template', 'templates/security_conf.yml') }}"
+    dest: "{{ os_conf_dir }}/opensearch.yml"
+    backup: true
+    insertafter: EOF
+    marker: "## {mark} OpenSearch Security common configuration ##"
+  when: configuration.changed or iac_enable
+
+- name: Security Plugin configuration | Copy the security configuration file 2 to cluster
+  ansible.builtin.blockinfile:
+    block: "{{ lookup('file', '/tmp/opensearch-nodecerts/config/{{ inventory_hostname }}_elasticsearch_config_snippet.yml') }}"
+    dest: "{{ os_conf_dir }}/opensearch.yml"
+    backup: true
+    insertafter: EOF
+    marker: "## {mark} opensearch Security Node & Admin certificates configuration ##"
+  when: configuration.changed or iac_enable
+
+- name: Security Plugin configuration | Create security plugin configuration folder
+  ansible.builtin.file:
+    dest: "{{ os_sec_plugin_conf_path }}"
+    owner: "{{ os_user }}"
+    group: "{{ os_user }}"
+    mode: 0700
+    state: directory
+  when: configuration.changed or iac_enable
+
+- name: Security Plugin configuration | Copy the security configuration file 3 to cluster
+  ansible.builtin.template:
+    src: security_plugin_conf.yml
+    dest: "{{ os_sec_plugin_conf_path }}/config.yml"
+    backup: true
+    owner: "{{ os_user }}"
+    group: "{{ os_user }}"
+    mode: 0600
+    force: true
+  when: auth_type == 'oidc' or copy_custom_security_configs
+
+- name: Security Plugin configuration | Prepare the opensearch security configuration file
+  ansible.builtin.command: sed -i 's/searchguard/plugins.security/g' {{ os_conf_dir }}/opensearch.yml
+  when: configuration.changed or iac_enable
+
+- name: Security Plugin configuration | Set the file ownerships
+  ansible.builtin.file:
+    dest: "{{ os_home }}"
+    owner: "{{ os_user }}"
+    group: "{{ os_user }}"
+    recurse: true
+
+- name: Security Plugin configuration | Set the folder permission
+  ansible.builtin.file:
+    dest: "{{ os_conf_dir }}"
+    owner: "{{ os_user }}"
+    group: "{{ os_user }}"
+    mode: 0700
+
+- name: Security Plugin configuration | Restart opensearch with security configuration
+  ansible.builtin.systemd:
+    name: opensearch
+    state: restarted
+    enabled: true
+
+- name: Wait for opensearch to startup
+  ansible.builtin.wait_for:
+    host: "{{ hostvars[inventory_hostname]['ip'] }}"
+    port: "{{ os_api_port }}"
+    delay: 5
+    connect_timeout: 1
+    timeout: 120
+
+- name: Security Plugin configuration | Copy the opensearch security internal users template
+  ansible.builtin.template:
+    src: internal_users.yml
+    dest: "{{ os_sec_plugin_conf_path }}/internal_users.yml"
+    mode: 0644
+  run_once: true
+  when: configuration.changed or iac_enable
+
+- name: Security Plugin configuration | Copy custom configuration files to cluster
+  ansible.builtin.template:
+    src: "{{ item }}"
+    dest: "{{ os_sec_plugin_conf_path }}/"
+    owner: "{{ os_user }}"
+    group: "{{ os_user }}"
+    backup: true
+    mode: 0640
+    force: true
+  with_items: "{{ custom_security_plugin_configs }}"
+  when: copy_custom_security_configs
+
+- name: Security Plugin configuration | Set the Admin user password
+  ansible.builtin.shell: >
+    sed -i '/hash: / s,{{ admin_password }},'$(bash {{ os_sec_plugin_tools_path }}/hash.sh -p {{ admin_password }} | tail -1)','
+    {{ os_sec_plugin_conf_path }}/internal_users.yml
+  environment:
+    JAVA_HOME: "{{ os_home }}/jdk"
+  run_once: true
+  when: configuration.changed or iac_enable
+
+- name: Security Plugin configuration | Set the kibanaserver user pasword
+  ansible.builtin.shell: >
+    sed -i '/hash: / s,{{ kibanaserver_password }},'$(bash {{ os_sec_plugin_tools_path }}/hash.sh -p {{ kibanaserver_password }} | tail -1)','
+    {{ os_sec_plugin_conf_path }}/internal_users.yml
+  environment:
+    JAVA_HOME: "{{ os_home }}/jdk"
+  run_once: true
+  when: configuration.changed or iac_enable
+
+- name: Security Plugin configuration | Check that the files/internal_users.yml exists
+  ansible.builtin.stat:
+    path: files/internal_users.yml
+  register: custom_users_result
+  delegate_to: localhost
+  run_once: true
+  become: false
+
+- name: Security Plugin configuration | Check for a custom configuration for internal users and hash passwords for them
+  when: custom_users_result.stat.exists
+  block:
+
+    - name: Security Plugin configuration | Load custom internal users configuration
+      ansible.builtin.include_vars:
+        file: files/internal_users.yml
+        name: custom_users
+      run_once: true
+
+    # In the internal_users file.yml each user is described by the block:
+    # username:
+    #   hash: "{{ username_password }}"In addition to the user description blocks, there is a _meta block
+    #   ...
+    # In addition to the user description blocks, there is a _meta block
+    # In this task, all usernames are selected from the file (excluding the _meta block), for which hashed
+    # passwords will be written next
+    - name: Security Plugin configuration | Filter service keys from the list of users
+      ansible.builtin.set_fact:
+        custom_users_filtered: '{{ custom_users | dict2items | rejectattr("key", "equalto", "_meta") | list | items2dict }}'
+
+    # Hashed passwords are written for all users found in the previous task. Passwords are searched in variables
+    # set by the user when starting the role (admin_password, kibanaserver_password, etc.).
+    - name: Security Plugin configuration | Set passwords for all users from custom config
+      ansible.builtin.shell: >
+        sed -i '/hash: / s,{{ lookup('vars', item + '_password') }},'$(bash {{ os_sec_plugin_tools_path }}/hash.sh -p {{ lookup('vars', item + '_password') }} | tail -1)','
+        {{ os_sec_plugin_conf_path }}/internal_users.yml
+      environment:
+        JAVA_HOME: "{{ os_home }}/jdk"
+      run_once: true
+      when: configuration.changed or copy_custom_security_configs
+      with_items: "{{ custom_users_filtered }}"
+
+- name: Security Plugin configuration | Initialize the opensearch security index in opensearch with custom configs
+  ansible.builtin.shell: >
+    bash {{ os_sec_plugin_tools_path }}/securityadmin.sh
+    -cacert {{ os_conf_dir }}/root-ca.pem
+    -cert {{ os_conf_dir }}/admin.pem
+    -key {{ os_conf_dir }}/admin.key
+    -cd {{ os_sec_plugin_conf_path }}
+    -nhnv -icl
+    -h {{ hostvars[inventory_hostname]['ip'] }}
+  environment:
+    JAVA_HOME: "{{ os_home }}/jdk"
+  run_once: true
+  when: configuration.changed and copy_custom_security_configs
+
+- name: Security Plugin configuration | Initialize the opensearch security index in opensearch with default configs
+  ansible.builtin.shell: >
+    bash {{ os_sec_plugin_tools_path }}/securityadmin.sh
+    -cacert {{ os_conf_dir }}/root-ca.pem
+    -cert {{ os_conf_dir }}/admin.pem
+    -key {{ os_conf_dir }}/admin.key
+    -f {{ os_sec_plugin_conf_path }}/internal_users.yml
+    -nhnv -icl
+    -h {{ hostvars[inventory_hostname]['ip'] }}
+  environment:
+    JAVA_HOME: "{{ os_home }}/jdk"
+  run_once: true
+  when: configuration.changed and not copy_custom_security_configs
+
+- name: Security Plugin configuration | Cleanup local temporary directory
+  local_action:
+    module: file
+    path: /tmp/opensearch-nodecerts
+    state: absent
+  run_once: true
+  when: configuration.changed
+  become: false

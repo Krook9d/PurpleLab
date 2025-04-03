@@ -1,0 +1,25 @@
+---
+
+os_nodes: |-
+        {% for item in groups['os-cluster'] -%}
+          {{ item }}{% if not loop.last %}","{% endif %}
+        {%- endfor %}
+
+os_master_nodes: |-
+        {% for item in groups['master'] -%}
+          {{ item }}{% if not loop.last %}","{% endif %}
+        {%- endfor %}
+
+populate_inventory_to_hosts_file: true
+
+os_home: /usr/share/opensearch
+os_conf_dir: /usr/share/opensearch/config
+os_plugin_bin_path: /usr/share/opensearch/bin/opensearch-plugin
+os_sec_plugin_conf_path: /usr/share/opensearch/config/opensearch-security
+os_sec_plugin_tools_path: /usr/share/opensearch/plugins/opensearch-security/tools
+os_api_port: 9200
+
+systemctl_path: /etc/systemd/system
+
+# Auth type: 'internal' or 'oidc' (OpenID). Default: internal
+auth_type: internal

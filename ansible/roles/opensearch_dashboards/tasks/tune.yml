@@ -1,0 +1,6 @@
+---
+- name: Set open files limit in sysctl.conf
+  ansible.posix.sysctl:
+    name: fs.file-max
+    value: 65536
+    state: present

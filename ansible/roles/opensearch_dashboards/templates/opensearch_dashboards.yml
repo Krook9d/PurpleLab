@@ -1,0 +1,25 @@
+server.port: 5601
+server.host: "{{ hostvars[inventory_hostname]['ip'] }}"
+opensearch.hosts: ["{{ os_nodes_dashboards }}"]
+opensearch.ssl.verificationMode: none
+opensearch.username: "kibanaserver"
+opensearch.password: "{{ kibanaserver_password }}"
+opensearch.requestHeadersWhitelist: [ authorization,securitytenant ]
+
+opensearch_security.multitenancy.enabled: true
+opensearch_security.multitenancy.tenants.preferred: ["Private", "Global"]
+opensearch_security.readonly_mode.roles: ["kibana_read_only"]
+# Use this setting if you are running dashboards without https
+opensearch_security.cookie.secure: false
+
+
+# OpenID settings
+{% if auth_type == 'oidc' %}
+opensearch_security.auth.type: openid
+opensearch_security.openid.base_redirect_url: "{{ oidc.dashboards_url }}"
+opensearch_security.openid.client_id: "{{ oidc.client_id }}"
+opensearch_security.openid.scope: "{{ oidc.scopes }}"
+opensearch_security.openid.client_secret: "{{ oidc.client_secret }}"
+opensearch_security.openid.connect_url: "{{ oidc.connect_url }}"
+opensearch_security.openid.verify_hostnames: true
+{% endif %}

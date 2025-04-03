@@ -1,0 +1,80 @@
+---
+
+- name: Set hostname
+  ansible.builtin.hostname:
+    name: "{{ inventory_hostname }}"
+
+# Disabling for Amazon Linux 2, Ubuntu and Debian as selinux is disabled by default.
+- name: Disable the selinux
+  ansible.posix.selinux:
+    state: disabled
+  when:
+    - ansible_distribution != "Ubuntu"
+    - ansible_distribution != "Amazon"
+    - ansible_distribution != "Debian"
+
+- name: Populate the nodes to /etc/hosts
+  ansible.builtin.import_tasks: etchosts.yml
+
+- name: Tune the system settings
+  ansible.builtin.import_tasks: tune.yml
+
+- name: Include opensearch installation
+  ansible.builtin.import_tasks: opensearch.yml
+
+- name: Include security plugin for opensearch
+  ansible.builtin.import_tasks: security.yml
+
+# After the cluster forms successfully for the first time,
+# remove the cluster.initial_master_nodes setting from each nodes' configuration.
+- name: Remove `cluster.initial_master_nodes` setting from configuration
+  ansible.builtin.command: sed -i '/cluster.initial_master_nodes/d' "{{ os_conf_dir }}/opensearch.yml"
+
+- name: Make sure opensearch is started
+  ansible.builtin.service:
+    name: opensearch
+    state: started
+    enabled: true
+
+- name: Get all the installed ES plugins
+  ansible.builtin.command: "{{ os_plugin_bin_path }} list"
+  register: list_plugins
+
+- name: Show all the installed ES plugins
+  ansible.builtin.debug:
+    msg: "{{ list_plugins.stdout }}"
+
+- name: Wait for opensearch to startup
+  ansible.builtin.wait_for:
+    host: "{{ hostvars[inventory_hostname]['ip'] }}"
+    port: "{{ os_api_port }}"
+    delay: 5
+    connect_timeout: 1
+    timeout: 120
+
+- name: Check the opensearch status
+  ansible.builtin.uri:
+    url: "https://{{ inventory_hostname }}:9200/_cluster/health?pretty"
+    user: admin
+    password: "{{ admin_password }}"
+    validate_certs: false
+  register: os_status
+
+- name: Show the opensearch status
+  debug:
+    msg: "{{ os_status.json }}"
+  failed_when: "'number_of_nodes' not in os_status.json"
+
+- name: Verify the roles of opensearch cluster nodes
+  ansible.builtin.uri:
+    url: "https://{{ inventory_hostname }}:9200/_cat/nodes?v"
+    user: admin
+    password: "{{ admin_password }}"
+    validate_certs: false
+  register: os_roles
+  run_once: true
+
+- name: Show the roles of opensearch cluster nodes
+  debug:
+    msg: "{{ os_roles }}"
+  run_once: true

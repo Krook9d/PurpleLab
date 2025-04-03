@@ -1,0 +1,11 @@
+cluster.name: "{{ os_cluster_name }}"
+
+node.name: "{{ inventory_hostname }}"
+
+network.host: "{{ hostvars[inventory_hostname]['ip'] }}"
+
+http.port: 9200
+
+discovery.type: single-node
+
+bootstrap.memory_lock: true

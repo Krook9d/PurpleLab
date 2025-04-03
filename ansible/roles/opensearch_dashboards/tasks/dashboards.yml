@@ -1,0 +1,56 @@
+---
+
+- name: Dashboards Install | Download opensearch dashbaord {{ os_dashboards_version }}
+  ansible.builtin.get_url:
+    url: "{{ os_download_url }}-dashboards/{{ os_dashboards_version }}/opensearch-dashboards-{{ os_dashboards_version }}-linux-x64.tar.gz"
+    dest: "/tmp/opensearch-dashboards.tar.gz"
+  register: download
+
+- name: Dashboards Install | Create opensearch dashboard user
+  ansible.builtin.user:
+    name: "{{ os_dashboards_user }}"
+    state: present
+    shell: /bin/false
+    create_home: true
+    home: "{{ os_dashboards_home }}"
+  when: download.changed or iac_enable
+
+- name: Dashboards Install | Create home directory
+  ansible.builtin.file:
+    path: "{{ os_dashboards_home }}"
+    state: directory
+    owner: "{{ os_dashboards_user }}"
+    group: "{{ os_dashboards_user }}"
+  when: download.changed or iac_enable
+
+- name: Dashboards Install | Extract the tar file
+  ansible.builtin.command: chdir=/tmp/ tar -xvzf opensearch-dashboards.tar.gz -C "{{ os_dashboards_home }}" --strip-components=1
+  when: download.changed or iac_enable
+
+- name: Dashboards Install | Copy Configuration File
+  ansible.builtin.template:
+    src: opensearch_dashboards.yml
+    dest: "{{ os_conf_dir }}/opensearch_dashboards.yml"
+    owner: "{{ os_dashboards_user }}"
+    group: "{{ os_dashboards_user }}"
+    mode: 0644
+    backup: true
+
+- name: Dashboards Install | Set the file ownerships
+  ansible.builtin.file:
+    dest: "{{ os_dashboards_home }}"
+    owner: "{{ os_dashboards_user }}"
+    group: "{{ os_dashboards_user }}"
+    recurse: true
+
+- name: Dashboards Install | Set the folder permission
+  ansible.builtin.file:
+    dest: "{{ os_conf_dir }}"
+    owner: "{{ os_dashboards_user }}"
+    group: "{{ os_dashboards_user }}"
+    mode: 0700
+
+- name: Dashboards Install | create systemd service
+  ansible.builtin.template:
+    src: dashboards.service
+    dest: "{{ systemctl_path }}/dashboards.service"
