@@ -3,11 +3,11 @@
   ansible.builtin.blockinfile:
     dest: /etc/hosts
     block: |-
-      {% for item in groups['os-cluster'] %}
-      {{ hostvars[item]['ansible_default_ipv4']['address'] if hostvars[item]['ansible_default_ipv4'] is defined else hostvars[item]['ip'] }} {{ item }}.{{ domain_name }} {{ item }}
+      {% for item in groups['oscluster'] %}
+      {{ hostvars[item]['ansible_default_ipv4']['address'] if hostvars[item]['ansible_default_ipv4'] is defined else hostvars[item]['ip'] }} {{ item }}.{{ domain_name | default('localhost') }} {{ item }}
       {% endfor %}
     state: present
     create: true
     backup: true
     marker: "# Ansible inventory hosts {mark}"
-  when: populate_inventory_to_hosts_file
+  when: populate_inventory_to_hosts_file | default(true)
