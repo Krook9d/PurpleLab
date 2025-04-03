@@ -1,0 +1,54 @@
+---
+_meta:
+  type: "roles"
+  config_version: 2
+
+
+indexes_full_access:
+  reserved: false
+  index_permissions:
+    - index_patterns:
+        - "*"
+      allowed_actions:
+        - "*"
+  tenant_permissions:
+  - tenant_patterns:
+    - "*"
+    allowed_actions:
+    - "kibana_all_write"
+# ----------------------------------------------------
+indexes_security_search_full_access:
+  reserved: true
+  index_permissions:
+    - index_patterns:
+        - "kube-apiserver-audit-*"
+        - "syslog-*"
+      allowed_actions:
+        - "indices:data/read/search*"
+        - "read"
+        - "view_index_metadata"
+  tenant_permissions:
+  - tenant_patterns:
+    - "SECURITY"
+    allowed_actions:
+    - "kibana_all_write"
+# ----------------------------------------------------
+indexes_web_search_full_access:
+  reserved: true
+  index_permissions:
+    - index_patterns:
+        - "ingress-nginx-*"
+        - "mywebapp-*"
+      allowed_actions:
+        - "indices:data/read/search*"
+        - "read"
+        - "view_index_metadata"
+  tenant_permissions:
+  - tenant_patterns:
+    - "WEB"
+    allowed_actions:
+    - "kibana_all_write"
+# ----------------------------------------------------
+# Restrict users so they can only view visualization and dashboard on OpenSearchDashboards
+kibana_read_only:
+  reserved: true

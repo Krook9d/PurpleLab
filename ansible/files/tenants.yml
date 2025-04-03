@@ -1,0 +1,12 @@
+---
+_meta:
+  type: "tenants"
+  config_version: 2
+
+# Define your tenants here
+SECURITY:
+  reserved: false
+  description: "Tenant for security logs (e.g. kubernetes audit or opensearch audit)"
+WEB:
+  reserved: false
+  description: "Tenant for web-app logs"
