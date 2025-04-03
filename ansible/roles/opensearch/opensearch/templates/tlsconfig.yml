@@ -25,7 +25,7 @@ defaults:
 # Specify the nodes of your ES cluster here
 #
 nodes:
-{% for item in groups['os-cluster'] %}
+{% for item in groups['oscluster'] %}
   - name: {{ item }}
     dn: CN={{ item }}.{{ domain_name }},OU=Ops,O={{ domain_name }}\, Inc.,DC={{ domain_name }}
     dns: {{ item }}.{{ domain_name }}
