@@ -1,0 +1,76 @@
+# ============================== Winlogbeat Configuration ================================
+
+# Configuration de base de Winlogbeat pour envoyer les logs de Windows à OpenSearch
+
+winlogbeat.event_logs:
+  - name: Application
+    ignore_older: 72h
+  - name: System
+    ignore_older: 72h
+  - name: Security
+    ignore_older: 72h
+  # Logs Sysmon
+  - name: Microsoft-Windows-Sysmon/Operational
+    ignore_older: 72h
+  # Logs PowerShell
+  - name: Microsoft-Windows-PowerShell/Operational
+    ignore_older: 72h
+  # Logs RDP
+  - name: Microsoft-Windows-TerminalServices-LocalSessionManager/Operational
+    ignore_older: 72h
+  - name: Microsoft-Windows-TerminalServices-RemoteConnectionManager/Operational
+    ignore_older: 72h
+
+# ============================== Output Configuration ===============================
+
+# Configuration pour envoyer les logs à OpenSearch
+output.elasticsearch:
+  hosts: ["{{ opensearch_host }}:9200"]
+  username: "admin"
+  password: "admin123"
+  protocol: "http"
+  ssl.verification_mode: "none"
+  
+  # Utiliser des indices spécifiques pour chaque type de log
+  indices:
+    - index: "winlogbeat-system-%{+yyyy.MM.dd}"
+      when.equals:
+        event.dataset: "system"
+    - index: "winlogbeat-security-%{+yyyy.MM.dd}"
+      when.equals:
+        event.dataset: "security"
+    - index: "winlogbeat-application-%{+yyyy.MM.dd}"
+      when.equals:
+        event.dataset: "application"
+    - index: "winlogbeat-sysmon-%{+yyyy.MM.dd}"
+      when.equals:
+        event.dataset: "Microsoft-Windows-Sysmon/Operational"
+    - index: "winlogbeat-powershell-%{+yyyy.MM.dd}"
+      when.equals:
+        event.dataset: "Microsoft-Windows-PowerShell/Operational"
+    - index: "winlogbeat-rdp-%{+yyyy.MM.dd}"
+      when.or:
+        - equals:
+            event.dataset: "Microsoft-Windows-TerminalServices-LocalSessionManager/Operational"
+        - equals:
+            event.dataset: "Microsoft-Windows-TerminalServices-RemoteConnectionManager/Operational"
+
+# ============================== Logging Configuration ==============================
+
+# Paramètres de logging pour Winlogbeat lui-même
+logging.level: info
+logging.to_files: true
+logging.files:
+  path: C:/ProgramData/winlogbeat/logs
+  name: winlogbeat
+  keepfiles: 7
+  permissions: 0644
+
+# ============================== Processors Configuration =========================
+
+# Processeurs pour enrichir ou modifier les événements avant de les envoyer
+processors:
+  - add_host_metadata: ~
+  - add_process_metadata:
+      match_pids: [system.process.pid]
+  - add_locale: ~ 
