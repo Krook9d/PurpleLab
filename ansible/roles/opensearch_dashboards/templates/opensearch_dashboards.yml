@@ -1,5 +1,10 @@
 server.port: 5601
 server.host: "0.0.0.0"
+# Activer HTTPS
+server.ssl.enabled: true
+server.ssl.certificate: {{ os_conf_dir }}/localhost_http.pem
+server.ssl.key: {{ os_conf_dir }}/localhost_http.key
+server.ssl.certificateAuthorities: [ "{{ os_conf_dir }}/root-ca.pem" ]
 opensearch.hosts: ["{{ os_nodes_dashboards }}"]
 opensearch.ssl.verificationMode: none
 opensearch.username: "kibanaserver"
@@ -9,8 +14,8 @@ opensearch.requestHeadersWhitelist: [ authorization,securitytenant ]
 opensearch_security.multitenancy.enabled: true
 opensearch_security.multitenancy.tenants.preferred: ["Private", "Global"]
 opensearch_security.readonly_mode.roles: ["kibana_read_only"]
-# Use this setting if you are running dashboards without https
-opensearch_security.cookie.secure: false
+# Mettre à true car nous utilisons HTTPS maintenant
+opensearch_security.cookie.secure: true
 
 
 # OpenID settings
