@@ -10,47 +10,6 @@
     admin_password: "{{ lookup('password', '/dev/null chars=ascii_letters,digits,special length=12') }}"
     ansible_user: "purplelab"
 
-  pre_tasks:
-    - name: Vérification de la connexion Internet
-      uri:
-        url: https://www.google.com
-        timeout: 5
-      register: internet_check
-      failed_when: internet_check.status != 200
-      ignore_errors: yes
-      tags: [common, webserver, database, virtualbox]
-
-    - name: Échec en cas d'absence de connexion Internet
-      fail:
-        msg: "Pas de connexion Internet. Veuillez vous assurer d'avoir une connexion Internet active."
-      when: internet_check.status is not defined or internet_check.status != 200
-      tags: [common, webserver, database, virtualbox]
-
-    - name: Vérification de la RAM
-      shell: awk '/MemTotal/ {print $2}' /proc/meminfo
-      register: ram_info
-      changed_when: false
-      tags: [common, webserver, database, virtualbox]
-
-    - name: Vérification de la RAM suffisante
-      fail:
-        msg: "RAM insuffisante. Un minimum de 7,9 Go de RAM est requis."
-      when: (ram_info.stdout | int) < 8000000
-      tags: [common, webserver, database, virtualbox]
-
-    - name: Vérification de la virtualisation matérielle
-      shell: grep -E 'vmx|svm' /proc/cpuinfo
-      register: virt_check
-      changed_when: false
-      ignore_errors: yes
-      tags: [common, webserver, database, virtualbox]
-
-    - name: Échec si la virtualisation matérielle est désactivée
-      fail:
-        msg: "La virtualisation matérielle est désactivée. Veuillez l'activer dans les paramètres BIOS."
-      when: virt_check.rc != 0
-      tags: [common, webserver, database, virtualbox]
-
   roles:
     - { role: common, tags: ['common'] }
     - { role: webserver, tags: ['webserver'] }
@@ -87,21 +46,6 @@
         - virtualbox
       vars:
         ansible_become: no
-
-    - name: Affichage du message final
-      debug:
-        msg: |
-          *********************************************
-          *                                           *
-          *        PURPLELAB by Krook9d               *
-          *                                           *
-          *********************************************
-
-          Connect to: http://{{ ansible_default_ipv4.address }}
-
-          The necessary passwords for the application are in admin.txt.
-          For better security, change them and harden the server.
-      tags: [common, webserver, database, virtualbox]
 
     - name: Correction des permissions pour composer
       file:
