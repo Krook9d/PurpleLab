@@ -100,11 +100,43 @@ echo -e "${YELLOW}Setting permissions...${NC}"
 chown -R www-data:www-data /var/www/html
 chmod -R 775 /var/www/html
 
+# Save login credentials to admin.txt
+echo -e "${YELLOW}Saving login credentials to admin.txt...${NC}"
+cat > /home/$SUDO_USER/admin.txt << EOL
+PurpleLab Admin Credentials
+==========================
+
+Web Application:
+Username: admin
+Password: [Check generated password]
+
+OpenSearch & Logstash:
+Username: admin
+Password: admin123
+
+Sandbox VM:
+Username: oem
+Password: oem
+RDP Access: Use the IP address shown below
+EOL
+
+# Get Sandbox VM IP
+SANDBOX_IP=$(VBoxManage guestproperty get sandbox "/VirtualBox/GuestInfo/Net/0/V4/IP" 2>/dev/null | awk '{print $2}')
+
 # Display final message
 echo -e "${GREEN}*********************************************${NC}"
 echo -e "${GREEN}*                                           *${NC}"
 echo -e "${GREEN}*    PurpleLab installation completed       *${NC}"
 echo -e "${GREEN}*                                           *${NC}"
 echo -e "${GREEN}*********************************************${NC}"
-echo -e "\nCheck the file /home/$SUDO_USER/admin.txt for generated passwords."
-echo -e "Access PurpleLab via: http://$(hostname -I | awk '{print $1}')" 
+echo -e "\nCheck the file /home/$SUDO_USER/admin.txt for all credentials."
+echo -e "Access PurpleLab via: http://$(hostname -I | awk '{print $1}')"
+
+if [ -n "$SANDBOX_IP" ]; then
+    echo -e "Access Sandbox VM via RDP: $SANDBOX_IP"
+    echo -e "Sandbox VM IP: $SANDBOX_IP" >> /home/$SUDO_USER/admin.txt
+else
+    echo -e "Sandbox VM IP not yet available. To get the IP, run:"
+    echo -e "  sudo VBoxManage guestproperty get sandbox \"/VirtualBox/GuestInfo/Net/0/V4/IP\""
+    echo -e "Sandbox VM access instructions saved to /home/$SUDO_USER/admin.txt"
+fi 
