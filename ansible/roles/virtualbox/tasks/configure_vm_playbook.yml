@@ -359,7 +359,7 @@
 
 - name: Configurer Winlogbeat pour envoyer les logs à OpenSearch
   win_template:
-    src: winlogbeat.yml.j2
+    src: "{{ playbook_dir }}/roles/virtualbox/templates/winlogbeat.yml.j2"
     dest: C:\Program Files\Winlogbeat\winlogbeat.yml
   delegate_to: "{{ vm_ip_result.stdout }}"
   vars:
