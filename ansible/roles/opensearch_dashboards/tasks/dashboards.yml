@@ -36,6 +36,28 @@
     mode: 0644
     backup: true
 
+# Nouvelles tâches pour copier les certificats SSL
+- name: Dashboards SSL | Ensure certificate directory exists
+  ansible.builtin.file:
+    path: "{{ os_conf_dir }}/certs"
+    state: directory
+    owner: "{{ os_dashboards_user }}"
+    group: "{{ os_dashboards_user }}"
+    mode: 0700
+
+- name: Dashboards SSL | Copy SSL certificate files from OpenSearch
+  ansible.builtin.copy:
+    src: "/usr/share/opensearch/config/{{ item }}"
+    dest: "{{ os_conf_dir }}/{{ item }}"
+    remote_src: yes
+    owner: "{{ os_dashboards_user }}"
+    group: "{{ os_dashboards_user }}"
+    mode: 0600
+  with_items:
+    - "localhost_http.pem"
+    - "localhost_http.key"
+    - "root-ca.pem"
+
 - name: Dashboards Install | Set the file ownerships
   ansible.builtin.file:
     dest: "{{ os_dashboards_home }}"
