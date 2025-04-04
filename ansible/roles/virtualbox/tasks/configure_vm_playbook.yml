@@ -271,3 +271,147 @@
   debug:
     var: sysmon_check.stdout_lines
   when: sysmon_check is defined
+
+# -------------------------------------
+# Installation de LibreOffice
+# -------------------------------------
+
+- name: Installer LibreOffice avec Chocolatey
+  win_chocolatey:
+    name: libreoffice-fresh
+    state: present
+  delegate_to: "{{ vm_ip_result.stdout }}"
+  vars:
+    ansible_user: oem
+    ansible_password: oem
+    ansible_connection: winrm
+    ansible_winrm_transport: basic
+    ansible_winrm_server_cert_validation: ignore
+    ansible_port: 5985
+  register: libreoffice_install
+
+- name: Afficher le statut d'installation de LibreOffice
+  debug:
+    var: libreoffice_install
+  when: libreoffice_install is defined
+
+# -------------------------------------
+# Installation et configuration de Winlogbeat
+# -------------------------------------
+
+- name: Obtenir l'adresse IP du serveur hôte
+  shell: hostname -I | awk '{print $1}'
+  register: host_ip
+  changed_when: false
+  delegate_to: 127.0.0.1
+
+- name: Télécharger Winlogbeat
+  win_get_url:
+    url: https://artifacts.elastic.co/downloads/beats/winlogbeat/winlogbeat-8.11.1-windows-x86_64.zip
+    dest: C:\Windows\Temp\winlogbeat.zip
+  delegate_to: "{{ vm_ip_result.stdout }}"
+  vars:
+    ansible_user: oem
+    ansible_password: oem
+    ansible_connection: winrm
+    ansible_winrm_transport: basic
+    ansible_winrm_server_cert_validation: ignore
+    ansible_port: 5985
+
+- name: Créer le répertoire pour Winlogbeat
+  win_file:
+    path: C:\Program Files\Winlogbeat
+    state: directory
+  delegate_to: "{{ vm_ip_result.stdout }}"
+  vars:
+    ansible_user: oem
+    ansible_password: oem
+    ansible_connection: winrm
+    ansible_winrm_transport: basic
+    ansible_winrm_server_cert_validation: ignore
+    ansible_port: 5985
+
+- name: Extraire Winlogbeat
+  win_unzip:
+    src: C:\Windows\Temp\winlogbeat.zip
+    dest: C:\Windows\Temp\
+    creates: C:\Windows\Temp\winlogbeat-8.11.1-windows-x86_64
+  delegate_to: "{{ vm_ip_result.stdout }}"
+  vars:
+    ansible_user: oem
+    ansible_password: oem
+    ansible_connection: winrm
+    ansible_winrm_transport: basic
+    ansible_winrm_server_cert_validation: ignore
+    ansible_port: 5985
+
+- name: Copier les fichiers Winlogbeat dans le répertoire d'installation
+  win_shell: |
+    Copy-Item -Path "C:\Windows\Temp\winlogbeat-8.11.1-windows-x86_64\*" -Destination "C:\Program Files\Winlogbeat" -Recurse -Force
+  delegate_to: "{{ vm_ip_result.stdout }}"
+  vars:
+    ansible_user: oem
+    ansible_password: oem
+    ansible_connection: winrm
+    ansible_winrm_transport: basic
+    ansible_winrm_server_cert_validation: ignore
+    ansible_port: 5985
+
+- name: Configurer Winlogbeat pour envoyer les logs à OpenSearch
+  win_template:
+    src: winlogbeat.yml.j2
+    dest: C:\Program Files\Winlogbeat\winlogbeat.yml
+  delegate_to: "{{ vm_ip_result.stdout }}"
+  vars:
+    opensearch_host: "{{ host_ip.stdout }}"
+    ansible_user: oem
+    ansible_password: oem
+    ansible_connection: winrm
+    ansible_winrm_transport: basic
+    ansible_winrm_server_cert_validation: ignore
+    ansible_port: 5985
+
+- name: Installer Winlogbeat en tant que service Windows
+  win_shell: |
+    cd "C:\Program Files\Winlogbeat"
+    .\install-service-winlogbeat.ps1
+  delegate_to: "{{ vm_ip_result.stdout }}"
+  vars:
+    ansible_user: oem
+    ansible_password: oem
+    ansible_connection: winrm
+    ansible_winrm_transport: basic
+    ansible_winrm_server_cert_validation: ignore
+    ansible_port: 5985
+
+- name: Démarrer le service Winlogbeat
+  win_service:
+    name: winlogbeat
+    state: started
+    start_mode: auto
+  delegate_to: "{{ vm_ip_result.stdout }}"
+  vars:
+    ansible_user: oem
+    ansible_password: oem
+    ansible_connection: winrm
+    ansible_winrm_transport: basic
+    ansible_winrm_server_cert_validation: ignore
+    ansible_port: 5985
+
+- name: Vérifier l'état du service Winlogbeat
+  win_service:
+    name: winlogbeat
+  register: winlogbeat_status
+  delegate_to: "{{ vm_ip_result.stdout }}"
+  vars:
+    ansible_user: oem
+    ansible_password: oem
+    ansible_connection: winrm
+    ansible_winrm_transport: basic
+    ansible_winrm_server_cert_validation: ignore
+    ansible_port: 5985
+
+- name: Afficher l'état du service Winlogbeat
+  debug:
+    var: winlogbeat_status
+  when: winlogbeat_status is defined
