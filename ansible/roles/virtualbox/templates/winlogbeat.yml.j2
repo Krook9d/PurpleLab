@@ -25,10 +25,10 @@ winlogbeat.event_logs:
 
 # Configuration pour envoyer les logs à OpenSearch
 output.elasticsearch:
-  hosts: ["{{ opensearch_host }}:9200"]
+  hosts: ["https://{{ opensearch_host }}:9200"]
   username: "admin"
   password: "admin123"
-  protocol: "http"
+  protocol: "https"
   ssl.verification_mode: "none"
   
   # Utiliser des indices spécifiques pour chaque type de log
