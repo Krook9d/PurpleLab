@@ -33,7 +33,7 @@ output.elasticsearch:
   
   # Configurer pour la compatibilité avec OpenSearch
   allow_older_versions: true
-  compression_level: 0
+  compression_level: 3
   
   # Définir une version compatible
   version: "7.10.2"
@@ -47,25 +47,35 @@ output.elasticsearch:
   indices:
     - index: "winlogbeat-system-%{+yyyy.MM.dd}"
       when.equals:
-        event.dataset: "system"
+        log_name: "System"
     - index: "winlogbeat-security-%{+yyyy.MM.dd}"
       when.equals:
-        event.dataset: "security"
+        log_name: "Security"
     - index: "winlogbeat-application-%{+yyyy.MM.dd}"
       when.equals:
-        event.dataset: "application"
+        log_name: "Application"
     - index: "winlogbeat-sysmon-%{+yyyy.MM.dd}"
       when.equals:
-        event.dataset: "Microsoft-Windows-Sysmon/Operational"
+        log_name: "Microsoft-Windows-Sysmon/Operational"
     - index: "winlogbeat-powershell-%{+yyyy.MM.dd}"
       when.equals:
-        event.dataset: "Microsoft-Windows-PowerShell/Operational"
+        log_name: "Microsoft-Windows-PowerShell/Operational"
     - index: "winlogbeat-rdp-%{+yyyy.MM.dd}"
       when.or:
         - equals:
-            event.dataset: "Microsoft-Windows-TerminalServices-LocalSessionManager/Operational"
+            log_name: "Microsoft-Windows-TerminalServices-LocalSessionManager/Operational"
         - equals:
-            event.dataset: "Microsoft-Windows-TerminalServices-RemoteConnectionManager/Operational"
+            log_name: "Microsoft-Windows-TerminalServices-RemoteConnectionManager/Operational"
+
+# ============================== Dashboard Configuration ===========================
+
+# Configuration pour charger les dashboards dans OpenSearch Dashboards
+setup.dashboards.enabled: true
+setup.kibana:
+  host: "https://{{ opensearch_host }}:5601"
+  username: "admin"
+  password: "admin123"
+  ssl.verification_mode: "none"
 
 # ============================== Logging Configuration ==============================
 
