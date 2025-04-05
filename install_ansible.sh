@@ -87,6 +87,9 @@ ansible-galaxy collection install -r requirements.yml
 echo -e "${YELLOW}Installing main components...${NC}"
 ansible-playbook -i inventory/local/hosts playbook.yml --tags "common,webserver,database"
 
+# Générer un mot de passe aléatoire pour l'admin si pas déjà fait
+ADMIN_PASSWORD=$(grep "admin_password" /home/$SUDO_USER/admin.txt 2>/dev/null | awk '{print $2}' || head /dev/urandom | tr -dc A-Za-z0-9 | head -c 12)
+
 # Exécuter le playbook OpenSearch séparément
 echo -e "${YELLOW}Installing OpenSearch...${NC}"
 ansible-playbook -i inventory/opensearch/hosts/hosts inventory/opensearch/opensearch_only.yml 
@@ -108,7 +111,7 @@ PurpleLab Admin Credentials
 
 Web Application:
 Username: admin
-Password: [Check generated password]
+Password: ${ADMIN_PASSWORD}
 
 OpenSearch & Logstash:
 Username: admin
