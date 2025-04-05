@@ -40,8 +40,9 @@ resource "null_resource" "windows_vm" {
 
   provisioner "local-exec" {
     command = <<-EOT
-      # Supprimer la VM si elle existe déjà
+      # Nettoyage complet de la VM si elle existe
       VBoxManage list vms | grep -q "${var.vm_name}" && VBoxManage unregistervm "${var.vm_name}" --delete || true
+      sudo rm -rf "/root/VirtualBox VMs/${var.vm_name}" || true
       
       # Créer la VM
       echo "Création de la VM ${var.vm_name}..." >> terraform.log
@@ -55,6 +56,13 @@ resource "null_resource" "windows_vm" {
       echo "Configuration du réseau..." >> terraform.log
       VBoxManage modifyvm "${var.vm_name}" --nic1 bridged --bridgeadapter1 "${var.vm_network_interface}" || exit 1
       
+      # Configurer autostart pour persistance après redémarrage
+      echo "Configuration de l'autostart..." >> terraform.log
+      VBoxManage setproperty autostartdbpath "/etc/vbox"
+      sudo mkdir -p /etc/vbox
+      echo "default_policy = allow" | sudo tee /etc/vbox/autostart.cfg > /dev/null
+      VBoxManage modifyvm "${var.vm_name}" --autostart-enabled on || true
+      
       # Démarrer la VM
       echo "Démarrage de la VM..." >> terraform.log
       VBoxManage startvm "${var.vm_name}" --type headless || exit 1
@@ -66,6 +74,10 @@ resource "null_resource" "windows_vm" {
       # Vérifier que la VM est en cours d'exécution
       echo "Vérification de l'état de la VM..." >> terraform.log
       VBoxManage showvminfo "${var.vm_name}" | grep -q "running" || exit 1
+      
+      # Sauvegarder les données de la VM pour persistance
+      echo "Sauvegarde des données de la VM..." >> terraform.log
+      sudo VBoxManage setproperty machinefolder "/var/lib/virtualbox/machines"
       
       echo "VM ${var.vm_name} créée et démarrée avec succès" >> terraform.log
     EOT
