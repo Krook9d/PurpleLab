@@ -23,33 +23,24 @@ winlogbeat.event_logs:
 
 # ============================== Output Configuration ===============================
 
-# Configuration pour envoyer les logs à OpenSearch
 output.elasticsearch:
   hosts: ["https://{{ opensearch_host }}:9200"]
   username: "admin"
   password: "admin123"
-  protocol: "https"
   ssl.verification_mode: "none"
-  
-  # Configurer pour la compatibilité avec OpenSearch
   allow_older_versions: true
-  
-  # Désactiver les templates et l'ILM pour éviter les problèmes avec OpenSearch
-  setup.template.enabled: false
-  setup.ilm.enabled: false
-  
-  # Utiliser un index simple sans ILM
+  api_key: null  
   index: "winlogbeat-%{+yyyy.MM.dd}"
 
 # ============================== Disable Kibana and Dashboards ===========================
-setup.dashboards.enabled: false
-setup.kibana.enabled: false
+
 setup.template.enabled: false
 setup.ilm.enabled: false
+setup.kibana.host: ""  
+setup.dashboards.enabled: false
 
 # ============================== Logging Configuration ==============================
 
-# Paramètres de logging pour Winlogbeat lui-même
 logging.level: info
 logging.to_files: true
 logging.files:
@@ -60,9 +51,8 @@ logging.files:
 
 # ============================== Processors Configuration =========================
 
-# Processeurs pour enrichir ou modifier les événements avant de les envoyer
 processors:
   - add_host_metadata: ~
   - add_process_metadata:
       match_pids: [system.process.pid]
-  - add_locale: ~ 
+  - add_locale: ~
