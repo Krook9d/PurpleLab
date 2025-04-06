@@ -199,14 +199,16 @@
     path: /tmp/admin_hash.txt
     state: absent
 
-- name: Mise à jour du mot de passe dans admin.txt
+- name: Mise à jour du mot de passe dans admin.txt (Web Application uniquement)
   replace:
     path: "/home/{{ ansible_user }}/admin.txt"
     regexp: '^Password: .*$'
     replace: "Password: {{ admin_password.stdout }}"
+    before: "OpenSearch & Logstash"
 
-- name: Mise à jour du username dans admin.txt
+- name: Mise à jour du username dans admin.txt (Web Application uniquement)
   replace:
     path: "/home/{{ ansible_user }}/admin.txt"
     regexp: '^Username: admin$'
     replace: "Username: admin@local.com"
+    before: "OpenSearch & Logstash"
