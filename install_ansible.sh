@@ -110,7 +110,7 @@ PurpleLab Admin Credentials
 ==========================
 
 Web Application:
-Username: admin
+Username: admin@local.com
 Password: ${ADMIN_PASSWORD}
 
 OpenSearch & Logstash:
