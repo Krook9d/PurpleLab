@@ -296,7 +296,7 @@
   when: libreoffice_install is defined
 
 # -------------------------------------
-# Installation et configuration de Winlogbeat
+# Installation et configuration de Winlogbeat OSS 7.12.1
 # -------------------------------------
 
 - name: Obtenir l'adresse IP du serveur hôte
@@ -305,9 +305,9 @@
   changed_when: false
   delegate_to: 127.0.0.1
 
-- name: Télécharger Winlogbeat 7.17.16 (compatible avec OpenSearch)
+- name: Télécharger Winlogbeat OSS 7.12.1 (compatible avec OpenSearch)
   win_get_url:
-    url: https://artifacts.elastic.co/downloads/beats/winlogbeat/winlogbeat-7.17.16-windows-x86_64.zip
+    url: https://artifacts.elastic.co/downloads/beats/winlogbeat/winlogbeat-oss-7.12.1-windows-x86_64.zip
     dest: C:\Windows\Temp\winlogbeat.zip
   delegate_to: "{{ vm_ip_result.stdout }}"
   vars:
@@ -331,11 +331,11 @@
     ansible_winrm_server_cert_validation: ignore
     ansible_port: 5985
 
-- name: Extraire Winlogbeat
+- name: Extraire Winlogbeat OSS
   win_unzip:
     src: C:\Windows\Temp\winlogbeat.zip
     dest: C:\Windows\Temp\
-    creates: C:\Windows\Temp\winlogbeat-7.17.16-windows-x86_64
+    creates: C:\Windows\Temp\winlogbeat-oss-7.12.1-windows-x86_64
   delegate_to: "{{ vm_ip_result.stdout }}"
   vars:
     ansible_user: oem
@@ -345,9 +345,9 @@
     ansible_winrm_server_cert_validation: ignore
     ansible_port: 5985
 
-- name: Copier les fichiers Winlogbeat dans le répertoire d'installation
+- name: Copier les fichiers Winlogbeat OSS dans le répertoire d'installation
   win_shell: |
-    Copy-Item -Path "C:\Windows\Temp\winlogbeat-7.17.16-windows-x86_64\*" -Destination "C:\Program Files\Winlogbeat" -Recurse -Force
+    Copy-Item -Path "C:\Windows\Temp\winlogbeat-oss-7.12.1-windows-x86_64\*" -Destination "C:\Program Files\Winlogbeat" -Recurse -Force
   delegate_to: "{{ vm_ip_result.stdout }}"
   vars:
     ansible_user: oem
@@ -357,7 +357,7 @@
     ansible_winrm_server_cert_validation: ignore
     ansible_port: 5985
 
-- name: Configurer Winlogbeat pour envoyer les logs à OpenSearch
+- name: Configurer Winlogbeat OSS pour envoyer les logs à OpenSearch
   win_template:
     src: "{{ playbook_dir }}/roles/virtualbox/templates/winlogbeat.yml.j2"
     dest: C:\Program Files\Winlogbeat\winlogbeat.yml
@@ -371,7 +371,7 @@
     ansible_winrm_server_cert_validation: ignore
     ansible_port: 5985
 
-- name: Installer Winlogbeat en tant que service Windows
+- name: Installer Winlogbeat OSS en tant que service Windows
   win_shell: |
     cd "C:\Program Files\Winlogbeat"
     .\install-service-winlogbeat.ps1
@@ -384,7 +384,7 @@
     ansible_winrm_server_cert_validation: ignore
     ansible_port: 5985
 
-- name: Démarrer le service Winlogbeat
+- name: Démarrer le service Winlogbeat OSS
   win_service:
     name: winlogbeat
     state: started
@@ -398,7 +398,7 @@
     ansible_winrm_server_cert_validation: ignore
     ansible_port: 5985
 
-- name: Vérifier l'état du service Winlogbeat
+- name: Vérifier l'état du service Winlogbeat OSS
   win_service:
     name: winlogbeat
   register: winlogbeat_status
@@ -411,7 +411,8 @@
     ansible_winrm_server_cert_validation: ignore
     ansible_port: 5985
 
-- name: Afficher l'état du service Winlogbeat
+- name: Afficher l'état du service Winlogbeat OSS
   debug:
     var: winlogbeat_status
   when: winlogbeat_status is defined
+
