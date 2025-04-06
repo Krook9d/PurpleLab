@@ -1,7 +1,6 @@
 # ============================== Winlogbeat Configuration ================================
 
-# Configuration de base de Winlogbeat pour envoyer les logs de Windows à OpenSearch
-
+# Collecte des journaux d'événements Windows et journaux spécifiques (Sysmon, RDP, PowerShell)
 winlogbeat.event_logs:
   - name: Application
     ignore_older: 72h
@@ -9,37 +8,39 @@ winlogbeat.event_logs:
     ignore_older: 72h
   - name: Security
     ignore_older: 72h
-  # Logs Sysmon
   - name: Microsoft-Windows-Sysmon/Operational
     ignore_older: 72h
-  # Logs PowerShell
   - name: Microsoft-Windows-PowerShell/Operational
     ignore_older: 72h
-  # Logs RDP
   - name: Microsoft-Windows-TerminalServices-LocalSessionManager/Operational
     ignore_older: 72h
   - name: Microsoft-Windows-TerminalServices-RemoteConnectionManager/Operational
     ignore_older: 72h
 
-# ============================== Output Configuration ===============================
+# ============================== Output OpenSearch ======================================
 
+# OpenSearch OSS output (via Elasticsearch output plugin)
 output.elasticsearch:
   hosts: ["https://{{ opensearch_host }}:9200"]
   username: "admin"
   password: "admin123"
-  ssl.verification_mode: "none"
+  ssl.verification_mode: none
   allow_older_versions: true
-  api_key: null  
   index: "winlogbeat-%{+yyyy.MM.dd}"
 
-# ============================== Disable Kibana and Dashboards ===========================
+# ============================== Setup Section ==========================================
 
+# Ne pas envoyer de templates (on les gère nous-mêmes si besoin)
 setup.template.enabled: false
+
+# Désactiver ILM (Index Lifecycle Management)
 setup.ilm.enabled: false
-setup.kibana.host: ""  
+
+# Ne pas configurer Kibana
+setup.kibana.host: ""
 setup.dashboards.enabled: false
 
-# ============================== Logging Configuration ==============================
+# ============================== Logging Configuration ===================================
 
 logging.level: info
 logging.to_files: true
@@ -49,10 +50,9 @@ logging.files:
   keepfiles: 7
   permissions: 0644
 
-# ============================== Processors Configuration =========================
+# ============================== Processors =============================================
 
 processors:
   - add_host_metadata: ~
-  - add_process_metadata:
-      match_pids: [system.process.pid]
+  - add_process_metadata: ~
   - add_locale: ~
