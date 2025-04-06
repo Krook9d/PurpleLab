@@ -345,9 +345,33 @@
     ansible_winrm_server_cert_validation: ignore
     ansible_port: 5985
 
+- name: Lister le contenu du répertoire temporaire (pour le débogage)
+  win_shell: |
+    Get-ChildItem C:\Windows\Temp\*winlogbeat* -Recurse | Select-Object FullName
+  register: temp_dir_listing
+  delegate_to: "{{ vm_ip_result.stdout }}"
+  vars:
+    ansible_user: oem
+    ansible_password: oem
+    ansible_connection: winrm
+    ansible_winrm_transport: basic
+    ansible_winrm_server_cert_validation: ignore
+    ansible_port: 5985
+
+- name: Afficher le contenu du répertoire temporaire
+  debug:
+    var: temp_dir_listing.stdout_lines
+
 - name: Copier les fichiers Winlogbeat OSS dans le répertoire d'installation
   win_shell: |
-    Copy-Item -Path "C:\Windows\Temp\winlogbeat-oss-7.12.1-windows-x86_64\*" -Destination "C:\Program Files\Winlogbeat" -Recurse -Force
+    $source = Get-ChildItem C:\Windows\Temp\*winlogbeat* -Directory | Select-Object -First 1 -ExpandProperty FullName
+    if ($source) {
+      Copy-Item -Path "$source\*" -Destination "C:\Program Files\Winlogbeat" -Recurse -Force
+      Write-Output "Fichiers copiés depuis $source"
+    } else {
+      Write-Error "Aucun répertoire Winlogbeat trouvé dans C:\Windows\Temp"
+      exit 1
+    }
   delegate_to: "{{ vm_ip_result.stdout }}"
   vars:
     ansible_user: oem
