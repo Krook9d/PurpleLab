@@ -87,9 +87,6 @@ ansible-galaxy collection install -r requirements.yml
 echo -e "${YELLOW}Installing main components...${NC}"
 ansible-playbook -i inventory/local/hosts playbook.yml --tags "common,webserver,database"
 
-# Générer un mot de passe aléatoire pour l'admin si pas déjà fait
-#ADMIN_PASSWORD=$(grep "admin_password" /home/$SUDO_USER/admin.txt 2>/dev/null | awk '{print $2}' || head /dev/urandom | tr -dc A-Za-z0-9 | head -c 12)
-
 # Exécuter le playbook OpenSearch séparément
 echo -e "${YELLOW}Installing OpenSearch...${NC}"
 ansible-playbook -i inventory/opensearch/hosts/hosts inventory/opensearch/opensearch_only.yml 
@@ -103,9 +100,13 @@ echo -e "${YELLOW}Setting permissions...${NC}"
 chown -R www-data:www-data /var/www/html
 chmod -R 775 /var/www/html
 
-# Save login credentials to admin.txt
-echo -e "${YELLOW}Saving login credentials to admin.txt...${NC}"
-cat > /home/$SUDO_USER/admin.txt << EOL
+# Save login credentials to admin.txt only if it doesn't exist or doesn't have password
+if [ ! -f "/home/$SUDO_USER/admin.txt" ] || grep -q "^Password: $" "/home/$SUDO_USER/admin.txt"; then
+  echo -e "${YELLOW}Creating admin.txt file...${NC}"
+  # Générer un mot de passe pour l'administrateur
+  ADMIN_PASSWORD=$(head /dev/urandom | tr -dc A-Za-z0-9 | head -c 12)
+  
+  cat > /home/$SUDO_USER/admin.txt << EOL
 PurpleLab Admin Credentials
 ==========================
 
@@ -122,6 +123,9 @@ Username: oem
 Password: oem
 RDP Access: Use the IP address shown below
 EOL
+else
+  echo -e "${YELLOW}Admin.txt file already exists with credentials.${NC}"
+fi
 
 # Get Sandbox VM IP
 SANDBOX_IP=$(VBoxManage guestproperty get sandbox "/VirtualBox/GuestInfo/Net/0/V4/IP" 2>/dev/null | awk '{print $2}')
