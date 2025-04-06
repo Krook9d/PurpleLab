@@ -38,33 +38,14 @@ output.elasticsearch:
   setup.template.enabled: false
   setup.ilm.enabled: false
   
-  # Utiliser des indices spécifiques pour chaque type de log
-  indices:
-    - index: "winlogbeat-system-%{+yyyy.MM.dd}"
-      when.equals:
-        log.name: "System"
-    - index: "winlogbeat-security-%{+yyyy.MM.dd}"
-      when.equals:
-        log.name: "Security"
-    - index: "winlogbeat-application-%{+yyyy.MM.dd}"
-      when.equals:
-        log.name: "Application"
-    - index: "winlogbeat-sysmon-%{+yyyy.MM.dd}"
-      when.equals:
-        log.name: "Microsoft-Windows-Sysmon/Operational"
-    - index: "winlogbeat-powershell-%{+yyyy.MM.dd}"
-      when.equals:
-        log.name: "Microsoft-Windows-PowerShell/Operational"
-    - index: "winlogbeat-rdp-%{+yyyy.MM.dd}"
-      when.or:
-        - equals:
-            log.name: "Microsoft-Windows-TerminalServices-LocalSessionManager/Operational"
-        - equals:
-            log.name: "Microsoft-Windows-TerminalServices-RemoteConnectionManager/Operational"
+  # Utiliser un index simple sans ILM
+  index: "winlogbeat-%{+yyyy.MM.dd}"
 
 # ============================== Disable Kibana and Dashboards ===========================
 setup.dashboards.enabled: false
 setup.kibana.enabled: false
+setup.template.enabled: false
+setup.ilm.enabled: false
 
 # ============================== Logging Configuration ==============================
 
