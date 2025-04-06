@@ -305,9 +305,9 @@
   changed_when: false
   delegate_to: 127.0.0.1
 
-- name: Télécharger Winlogbeat
+- name: Télécharger Winlogbeat 7.17.16 (compatible avec OpenSearch)
   win_get_url:
-    url: https://artifacts.elastic.co/downloads/beats/winlogbeat/winlogbeat-8.11.1-windows-x86_64.zip
+    url: https://artifacts.elastic.co/downloads/beats/winlogbeat/winlogbeat-7.17.16-windows-x86_64.zip
     dest: C:\Windows\Temp\winlogbeat.zip
   delegate_to: "{{ vm_ip_result.stdout }}"
   vars:
@@ -335,7 +335,7 @@
   win_unzip:
     src: C:\Windows\Temp\winlogbeat.zip
     dest: C:\Windows\Temp\
-    creates: C:\Windows\Temp\winlogbeat-8.11.1-windows-x86_64
+    creates: C:\Windows\Temp\winlogbeat-7.17.16-windows-x86_64
   delegate_to: "{{ vm_ip_result.stdout }}"
   vars:
     ansible_user: oem
@@ -347,7 +347,7 @@
 
 - name: Copier les fichiers Winlogbeat dans le répertoire d'installation
   win_shell: |
-    Copy-Item -Path "C:\Windows\Temp\winlogbeat-8.11.1-windows-x86_64\*" -Destination "C:\Program Files\Winlogbeat" -Recurse -Force
+    Copy-Item -Path "C:\Windows\Temp\winlogbeat-7.17.16-windows-x86_64\*" -Destination "C:\Program Files\Winlogbeat" -Recurse -Force
   delegate_to: "{{ vm_ip_result.stdout }}"
   vars:
     ansible_user: oem
