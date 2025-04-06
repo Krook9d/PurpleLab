@@ -33,49 +33,38 @@ output.elasticsearch:
   
   # Configurer pour la compatibilité avec OpenSearch
   allow_older_versions: true
-  compression_level: 3
   
-  # Définir une version compatible
-  version: "7.10.2"
-  
-  # Désactiver les templates qui utilisent des indices commençant par _
+  # Désactiver les templates et l'ILM pour éviter les problèmes avec OpenSearch
   setup.template.enabled: false
   setup.ilm.enabled: false
-  setup.ilm.check_exists: false
   
   # Utiliser des indices spécifiques pour chaque type de log
   indices:
     - index: "winlogbeat-system-%{+yyyy.MM.dd}"
       when.equals:
-        log_name: "System"
+        log.name: "System"
     - index: "winlogbeat-security-%{+yyyy.MM.dd}"
       when.equals:
-        log_name: "Security"
+        log.name: "Security"
     - index: "winlogbeat-application-%{+yyyy.MM.dd}"
       when.equals:
-        log_name: "Application"
+        log.name: "Application"
     - index: "winlogbeat-sysmon-%{+yyyy.MM.dd}"
       when.equals:
-        log_name: "Microsoft-Windows-Sysmon/Operational"
+        log.name: "Microsoft-Windows-Sysmon/Operational"
     - index: "winlogbeat-powershell-%{+yyyy.MM.dd}"
       when.equals:
-        log_name: "Microsoft-Windows-PowerShell/Operational"
+        log.name: "Microsoft-Windows-PowerShell/Operational"
     - index: "winlogbeat-rdp-%{+yyyy.MM.dd}"
       when.or:
         - equals:
-            log_name: "Microsoft-Windows-TerminalServices-LocalSessionManager/Operational"
+            log.name: "Microsoft-Windows-TerminalServices-LocalSessionManager/Operational"
         - equals:
-            log_name: "Microsoft-Windows-TerminalServices-RemoteConnectionManager/Operational"
+            log.name: "Microsoft-Windows-TerminalServices-RemoteConnectionManager/Operational"
 
-# ============================== Dashboard Configuration ===========================
-
-# Configuration pour charger les dashboards dans OpenSearch Dashboards
-setup.dashboards.enabled: true
-setup.kibana:
-  host: "https://{{ opensearch_host }}:5601"
-  username: "admin"
-  password: "admin123"
-  ssl.verification_mode: "none"
+# ============================== Disable Kibana and Dashboards ===========================
+setup.dashboards.enabled: false
+setup.kibana.enabled: false
 
 # ============================== Logging Configuration ==============================
 
