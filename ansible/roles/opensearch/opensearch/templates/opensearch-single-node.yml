@@ -6,6 +6,9 @@ network.host: "0.0.0.0"
 
 http.port: 9200
 
+# ✅ Important for Beats compatibility
+compatibility.override_main_response_version: true
+
 discovery.type: single-node
 
 bootstrap.memory_lock: true
