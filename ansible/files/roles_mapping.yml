@@ -54,6 +54,14 @@ indexes_web_search_full_access:
   - "opensearch_index_read_all"
   - "opensearch_index_read_web"
   description: "Maps users to indexes_web_search_full_access"
+# ----------------------------------------------------
+indexes_winlogbeat_access:
+  reserved: true
+  backend_roles:
+  - "opensearch_index_read_all"
+  - "opensearch_index_read_security"
+  description: "Maps users to indexes_winlogbeat_access"
+# ----------------------------------------------------
 
 
 
