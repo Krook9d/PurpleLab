@@ -169,6 +169,27 @@
     login_db: "{{ db_name }}"
     login_unix_socket: /var/run/mysqld/mysqld.sock
 
+- name: Créer le fichier admin.txt avec le template
+  copy:
+    content: |
+      PurpleLab Admin Credentials
+      ==========================
+
+      Web Application:
+      Username: admin@local.com
+      Password: 
+
+      OpenSearch & Logstash:
+      Username: admin
+      Password: admin123
+
+      Sandbox VM:
+      Username: oem
+      Password: oem
+      RDP Access: Use the IP address shown below
+    dest: "/home/{{ ansible_user }}/admin.txt"
+    mode: '0600'
+
 - name: Générer un mot de passe aléatoire sécurisé
   shell: tr -dc 'A-Za-z0-9!@#$%^&*()' < /dev/urandom | head -c 12
   register: admin_password
