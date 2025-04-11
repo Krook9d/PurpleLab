@@ -51,7 +51,10 @@ resource "null_resource" "windows_vm" {
       fi
 
       echo "Création de la VM ${var.vm_name}..." >> terraform.log
-      VBoxManage import "/home/purplelab/.vagrant.d/boxes/StefanScherer-VAGRANTSLASH-windows_2019/2021.05.15/virtualbox/box.ovf" --vsys 0 --vmname "${var.vm_name}" || exit 1
+      VBoxManage import "/home/purplelab/.vagrant.d/boxes/StefanScherer-VAGRANTSLASH-windows_2019/2021.05.15/virtualbox/box.ovf" \
+        --vsys 0 \
+        --vmname "${var.vm_name}" \
+        --basefolder "/home/purplelab/VirtualBox VMs" || exit 1
 
       echo "Configuration des ressources de la VM..." >> terraform.log
       VBoxManage modifyvm "${var.vm_name}" --cpus ${var.vm_cpus} --memory ${var.vm_memory} --acpi on --boot1 disk || exit 1
