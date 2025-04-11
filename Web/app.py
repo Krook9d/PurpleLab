@@ -598,8 +598,6 @@ def execute_payload():
     if not payload_content:
         return jsonify({"error": "Missing payload content"}), 400
 
-    # Préparer un script PowerShell qui exécutera le payload et capturera seulement le résultat
-    # sans aucun message auxiliaire
     ps_script = f"""
 $OutputEncoding = [System.Text.Encoding]::UTF8
 $ErrorActionPreference = 'SilentlyContinue'
