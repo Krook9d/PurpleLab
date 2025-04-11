@@ -1,21 +1,23 @@
 server.port: 5601
 server.host: "0.0.0.0"
-# Activer HTTPS
-server.ssl.enabled: true
-server.ssl.certificate: {{ os_conf_dir }}/localhost_http.pem
-server.ssl.key: {{ os_conf_dir }}/localhost_http.key
-server.ssl.certificateAuthorities: [ "{{ os_conf_dir }}/root-ca.pem" ]
-opensearch.hosts: ["{{ os_nodes_dashboards }}"]
+# Désactiver HTTPS
+server.ssl.enabled: false
+# Connexion à OpenSearch sans SSL
+opensearch.hosts: ["http://{{ os_nodes_dashboards | replace('https://', '') }}"]
 opensearch.ssl.verificationMode: none
 opensearch.username: "kibanaserver"
 opensearch.password: "{{ kibanaserver_password }}"
 opensearch.requestHeadersWhitelist: [ authorization,securitytenant ]
 
+# Désactiver toutes les vérifications SSL
+opensearch.ssl.verifyHostnames: false
+opensearch.ssl.alwaysPresentCertificate: false
+
 opensearch_security.multitenancy.enabled: true
 opensearch_security.multitenancy.tenants.preferred: ["Private", "Global"]
 opensearch_security.readonly_mode.roles: ["kibana_read_only"]
-# Mettre à true car nous utilisons HTTPS maintenant
-opensearch_security.cookie.secure: true
+# Désactiver car nous n'utilisons plus HTTPS
+opensearch_security.cookie.secure: false
 
 
 # OpenID settings
@@ -26,5 +28,5 @@ opensearch_security.openid.client_id: "{{ oidc.client_id }}"
 opensearch_security.openid.scope: "{{ oidc.scopes }}"
 opensearch_security.openid.client_secret: "{{ oidc.client_secret }}"
 opensearch_security.openid.connect_url: "{{ oidc.connect_url }}"
-opensearch_security.openid.verify_hostnames: true
+opensearch_security.openid.verify_hostnames: false
 {% endif %}
