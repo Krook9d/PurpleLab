@@ -49,6 +49,21 @@ indexes_web_search_full_access:
     allowed_actions:
     - "kibana_all_write"
 # ----------------------------------------------------
+indexes_winlogbeat_access:
+  reserved: true
+  index_permissions:
+    - index_patterns:
+        - "winlogbeat-*"
+      allowed_actions:
+        - "indices:data/read/search*"
+        - "read"
+        - "view_index_metadata"
+  tenant_permissions:
+  - tenant_patterns:
+    - "SECURITY"
+    allowed_actions:
+    - "kibana_all_write"
+# ----------------------------------------------------
 # Restrict users so they can only view visualization and dashboard on OpenSearchDashboards
 kibana_read_only:
   reserved: true
