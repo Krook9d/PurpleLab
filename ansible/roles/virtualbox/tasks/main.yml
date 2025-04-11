@@ -34,6 +34,14 @@
     state: directory
     mode: '0755'
 
+- name: Créer le dossier de stockage persistant des VMs
+  file:
+    path: "/home/purplelab/VirtualBox VMs"
+    state: directory
+    mode: '0755'
+    owner: purplelab
+    group: purplelab
+
 - name: Configuration de VBOX_USER_HOME
   lineinfile:
     path: /etc/environment
