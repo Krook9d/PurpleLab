@@ -8,6 +8,7 @@ from logging.handlers import RotatingFileHandler
 import shlex
 from datetime import datetime
 from werkzeug.utils import secure_filename
+import base64
 
 
 app = Flask(__name__)
@@ -597,34 +598,73 @@ def execute_payload():
     if not payload_content:
         return jsonify({"error": "Missing payload content"}), 400
 
-    powershell_command = f"{payload_content}"
+    # Préparer un script PowerShell qui exécutera le payload et capturera seulement le résultat
+    # sans aucun message auxiliaire
+    ps_script = f"""
+$OutputEncoding = [System.Text.Encoding]::UTF8
+$ErrorActionPreference = 'SilentlyContinue'
+$ProgressPreference = 'SilentlyContinue'  # Désactiver l'affichage de progression
+
+# Balise de début pour identifier le début des résultats réels
+Write-Output "BEGIN_RESULTS"
+try {{
+{payload_content}
+}} catch {{
+    Write-Output "ERREUR: $($_.Exception.Message)"
+}}
+# Balise de fin pour identifier la fin des résultats réels
+Write-Output "END_RESULTS"
+"""
+
+    ps_bytes = ps_script.encode('utf-16-le')
+    encoded_ps = base64.b64encode(ps_bytes).decode('ascii')
 
     try:
-        # Execute the command using VBoxManage
+
         result = subprocess.run(
             ['VBoxManage', 'guestcontrol', 'sandbox', 
              '--username', 'oem', '--password', 'oem', 
              'run', '--exe', 'C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe', 
-             '--', 'powershell.exe', '-NoProfile', '-NonInteractive', 
-             '-Command', powershell_command],
+             '--', 'powershell.exe', '-NoProfile', '-EncodedCommand', encoded_ps],
             check=True,
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE,
-            text=True
+            text=False  
         )
+        
+        stdout_decoded = result.stdout.decode('cp1252', errors='replace')
+        stderr_decoded = result.stderr.decode('cp1252', errors='replace')
+        
+        start_marker = "BEGIN_RESULTS"
+        end_marker = "END_RESULTS"
+        
+        if start_marker in stdout_decoded and end_marker in stdout_decoded:
+            start_idx = stdout_decoded.index(start_marker) + len(start_marker)
+            end_idx = stdout_decoded.index(end_marker)
+            stdout_decoded = stdout_decoded[start_idx:end_idx].strip()
+        
+
+        if stderr_decoded and stderr_decoded.strip().startswith("<"):
+
+            stderr_decoded = ""
         
         return jsonify({
             "status": "success",
-            "output": result.stdout,
-            "error": result.stderr
+            "output": stdout_decoded,
+            "error": stderr_decoded
         }), 200
 
     except subprocess.CalledProcessError as e:
+        stderr = e.stderr.decode('cp1252', errors='replace') if e.stderr else ""
+        
+        if stderr and stderr.strip().startswith("<"):
+            stderr = "Commande exécutée avec des avertissements."
+        
         return jsonify({
             "status": "error",
             "message": "Command execution failed",
             "error": str(e),
-            "stderr": e.stderr
+            "stderr": stderr
         }), 500
 
 
