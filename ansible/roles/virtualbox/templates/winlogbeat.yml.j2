@@ -21,10 +21,10 @@ winlogbeat.event_logs:
 
 # OpenSearch OSS output (via Elasticsearch output plugin)
 output.elasticsearch:
-  hosts: ["http://{{ opensearch_host }}:9200"]
+  hosts: ["https://{{ opensearch_host }}:9200"]
   username: "admin"
   password: "admin123"
-  ssl.enabled: false
+  ssl.verification_mode: none
   allow_older_versions: true
   index: "winlogbeat-%{+yyyy.MM.dd}"
 
