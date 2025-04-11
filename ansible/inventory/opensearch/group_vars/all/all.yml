@@ -51,9 +51,3 @@ oidc:
   client_secret: ""
 
 populate_inventory_to_hosts_file: true
-
-os_api_port: 9200
-os_nodes_dashboards: |-
-        {% for item in groups['oscluster'] -%}
-          http://{{ hostvars[item]['ip'] }}:{{ os_api_port }}{% if not loop.last %}","{% endif %}
-        {%- endfor %}
