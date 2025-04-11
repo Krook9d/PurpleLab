@@ -56,6 +56,9 @@ resource "null_resource" "windows_vm" {
         --vmname "${var.vm_name}" \
         --basefolder "/home/purplelab/VirtualBox VMs" || exit 1
 
+      echo "Enregistrement explicite de la VM dans VirtualBox..." >> terraform.log
+      VBoxManage registervm "/home/purplelab/VirtualBox VMs/${var.vm_name}/${var.vm_name}.vbox" || true
+
       echo "Configuration des ressources de la VM..." >> terraform.log
       VBoxManage modifyvm "${var.vm_name}" --cpus ${var.vm_cpus} --memory ${var.vm_memory} --acpi on --boot1 disk || exit 1
 
@@ -71,10 +74,7 @@ resource "null_resource" "windows_vm" {
       echo "Vérification de l'état de la VM..." >> terraform.log
       VBoxManage showvminfo "${var.vm_name}" | grep -q "running" || exit 1
 
-      echo "VM ${var.vm_name} créée et démarrée avec succès" >> terraform.log
+      echo "VM ${var.vm_name} créée, enregistrée et démarrée avec succès" >> terraform.log
     EOT
   }
-
-  # Optionnel : tu peux garder ce bloc, mais il est dangereux si relancé involontairement.
-  # Je recommande de l'enlever complètement si tu veux pas supprimer la VM accidentellement.
 }
