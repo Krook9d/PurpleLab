@@ -1,0 +1,70 @@
+#!/bin/bash
+
+# Supprimer les index patterns existants pour éviter les doublons
+echo "Suppression des index patterns existants..."
+# Liste des index patterns
+LIST_RESPONSE=$(curl -k -s \
+  -u admin:admin123 \
+  https://localhost:5601/api/saved_objects/_find?type=index-pattern&per_page=100)
+
+echo "Index patterns existants: $LIST_RESPONSE"
+
+# Récupérer tous les IDs des index patterns avec le titre winlogbeat-*
+INDEX_IDS=$(echo "$LIST_RESPONSE" | grep -o '"id":"[^"]*","type":"index-pattern","attributes":{"title":"winlogbeat[^"]*"' | cut -d'"' -f4)
+
+# Supprimer chaque index pattern
+for ID in $INDEX_IDS; do
+  echo "Suppression de l'index pattern avec ID: $ID"
+  curl -k -s -X DELETE \
+    -H "Content-Type: application/json" \
+    -H "osd-xsrf: true" \
+    -u admin:admin123 \
+    "https://localhost:5601/api/saved_objects/index-pattern/$ID"
+done
+
+# Créer un nouvel index pattern
+echo "Création d'un nouvel index pattern winlogbeat-*..."
+RESPONSE=$(curl -k -s -X POST \
+  -H "Content-Type: application/json" \
+  -H "osd-xsrf: true" \
+  -u admin:admin123 \
+  https://localhost:5601/api/saved_objects/index-pattern \
+  -d '{
+    "attributes": {
+      "title": "winlogbeat-*",
+      "timeFieldName": "@timestamp"
+    }
+  }')
+
+echo "Réponse de création: $RESPONSE"
+
+# Vérifier si la réponse contient un ID (c'est un succès) ou une erreur
+if echo "$RESPONSE" | grep -q '"id":"'; then
+  echo "Index pattern winlogbeat-* créé avec succès!"
+  # Extraire l'ID de l'index pattern
+  INDEX_ID=$(echo "$RESPONSE" | grep -o '"id":"[^"]*"' | cut -d'"' -f4)
+  echo "ID de l'index pattern: $INDEX_ID"
+  
+  echo "Configuration de l'index pattern par défaut..."
+  DEFAULT_RESPONSE=$(curl -k -s -X POST \
+    -H "Content-Type: application/json" \
+    -H "osd-xsrf: true" \
+    -u admin:admin123 \
+    https://localhost:5601/api/opensearch-dashboards/settings/defaultIndex \
+    -d "{\"value\":\"$INDEX_ID\"}")
+  
+  echo "Configuration terminée: $DEFAULT_RESPONSE"
+  
+  # Forcer la mise à jour de la configuration
+  RESET_RESPONSE=$(curl -k -s -X POST \
+    -H "Content-Type: application/json" \
+    -H "osd-xsrf: true" \
+    -u admin:admin123 \
+    https://localhost:5601/api/opensearch-dashboards/settings/refresh)
+  
+  echo "Rafraîchissement des paramètres: $RESET_RESPONSE"
+  exit 0
+else  
+  echo "Erreur lors de la création de l'index pattern: $RESPONSE"
+  exit 1
+fi 
