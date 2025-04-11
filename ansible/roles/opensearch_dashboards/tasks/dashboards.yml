@@ -76,27 +76,3 @@
   ansible.builtin.template:
     src: dashboards.service
     dest: "{{ systemctl_path }}/dashboards.service"
-
-- name: Dashboards | Ensure OpenSearch Dashboards service is started
-  ansible.builtin.service:
-    name: dashboards
-    state: started
-    enabled: yes
-
-- name: Dashboards | Copy index pattern creation script
-  ansible.builtin.template:
-    src: create_index_pattern.sh.j2
-    dest: /tmp/create_index_pattern.sh
-    mode: 0755
-
-- name: Dashboards | Create index pattern for Winlogbeat
-  ansible.builtin.shell: /tmp/create_index_pattern.sh
-  args:
-    executable: /bin/bash
-  register: index_pattern_result
-  ignore_errors: true
-
-- name: Dashboards | Show index pattern creation result
-  ansible.builtin.debug:
-    var: index_pattern_result.stdout_lines
-  when: index_pattern_result.stdout_lines is defined
