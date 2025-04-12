@@ -129,7 +129,6 @@ fi
 
 # Get Sandbox VM IP
 SANDBOX_IP=$(VBoxManage guestproperty get sandbox "/VirtualBox/GuestInfo/Net/0/V4/IP" 2>/dev/null | awk '{print $2}')
-sudo VBoxManage registervm "/home/purplelab/VirtualBox VMs/sandbox/sandbox.vbox"
 
 
 # Display final message
