@@ -417,14 +417,29 @@
     var: winlogbeat_status
   when: winlogbeat_status is defined
 
-- name: Éteindre la VM proprement
-  win_command: shutdown /s /t 0 /f
-  delegate_to: "{{ vm_ip_result.stdout }}"
-  vars:
-    ansible_user: oem
-    ansible_password: oem
-    ansible_connection: winrm
-    ansible_winrm_transport: basic
-    ansible_winrm_server_cert_validation: ignore
-    ansible_port: 5985
+- name: Éteindre la VM proprement (si elle est allumée)
+  shell: |
+    VM_STATE=$(sudo VBoxManage showvminfo "sandbox" --machinereadable | grep -i VMState= | cut -d'=' -f2 | tr -d '"')
+    if [ "$VM_STATE" = "running" ]; then
+      sudo VBoxManage controlvm "sandbox" poweroff
+    fi
+  changed_when: true
+  become: yes
+
+- name: Attente pour stabiliser les fichiers .vbox
+  pause:
+    seconds: 5
+
+- name: Enregistrer la VM si elle n'est pas déjà enregistrée
+  shell: |
+    if ! sudo VBoxManage list vms | grep -q '"sandbox"'; then
+      sudo VBoxManage registervm "/home/purplelab/VirtualBox VMs/sandbox/sandbox.vbox"
+    fi
+  register: vm_register_result
+  retries: 3
+  delay: 5
+  until: vm_register_result.rc == 0
+  ignore_errors: yes
+  become: yes
+
 
