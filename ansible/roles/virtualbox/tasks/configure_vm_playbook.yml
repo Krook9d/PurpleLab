@@ -273,29 +273,6 @@
   when: sysmon_check is defined
 
 # -------------------------------------
-# Installation de LibreOffice
-# -------------------------------------
-
-- name: Installer LibreOffice avec Chocolatey
-  win_chocolatey:
-    name: libreoffice-fresh
-    state: present
-  delegate_to: "{{ vm_ip_result.stdout }}"
-  vars:
-    ansible_user: oem
-    ansible_password: oem
-    ansible_connection: winrm
-    ansible_winrm_transport: basic
-    ansible_winrm_server_cert_validation: ignore
-    ansible_port: 5985
-  register: libreoffice_install
-
-- name: Afficher le statut d'installation de LibreOffice
-  debug:
-    var: libreoffice_install
-  when: libreoffice_install is defined
-
-# -------------------------------------
 # Installation et configuration de Winlogbeat OSS 7.12.1
 # -------------------------------------
 
