@@ -417,3 +417,14 @@
     var: winlogbeat_status
   when: winlogbeat_status is defined
 
+- name: Éteindre la VM proprement
+  win_command: shutdown /s /t 0 /f
+  delegate_to: "{{ vm_ip_result.stdout }}"
+  vars:
+    ansible_user: oem
+    ansible_password: oem
+    ansible_connection: winrm
+    ansible_winrm_transport: basic
+    ansible_winrm_server_cert_validation: ignore
+    ansible_port: 5985
+
