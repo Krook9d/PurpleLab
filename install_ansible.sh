@@ -127,8 +127,6 @@ else
   echo -e "${YELLOW}Admin.txt file already exists with credentials.${NC}"
 fi
 
-sudo VBoxManage registervm "/home/purplelab/VirtualBox VMs/sandbox/sandbox.vbox"
-
 
 # Get Sandbox VM IP
 SANDBOX_IP=$(VBoxManage guestproperty get sandbox "/VirtualBox/GuestInfo/Net/0/V4/IP" 2>/dev/null | awk '{print $2}')
