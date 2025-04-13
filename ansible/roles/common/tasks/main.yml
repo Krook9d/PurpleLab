@@ -86,13 +86,6 @@
     - /var/www/html/Downloaded/upload
     - /var/www/html/config
 
-- name: Installation de Sigma
-  shell: |
-    sigma plugin install elasticsearch
-    sigma plugin install splunk
-  args:
-    creates: /usr/local/bin/sigma
-
 - name: Clone du dépôt Sigma
   git:
     repo: https://github.com/SigmaHQ/sigma.git
@@ -114,4 +107,14 @@
 - name: Supprimer le clone temporaire de Sigma
   file:
     path: /tmp/sigma_clone
-    state: absent 
+    state: absent
+
+- name: Installation du plugin Elasticsearch pour Sigma
+  shell: sigma plugin install elasticsearch
+  register: elasticsearch_result
+  failed_when: elasticsearch_result.rc != 0 and "Plugin already installed" not in elasticsearch_result.stderr
+
+- name: Installation du plugin Splunk pour Sigma
+  shell: sigma plugin install splunk
+  register: splunk_result
+  failed_when: splunk_result.rc != 0 and "Plugin already installed" not in splunk_result.stderr 
