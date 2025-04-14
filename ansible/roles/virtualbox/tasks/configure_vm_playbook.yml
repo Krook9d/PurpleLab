@@ -417,6 +417,324 @@
     var: winlogbeat_status
   when: winlogbeat_status is defined
 
+# -------------------------------------
+# Configuration des exclusions Windows Defender et installation d'Invoke-AtomicRedTeam
+# -------------------------------------
+
+- name: Ajouter des exclusions Windows Defender pour AtomicRedTeam et dossiers utilisateur
+  win_shell: |
+    try {
+      Add-MpPreference -ExclusionPath "C:\AtomicRedTeam" -ErrorAction Stop
+      Add-MpPreference -ExclusionPath "C:\Users\oem\Documents" -ErrorAction Stop
+      Add-MpPreference -ExclusionPath "C:\Windows\Temp\atomic-red-team-master" -ErrorAction Stop
+      Write-Output "Exclusions Windows Defender ajoutées avec succès"
+    } catch {
+      Write-Output "Erreur lors de l'ajout des exclusions Windows Defender: $_"
+      exit 1
+    }
+  delegate_to: "{{ vm_ip_result.stdout }}"
+  vars:
+    ansible_user: oem
+    ansible_password: oem
+    ansible_connection: winrm
+    ansible_winrm_transport: basic
+    ansible_winrm_server_cert_validation: ignore
+    ansible_port: 5985
+  register: defender_exclusions_result
+
+- name: Afficher le résultat des exclusions Windows Defender
+  debug:
+    var: defender_exclusions_result.stdout_lines
+  when: defender_exclusions_result is defined
+
+- name: Créer le dossier samples dans Documents
+  win_file:
+    path: C:\Users\oem\Documents\samples
+    state: directory
+  delegate_to: "{{ vm_ip_result.stdout }}"
+  vars:
+    ansible_user: oem
+    ansible_password: oem
+    ansible_connection: winrm
+    ansible_winrm_transport: basic
+    ansible_winrm_server_cert_validation: ignore
+    ansible_port: 5985
+
+- name: Créer le dossier malware_upload dans Documents
+  win_file:
+    path: C:\Users\oem\Documents\malware_upload
+    state: directory
+  delegate_to: "{{ vm_ip_result.stdout }}"
+  vars:
+    ansible_user: oem
+    ansible_password: oem
+    ansible_connection: winrm
+    ansible_winrm_transport: basic
+    ansible_winrm_server_cert_validation: ignore
+    ansible_port: 5985
+
+- name: Créer le dossier upload dans Documents
+  win_file:
+    path: C:\Users\oem\Documents\upload
+    state: directory
+  delegate_to: "{{ vm_ip_result.stdout }}"
+  vars:
+    ansible_user: oem
+    ansible_password: oem
+    ansible_connection: winrm
+    ansible_winrm_transport: basic
+    ansible_winrm_server_cert_validation: ignore
+    ansible_port: 5985
+
+- name: Créer le dossier AtomicRedTeam
+  win_file:
+    path: C:\AtomicRedTeam
+    state: directory
+  delegate_to: "{{ vm_ip_result.stdout }}"
+  vars:
+    ansible_user: oem
+    ansible_password: oem
+    ansible_connection: winrm
+    ansible_winrm_transport: basic
+    ansible_winrm_server_cert_validation: ignore
+    ansible_port: 5985
+
+- name: Créer les sous-dossiers pour AtomicRedTeam
+  win_file:
+    path: "C:\\AtomicRedTeam\\{{ item }}"
+    state: directory
+  with_items:
+    - atomics
+    - ExternalPayloads
+    - invoke-atomicredteam
+  delegate_to: "{{ vm_ip_result.stdout }}"
+  vars:
+    ansible_user: oem
+    ansible_password: oem
+    ansible_connection: winrm
+    ansible_winrm_transport: basic
+    ansible_winrm_server_cert_validation: ignore
+    ansible_port: 5985
+
+- name: Télécharger module PowerShell-YAML
+  win_get_url:
+    url: https://github.com/cloudbase/powershell-yaml/archive/refs/heads/master.zip
+    dest: C:\Windows\Temp\powershell-yaml.zip
+  delegate_to: "{{ vm_ip_result.stdout }}"
+  vars:
+    ansible_user: oem
+    ansible_password: oem
+    ansible_connection: winrm
+    ansible_winrm_transport: basic
+    ansible_winrm_server_cert_validation: ignore
+    ansible_port: 5985
+
+- name: Créer dossier pour modules PowerShell
+  win_shell: |
+    $modulePath = "$HOME\Documents\PowerShell\Modules"
+    if (-not (Test-Path $modulePath)) {
+      New-Item -Path $modulePath -ItemType Directory -Force
+    }
+  delegate_to: "{{ vm_ip_result.stdout }}"
+  vars:
+    ansible_user: oem
+    ansible_password: oem
+    ansible_connection: winrm
+    ansible_winrm_transport: basic
+    ansible_winrm_server_cert_validation: ignore
+    ansible_port: 5985
+
+- name: Extraire et installer PowerShell-YAML
+  win_shell: |
+    Expand-Archive -Path C:\Windows\Temp\powershell-yaml.zip -DestinationPath C:\Windows\Temp\ -Force
+    $source = "C:\Windows\Temp\powershell-yaml-master"
+    $destination = "$HOME\Documents\PowerShell\Modules\powershell-yaml"
+    
+    if (Test-Path $destination) {
+      Remove-Item -Path $destination -Recurse -Force
+    }
+    
+    New-Item -Path $destination -ItemType Directory -Force
+    Copy-Item -Path "$source\*" -Destination $destination -Recurse -Force
+    Write-Output "Module PowerShell-YAML installé"
+  delegate_to: "{{ vm_ip_result.stdout }}"
+  vars:
+    ansible_user: oem
+    ansible_password: oem
+    ansible_connection: winrm
+    ansible_winrm_transport: basic
+    ansible_winrm_server_cert_validation: ignore
+    ansible_port: 5985
+  register: yaml_module_result
+
+- name: Afficher le résultat de l'installation de PowerShell-YAML
+  debug:
+    var: yaml_module_result.stdout_lines
+  when: yaml_module_result is defined
+
+- name: Télécharger Invoke-AtomicRedTeam
+  win_get_url:
+    url: https://github.com/redcanaryco/invoke-atomicredteam/archive/refs/heads/master.zip
+    dest: C:\Windows\Temp\invoke-atomicredteam.zip
+  delegate_to: "{{ vm_ip_result.stdout }}"
+  vars:
+    ansible_user: oem
+    ansible_password: oem
+    ansible_connection: winrm
+    ansible_winrm_transport: basic
+    ansible_winrm_server_cert_validation: ignore
+    ansible_port: 5985
+
+- name: Extraire Invoke-AtomicRedTeam
+  win_shell: |
+    Expand-Archive -Path C:\Windows\Temp\invoke-atomicredteam.zip -DestinationPath C:\Windows\Temp\ -Force
+    $source = "C:\Windows\Temp\invoke-atomicredteam-master"
+    
+    Copy-Item -Path "$source\*" -Destination "C:\AtomicRedTeam\invoke-atomicredteam" -Recurse -Force
+    Write-Output "Invoke-AtomicRedTeam extrait et copié"
+  delegate_to: "{{ vm_ip_result.stdout }}"
+  vars:
+    ansible_user: oem
+    ansible_password: oem
+    ansible_connection: winrm
+    ansible_winrm_transport: basic
+    ansible_winrm_server_cert_validation: ignore
+    ansible_port: 5985
+  register: invoke_atomic_extract_result
+
+- name: Télécharger les Atomic tests
+  win_get_url:
+    url: https://github.com/redcanaryco/atomic-red-team/archive/refs/heads/master.zip
+    dest: C:\Windows\Temp\atomic-red-team.zip
+  delegate_to: "{{ vm_ip_result.stdout }}"
+  vars:
+    ansible_user: oem
+    ansible_password: oem
+    ansible_connection: winrm
+    ansible_winrm_transport: basic
+    ansible_winrm_server_cert_validation: ignore
+    ansible_port: 5985
+
+- name: Désactiver temporairement Windows Defender
+  win_shell: |
+    try {
+      Set-MpPreference -DisableRealtimeMonitoring $true
+      Write-Output "Protection en temps réel de Windows Defender désactivée temporairement"
+    } catch {
+      Write-Output "Erreur lors de la désactivation de Windows Defender: $_"
+      exit 1
+    }
+  delegate_to: "{{ vm_ip_result.stdout }}"
+  vars:
+    ansible_user: oem
+    ansible_password: oem
+    ansible_connection: winrm
+    ansible_winrm_transport: basic
+    ansible_winrm_server_cert_validation: ignore
+    ansible_port: 5985
+  register: defender_disable_result
+
+- name: Afficher le résultat de la désactivation de Windows Defender
+  debug:
+    var: defender_disable_result.stdout_lines
+  when: defender_disable_result is defined
+
+- name: Extraire et configurer les Atomic tests
+  win_command: powershell.exe -Command "Expand-Archive -Path C:\Windows\Temp\atomic-red-team.zip -DestinationPath C:\Windows\Temp\ -Force"
+  delegate_to: "{{ vm_ip_result.stdout }}"
+  vars:
+    ansible_user: oem
+    ansible_password: oem
+    ansible_connection: winrm
+    ansible_winrm_transport: basic
+    ansible_winrm_server_cert_validation: ignore
+    ansible_port: 5985
+  register: atomic_extract_result
+
+- name: Copier les tests atomiques vers le dossier final
+  win_command: powershell.exe -Command "Copy-Item -Path 'C:\Windows\Temp\atomic-red-team-master\atomics' -Destination 'C:\AtomicRedTeam\' -Recurse -Force"
+  delegate_to: "{{ vm_ip_result.stdout }}"
+  vars:
+    ansible_user: oem
+    ansible_password: oem
+    ansible_connection: winrm
+    ansible_winrm_transport: basic
+    ansible_winrm_server_cert_validation: ignore
+    ansible_port: 5985
+  register: atomic_tests_result
+  ignore_errors: yes
+
+- name: Réactiver Windows Defender après copie (si nécessaire pour la sécurité)
+  win_shell: |
+    try {
+      Set-MpPreference -DisableRealtimeMonitoring $false
+      Write-Output "Protection en temps réel de Windows Defender réactivée"
+    } catch {
+      Write-Output "Erreur lors de la réactivation de Windows Defender: $_"
+      exit 0
+    }
+  delegate_to: "{{ vm_ip_result.stdout }}"
+  vars:
+    ansible_user: oem
+    ansible_password: oem
+    ansible_connection: winrm
+    ansible_winrm_transport: basic
+    ansible_winrm_server_cert_validation: ignore
+    ansible_port: 5985
+  register: defender_enable_result
+  when: atomic_tests_result is defined
+
+- name: Importer le module Invoke-AtomicRedTeam
+  win_shell: |
+    try {
+      Import-Module "C:\AtomicRedTeam\invoke-atomicredteam\Invoke-AtomicRedTeam.psd1" -Force
+      Write-Output "Module Invoke-AtomicRedTeam importé avec succès"
+    } catch {
+      Write-Output "Erreur lors de l'importation du module: $_"
+      exit 1
+    }
+  delegate_to: "{{ vm_ip_result.stdout }}"
+  vars:
+    ansible_user: oem
+    ansible_password: oem
+    ansible_connection: winrm
+    ansible_winrm_transport: basic
+    ansible_winrm_server_cert_validation: ignore
+    ansible_port: 5985
+  register: import_module_result
+
+- name: Afficher le résultat de l'importation du module
+  debug:
+    var: import_module_result.stdout_lines
+  when: import_module_result is defined
+
+- name: Obtenir les prérequis pour les tests
+  win_shell: |
+    try {
+      Import-Module "C:\AtomicRedTeam\invoke-atomicredteam\Invoke-AtomicRedTeam.psd1" -Force
+      Invoke-AtomicTest All -GetPrereqs
+      Write-Output "Prérequis pour les tests obtenus avec succès"
+    } catch {
+      Write-Output "Erreur lors de l'obtention des prérequis: $_"
+      # Ne pas échouer car certains prérequis peuvent générer des erreurs
+      exit 0
+    }
+  delegate_to: "{{ vm_ip_result.stdout }}"
+  vars:
+    ansible_user: oem
+    ansible_password: oem
+    ansible_connection: winrm
+    ansible_winrm_transport: basic
+    ansible_winrm_server_cert_validation: ignore
+    ansible_port: 5985
+  register: get_prereqs_result
+  ignore_errors: yes
+
+- name: Afficher le résultat de l'obtention des prérequis
+  debug:
+    var: get_prereqs_result.stdout_lines
+  when: get_prereqs_result is defined
+
 - name: Éteindre la VM proprement (si elle est allumée)
   shell: |
     VM_STATE=$(sudo VBoxManage showvminfo "sandbox" --machinereadable | grep -i VMState= | cut -d'=' -f2 | tr -d '"')
@@ -441,5 +759,3 @@
   until: vm_register_result.rc == 0
   ignore_errors: yes
   become: yes
-
-
