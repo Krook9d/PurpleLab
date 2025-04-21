@@ -708,33 +708,6 @@
     var: import_module_result.stdout_lines
   when: import_module_result is defined
 
-- name: Obtenir les prérequis pour les tests
-  win_shell: |
-    try {
-      Import-Module "C:\AtomicRedTeam\invoke-atomicredteam\Invoke-AtomicRedTeam.psd1" -Force
-      Invoke-AtomicTest All -GetPrereqs
-      Write-Output "Prérequis pour les tests obtenus avec succès"
-    } catch {
-      Write-Output "Erreur lors de l'obtention des prérequis: $_"
-      # Ne pas échouer car certains prérequis peuvent générer des erreurs
-      exit 0
-    }
-  delegate_to: "{{ vm_ip_result.stdout }}"
-  vars:
-    ansible_user: oem
-    ansible_password: oem
-    ansible_connection: winrm
-    ansible_winrm_transport: basic
-    ansible_winrm_server_cert_validation: ignore
-    ansible_port: 5985
-  register: get_prereqs_result
-  ignore_errors: yes
-
-- name: Afficher le résultat de l'obtention des prérequis
-  debug:
-    var: get_prereqs_result.stdout_lines
-  when: get_prereqs_result is defined
-
 - name: Éteindre la VM proprement (si elle est allumée)
   shell: |
     VM_STATE=$(sudo VBoxManage showvminfo "sandbox" --machinereadable | grep -i VMState= | cut -d'=' -f2 | tr -d '"')
