@@ -531,7 +531,7 @@
 
 - name: Créer dossier pour modules PowerShell
   win_shell: |
-    $modulePath = "$HOME\Documents\PowerShell\Modules"
+    $modulePath = "$HOME\Documents\WindowsPowerShell\Modules"
     if (-not (Test-Path $modulePath)) {
       New-Item -Path $modulePath -ItemType Directory -Force
     }
@@ -548,7 +548,7 @@
   win_shell: |
     Expand-Archive -Path C:\Windows\Temp\powershell-yaml.zip -DestinationPath C:\Windows\Temp\ -Force
     $source = "C:\Windows\Temp\powershell-yaml-master"
-    $destination = "$HOME\Documents\PowerShell\Modules\powershell-yaml"
+    $destination = "$HOME\Documents\WindowsPowerShell\Modules\powershell-yaml"
     
     if (Test-Path $destination) {
       Remove-Item -Path $destination -Recurse -Force
