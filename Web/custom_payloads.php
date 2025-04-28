@@ -17,7 +17,7 @@ $conn_string = sprintf(
 $conn = pg_connect($conn_string);
 
 if (!$conn) {
-    die("Échec de connexion à PostgreSQL");
+    die("PostgreSQL connection failure");
 }
 
 $email = $_SESSION['email'];
@@ -33,7 +33,7 @@ if ($result && $row = pg_fetch_assoc($result)) {
     $analyst_level = $row['analyst_level'];
     $avatar = $row['avatar'];
 } else {
-    die("Erreur lors de la récupération des informations utilisateur.");
+    die("Error retrieving user information.");
 }
 pg_free_result($result);
 
