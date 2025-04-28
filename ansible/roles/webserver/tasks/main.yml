@@ -16,6 +16,7 @@
       - libapache2-mod-php
       - php-curl
       - php-mysqli
+      - php-pgsql
       - python3-pip
       - p7zip-full
       - apt-transport-https
@@ -38,6 +39,10 @@
 
 - name: Activer le module mysqli
   shell: phpenmod mysqli
+  changed_when: false
+
+- name: Activer le module pgsql
+  shell: phpenmod pgsql
   changed_when: false
 
 - name: Installer les dépendances Python
