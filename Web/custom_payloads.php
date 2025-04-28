@@ -6,65 +6,72 @@ if (!isset($_SESSION['email'])) {
     exit;
 }
 
-$conn = new mysqli(getenv('DB_HOST'), getenv('DB_USER'), getenv('DB_PASS'), getenv('DB_NAME'));
+$conn_string = sprintf(
+    "host=%s port=5432 dbname=%s user=%s password=%s",
+    getenv('DB_HOST'),
+    getenv('DB_NAME'),
+    getenv('DB_USER'),
+    getenv('DB_PASS')
+);
 
-if ($conn->connect_error) {
-    die("Connection failed: " . $conn->connect_error);
+$conn = pg_connect($conn_string);
+
+if (!$conn) {
+    die("Échec de connexion à PostgreSQL");
 }
 
 $email = $_SESSION['email'];
 
-$sql = "SELECT id, first_name, last_name, email, analyst_level, avatar FROM users WHERE email=?";
-$stmt = $conn->prepare($sql);
-$stmt->bind_param('s', $email);
-$stmt->execute();
-$stmt->bind_result($user_id, $first_name, $last_name, $email, $analyst_level, $avatar);
+$sql = "SELECT id, first_name, last_name, email, analyst_level, avatar FROM users WHERE email=$1";
+$result = pg_query_params($conn, $sql, array($email));
 
-if (!$stmt->fetch()) {
-    die("Error retrieving user information.");
+if ($result && $row = pg_fetch_assoc($result)) {
+    $user_id = $row['id'];
+    $first_name = $row['first_name'];
+    $last_name = $row['last_name'];
+    $email = $row['email'];
+    $analyst_level = $row['analyst_level'];
+    $avatar = $row['avatar'];
+} else {
+    die("Erreur lors de la récupération des informations utilisateur.");
 }
-$stmt->close();
+pg_free_result($result);
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
     if ($_POST['action'] === 'add' && isset($_POST['name']) && isset($_POST['content'])) {
         $name = $_POST['name'];
         $content = $_POST['content'];
         
-        $sql = "INSERT INTO custom_payloads (name, content, author_id) VALUES (?, ?, ?)";
-        $stmt = $conn->prepare($sql);
-        $stmt->bind_param('ssi', $name, $content, $user_id);
+        $sql = "INSERT INTO custom_payloads (name, content, author_id) VALUES ($1, $2, $3)";
+        $result = pg_query_params($conn, $sql, array($name, $content, $user_id));
         
-        if (!$stmt->execute()) {
-            echo "Error adding payload: " . $conn->error;
+        if (!$result) {
+            echo "Erreur lors de l'ajout du payload: " . pg_last_error($conn);
         }
     }
    
     elseif ($_POST['action'] === 'delete' && isset($_POST['payload_id'])) {
         $payload_id = $_POST['payload_id'];
         
-        $sql = "DELETE FROM custom_payloads WHERE id = ? AND author_id = ?";
-        $stmt = $conn->prepare($sql);
-        $stmt->bind_param('ii', $payload_id, $user_id);
+       
+        $sql = "DELETE FROM custom_payloads WHERE id = $1 AND author_id = $2";
+        $result = pg_query_params($conn, $sql, array($payload_id, $user_id));
         
-        if (!$stmt->execute()) {
-            echo "Error deleting payload: " . $conn->error;
+        if (!$result) {
+            echo "Erreur lors de la suppression du payload: " . pg_last_error($conn);
         }
     }
    
     elseif ($_POST['action'] === 'execute' && isset($_POST['payload_id'])) {
         $payload_id = $_POST['payload_id'];
         
-        $sql = "SELECT content FROM custom_payloads WHERE id = ? AND author_id = ?";
-        $stmt = $conn->prepare($sql);
-        $stmt->bind_param('ii', $payload_id, $user_id);
-        $stmt->execute();
-        $result = $stmt->get_result();
-        $payload = $result->fetch_assoc();
+ 
+        $sql = "SELECT content FROM custom_payloads WHERE id = $1 AND author_id = $2";
+        $result = pg_query_params($conn, $sql, array($payload_id, $user_id));
         
-        if ($payload) {
+        if ($result && $row = pg_fetch_assoc($result)) {
             
-            $api_data = json_encode(['content' => $payload['content']]);
-            
+            $api_data = json_encode(['content' => $row['content']]);
             
             $ch = curl_init('http://127.0.0.1:5000/api/execute_payload');
             curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "POST");
@@ -97,19 +104,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
     }
 }
 
+
 $sql = "SELECT cp.*, u.first_name, u.last_name FROM custom_payloads cp 
         JOIN users u ON cp.author_id = u.id 
         ORDER BY cp.created_at DESC";
-$result = $conn->query($sql);
+$result = pg_query($conn, $sql);
 $payloads = [];
 
-if ($result->num_rows > 0) {
-    while ($row = $result->fetch_assoc()) {
+if ($result) {
+    while ($row = pg_fetch_assoc($result)) {
         $payloads[] = $row;
     }
+    pg_free_result($result);
 }
 
-$conn->close();
+pg_close($conn);
 ?>
 
 <!DOCTYPE html>
