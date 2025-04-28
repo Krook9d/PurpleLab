@@ -73,9 +73,13 @@ echo -e "\n\e[32mAll checks passed. Continuing with the installation...\e[0m\n"
     phpenmod mysqli
     apt-get -y install php-xml php-gd php-mbstring php-zip
     systemctl restart apache2
-    apt install -y mysql-server
-    systemctl start mysql
-    systemctl enable mysql
+    apt install -y postgresql postgresql-contrib
+    apt install -y php-pgsql
+    systemctl start postgresql
+    systemctl enable postgresql
+
+    # Enable PostgreSQL extension for PHP
+    phpenmod pgsql
 
     # Configure firewall to allow HTTP and HTTPS connections
     ufw allow in "Apache Full"
@@ -180,7 +184,7 @@ echo -e "\n\e[32mAll checks passed. Continuing with the installation...\e[0m\n"
     fi
 
     # Part 1: Modifying the 'Elasticsearch Output' section
-    # Remove comments from specified lines
+
     sed -i '/#output.logstash:/ s/#//' $FILEBEAT_CONFIG
     sed -i '/#hosts: \["localhost:9200"\]/ s/#//' $FILEBEAT_CONFIG
     sed -i '/#protocol: "https"/ s/#//' $FILEBEAT_CONFIG
@@ -305,34 +309,20 @@ sudo VBoxManage modifyvm sandbox --nic1 bridged --bridgeadapter1 "$INTERFACE_CHO
         echo "Sandbox machine not running"
     fi
 
-# Variables for MySQL connection
+# Variables for PostgreSQL connection
 DB_USER="toor"
 DB_PASS="root"
-DB_NAME="myDatabase"
+DB_NAME="purplelab"
 CSV_FILE="/var/www/html/enterprise-attack/index.csv"
-MYSQL_CNF="/etc/mysql/mysql.conf.d/mysql.cnf"
 
-# Add local_infile=1 to [mysql] sections if not already present
-sudo grep -qxF 'local_infile=1' $MYSQL_CNF || echo 'local_infile=1' | sudo tee -a $MYSQL_CNF
-
-# Restart MySQL service to apply the changes
-sudo service mysql restart
-
-# Enable local infile globally
-mysql -u root -p$DB_PASS -e "SET GLOBAL local_infile=1;"
-
-# Create database and user
-mysql -e "CREATE DATABASE IF NOT EXISTS $DB_NAME;"
-mysql -e "CREATE USER IF NOT EXISTS '$DB_USER'@'localhost' IDENTIFIED WITH mysql_native_password BY '$DB_PASS';"
-mysql -e "GRANT ALL ON $DB_NAME.* TO '$DB_USER'@'localhost';"
-mysql -e "FLUSH PRIVILEGES;"
+# Create PostgreSQL user and database
+sudo -u postgres psql -c "CREATE USER $DB_USER WITH PASSWORD '$DB_PASS' SUPERUSER;"
+sudo -u postgres psql -c "CREATE DATABASE $DB_NAME WITH OWNER $DB_USER;"
 
 # Create tables and load data from CSV
-mysql --local-infile=1 -u $DB_USER -p$DB_PASS -e "
-USE $DB_NAME;
-
+sudo -u postgres psql -d $DB_NAME -c "
 CREATE TABLE IF NOT EXISTS users (
-    id INT AUTO_INCREMENT PRIMARY KEY,
+    id SERIAL PRIMARY KEY,
     first_name VARCHAR(100) NOT NULL,
     last_name VARCHAR(100) NOT NULL,
     email VARCHAR(100) NOT NULL UNIQUE,
@@ -342,23 +332,23 @@ CREATE TABLE IF NOT EXISTS users (
 );
 
 CREATE TABLE IF NOT EXISTS contents (
-    id INT AUTO_INCREMENT PRIMARY KEY,
+    id SERIAL PRIMARY KEY,
     content TEXT NOT NULL,
-    author_id INT NOT NULL,
+    author_id INTEGER NOT NULL,
     FOREIGN KEY (author_id) REFERENCES users(id)
 );
 
 CREATE TABLE IF NOT EXISTS custom_payloads (
-    id INT AUTO_INCREMENT PRIMARY KEY,
+    id SERIAL PRIMARY KEY,
     name VARCHAR(255) NOT NULL,
     content TEXT NOT NULL,
-    author_id INT NOT NULL,
+    author_id INTEGER NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (author_id) REFERENCES users(id)
 );
 
 CREATE TABLE IF NOT EXISTS atomic_tests (
-    id INT AUTO_INCREMENT PRIMARY KEY,
+    id SERIAL PRIMARY KEY,
     tactic VARCHAR(255),
     technique_id VARCHAR(255),
     technique_name VARCHAR(255),
@@ -366,59 +356,55 @@ CREATE TABLE IF NOT EXISTS atomic_tests (
     test_name VARCHAR(255),
     Test_GUID VARCHAR(255),
     Executor_Name VARCHAR(255)
-);
+);"
 
-LOAD DATA LOCAL INFILE '$CSV_FILE'
-INTO TABLE atomic_tests
-FIELDS TERMINATED BY ',' 
-ENCLOSED BY '\"'
-LINES TERMINATED BY '\n'
-IGNORE 1 ROWS
-(tactic, technique_id, technique_name, test, test_name, Test_GUID, Executor_Name)
-SET
-    technique_id = NULLIF(technique_id, ''),
-    technique_name = NULLIF(technique_name, ''),
-    test = NULLIF(test, ''),
-    test_name = NULLIF(test_name, ''),
-    Test_GUID = NULLIF(Test_GUID, ''),
-    Executor_Name = NULLIF(Executor_Name, '');
-"
+# Direct CSV data import
+# Give permissions to the CSV file so PostgreSQL can access it
+sudo chmod 644 "$CSV_FILE"
+sudo chown postgres:postgres "$CSV_FILE"
+
+# Directly import the CSV with the COPY command
+echo "Importing data from $CSV_FILE..."
+sudo -u postgres psql -d $DB_NAME -c "
+COPY atomic_tests(tactic, technique_id, technique_name, test, test_name, Test_GUID, Executor_Name)
+FROM '$CSV_FILE' WITH (FORMAT csv, HEADER true, NULL '');"
 
 # Randomly generate a secure password
 ADMIN_PASSWORD=$(< /dev/urandom tr -dc 'A-Za-z0-9!@#$%^&*()' | head -c 12)
 
-# Create a temporary PHP script for hashing the password
+# Create a temporary PHP script for password hashing
 TEMP_PHP_SCRIPT=$(mktemp)
 echo "<?php
 echo password_hash('$ADMIN_PASSWORD', PASSWORD_DEFAULT);
 ?>" > "$TEMP_PHP_SCRIPT"
 
-# Hash the password using PHP
+# Hash the password with PHP
 HASHED_PASSWORD=$(php "$TEMP_PHP_SCRIPT")
 
-# Delete the temporary PHP script
+# Remove the temporary PHP script
 rm "$TEMP_PHP_SCRIPT"
 
 # Add admin user to the users table with the hashed password
-mysql -e "USE $DB_NAME; INSERT INTO users (first_name, last_name, email, analyst_level, avatar, password) VALUES ('Admin', 'Admin', 'admin@local.com', 'n3', '/MD_image/admin.png', '$HASHED_PASSWORD');"
+sudo -u postgres psql -d $DB_NAME -c "INSERT INTO users (first_name, last_name, email, analyst_level, avatar, password) VALUES ('Admin', 'Admin', 'admin@local.com', 'n3', '/MD_image/admin.png', '$HASHED_PASSWORD');"
 
 # Add admin credentials to admin.txt file
 echo "admin@local.com:$ADMIN_PASSWORD" >> /home/$(logname)/admin.txt
 
-    # Replace these values with information from your database
+    # Replace these values with your database information
     DB_HOST="localhost"
     DB_USER="toor"
     DB_PASS="root"
-    DB_NAME="myDatabase"
+    DB_NAME="purplelab"
 
-    # Escape special characters in password
+    # Escape special characters in the password
     ESCAPED_DB_PASS=$(printf '%s\n' "$DB_PASS" | sed -e 's/[\/&]/\\&/g')
 
-    # Add environment variables to /etc/apache2/envvars
+    # Add variables to envvars
     echo "export DB_HOST='$DB_HOST'" | sudo tee -a /etc/apache2/envvars
     echo "export DB_USER='$DB_USER'" | sudo tee -a /etc/apache2/envvars
     echo "export DB_PASS='$ESCAPED_DB_PASS'" | sudo tee -a /etc/apache2/envvars
     echo "export DB_NAME='$DB_NAME'" | sudo tee -a /etc/apache2/envvars
+    echo "export DB_TYPE='postgres'" | sudo tee -a /etc/apache2/envvars
 
     # Restart Apache for changes to take effect
     sudo systemctl restart apache2
@@ -470,7 +456,7 @@ echo "admin@local.com:$ADMIN_PASSWORD" >> /home/$(logname)/admin.txt
     # Generate a secure encryption key
     ENCRYPTION_KEY=$(openssl rand -base64 32)
 
-    # Add the encryption key to /etc/apache2/envvars
+    # Add the encryption key to envvars
     echo "export ENCRYPTION_KEY=\"$ENCRYPTION_KEY\"" | sudo tee -a /etc/apache2/envvars
 
 
