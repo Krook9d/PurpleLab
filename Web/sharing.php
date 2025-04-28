@@ -6,74 +6,80 @@ if (!isset($_SESSION['email'])) {
     exit;
 }
 
+$conn_string = sprintf(
+    "host=%s port=5432 dbname=%s user=%s password=%s",
+    getenv('DB_HOST'),
+    getenv('DB_NAME'),
+    getenv('DB_USER'),
+    getenv('DB_PASS')
+);
 
-$conn = new mysqli(getenv('DB_HOST'), getenv('DB_USER'), getenv('DB_PASS'), getenv('DB_NAME'));
+$conn = pg_connect($conn_string);
 
-if ($conn->connect_error) {
-    die("Connection failed: " . $conn->connect_error);
+if (!$conn) {
+    die("Connection failed: " . pg_last_error());
 }
 
 $email = $_SESSION['email'];
 
+// Get user information
+$sql = "SELECT id, first_name, last_name, email, analyst_level, avatar FROM users WHERE email=$1";
+$result = pg_query_params($conn, $sql, array($email));
 
-$sql = "SELECT id, first_name, last_name, email, analyst_level, avatar FROM users WHERE email=?";
-$stmt = $conn->prepare($sql);
-$stmt->bind_param('s', $email);
-$stmt->execute();
-$stmt->bind_result($user_id, $first_name, $last_name, $email, $analyst_level, $avatar);
-
-if (!$stmt->fetch()) {
+if ($result && $row = pg_fetch_assoc($result)) {
+    $user_id = $row['id'];
+    $first_name = $row['first_name'];
+    $last_name = $row['last_name'];
+    $email = $row['email'];
+    $analyst_level = $row['analyst_level'];
+    $avatar = $row['avatar'];
+} else {
     die("Error retrieving user information.");
 }
-$stmt->close();
 
-
+// Handle content submission
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['content'])) {
     $content = $_POST['content'];
 
-    $sql = "INSERT INTO contents (author_id, content) VALUES (?, ?)";
-    $stmt = $conn->prepare($sql);
-    $stmt->bind_param('is', $user_id, $content); 
+    $sql = "INSERT INTO contents (author_id, content) VALUES ($1, $2)";
+    $result = pg_query_params($conn, $sql, array($user_id, $content));
     
-    if ($stmt->execute()) {
+    if ($result) {
         header('Location: sharing.php');
         exit;
     } else {
-        echo "Error during content insertion: " . $conn->error;
+        echo "Error during content insertion: " . pg_last_error($conn);
     }
 }
 
-
+// Handle content deletion
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['delete']) && isset($_POST['id'])) {
     $id = $_POST['id'];
     
     $canDelete = true;
     
     if ($canDelete) {
-        $sql = "DELETE FROM contents WHERE id = ?";
-        $stmt = $conn->prepare($sql);
-        $stmt->bind_param('i', $id);
+        $sql = "DELETE FROM contents WHERE id = $1";
+        $result = pg_query_params($conn, $sql, array($id));
         
-        if (!$stmt->execute()) {
-            echo "Error when deleting content: " . $conn->error;
+        if (!$result) {
+            echo "Error when deleting content: " . pg_last_error($conn);
         }
     }
 }
 
-
+// Get all contents
 $sql = "SELECT contents.id, contents.content, users.first_name, users.last_name, contents.author_id FROM contents JOIN users ON contents.author_id = users.id";
-$result = $conn->query($sql);
+$result = pg_query($conn, $sql);
 $contents = [];
 
-if ($result->num_rows > 0) {
-    while ($row = $result->fetch_assoc()) {
+if (pg_num_rows($result) > 0) {
+    while ($row = pg_fetch_assoc($result)) {
         $contents[] = $row;
     }
 }
 
-
-
-$conn->close();
+pg_close($conn);
 ?>
 
 
@@ -194,5 +200,3 @@ $conn->close();
 </div>
 </body>
 </html>
-
-
