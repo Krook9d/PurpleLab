@@ -10,49 +10,55 @@ if (!isset($_SESSION['email'])) {
     exit();
 }
 
-$conn = new mysqli(
-    getenv('DB_HOST'), 
-    getenv('DB_USER'), 
-    getenv('DB_PASS'), 
-    getenv('DB_NAME')
+// Connexion PostgreSQL
+$conn_string = sprintf(
+    "host=%s port=5432 dbname=%s user=%s password=%s",
+    getenv('DB_HOST'),
+    getenv('DB_NAME'),
+    getenv('DB_USER'),
+    getenv('DB_PASS')
 );
 
-if ($conn->connect_error) {
-    die("Connection failed: " . $conn->connect_error);
+$conn = pg_connect($conn_string);
+
+if (!$conn) {
+    die("PostgreSQL connection failure");
 }
 
 $email = $_SESSION['email'];
 
-$sql = "SELECT first_name, last_name, email, analyst_level, avatar FROM users WHERE email=?";
-$stmt = $conn->prepare($sql);
-$stmt->bind_param('s', $email);
-$stmt->execute();
-$stmt->bind_result($first_name, $last_name, $email, $analyst_level, $avatar);
+$sql = "SELECT first_name, last_name, email, analyst_level, avatar FROM users WHERE email=$1";
+$result = pg_query_params($conn, $sql, array($email));
 
-if (!$stmt->fetch()) {
+if ($result && $row = pg_fetch_assoc($result)) {
+    $first_name = $row['first_name'];
+    $last_name = $row['last_name'];
+    $email = $row['email'];
+    $analyst_level = $row['analyst_level'];
+    $avatar = $row['avatar'];
+} else {
     die("Error retrieving user information.");
 }
 
-$stmt->close();
-
-// Fetching data for the chart
 $chartDataQuery = "SELECT tactic, COUNT(technique_id) AS count FROM atomic_tests GROUP BY tactic";
-$chartDataResult = $conn->query($chartDataQuery);
+$chartDataResult = pg_query($conn, $chartDataQuery);
 
 if (!$chartDataResult) {
-    die("Query failed: " . $conn->error);
+    die("Erreur de requête: " . pg_last_error($conn));
 }
 
 $chartData = array();
 $tactics = array();
 $testCounts = array();
 
-while ($row = $chartDataResult->fetch_assoc()) {
+while ($row = pg_fetch_assoc($chartDataResult)) {
     $tactics[] = $row['tactic'];
     $testCounts[] = $row['count'];
 }
 
-$conn->close();
+pg_free_result($result);
+pg_free_result($chartDataResult);
+pg_close($conn);
 ?>
 <!-- End Connexion -->
 
