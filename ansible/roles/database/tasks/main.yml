@@ -1,173 +1,125 @@
 ---
-- name: Installer MySQL
+- name: Installer PostgreSQL
   apt:
-    name: mysql-server
+    name: 
+      - postgresql
+      - postgresql-contrib
+      - python3-psycopg2
     state: present
     update_cache: true
 
-- name: Démarrer et activer MySQL
+- name: Démarrer et activer PostgreSQL
   service:
-    name: mysql
+    name: postgresql
     state: started
     enabled: yes
 
-- name: Créer le fichier .my.cnf pour root
-  copy:
-    content: |
-      [client]
-      user=root
-      password={{ db_pass }}
-    dest: /root/.my.cnf
-    mode: '0600'
-
-- name: Configurer MySQL pour l'importation de fichiers
-  copy:
-    content: |
-      [mysqld]
-      secure-file-priv = /var/www/html/enterprise-attack
-      local_infile = 1
-
-      [mysql]
-      local_infile = 1
-    dest: /etc/mysql/mysql.conf.d/mysql.cnf
-    mode: '0644'
-
-- name: Redémarrer MySQL pour appliquer la configuration
-  service:
-    name: mysql
-    state: restarted
-
-- name: Configurer root avec mysql_native_password (première installation)
-  command: mysql -e "ALTER USER 'root'@'localhost' IDENTIFIED WITH mysql_native_password BY 'root';"
-  register: mysql_first_config
-  ignore_errors: yes
-
-- name: Configurer root avec mysql_native_password (installation existante)
-  command: mysql --defaults-file=/root/.my.cnf -e "ALTER USER 'root'@'localhost' IDENTIFIED WITH mysql_native_password BY 'root';"
-  register: mysql_existing_config
-  when: mysql_first_config.failed is defined and mysql_first_config.failed
-  ignore_errors: yes
-
-- name: Vérifier si la configuration a échoué
-  fail:
-    msg: "Impossible de configurer MySQL. Veuillez vérifier les logs."
-  when: >
-    (mysql_first_config.failed is defined and mysql_first_config.failed) and
-    (mysql_existing_config.failed is defined and mysql_existing_config.failed)
-
-- name: Activer local_infile globalement
-  shell: mysql --defaults-file=/root/.my.cnf -e "SET GLOBAL local_infile=1;"
-  changed_when: false
-
-- name: Créer la base de données
-  mysql_db:
-    name: "{{ db_name }}"
-    state: present
-    login_unix_socket: /var/run/mysqld/mysqld.sock
-
-- name: Créer l'utilisateur MySQL
-  mysql_user:
+- name: Créer l'utilisateur PostgreSQL
+  become: true
+  become_user: postgres
+  postgresql_user:
     name: "{{ db_user }}"
     password: "{{ db_pass }}"
-    priv: "{{ db_name }}.*:ALL"
-    host: localhost
+    role_attr_flags: SUPERUSER
     state: present
-    login_unix_socket: /var/run/mysqld/mysqld.sock
 
-- name: Créer les tables nécessaires
-  block:
-    - name: Table users
-      mysql_query:
-        query: |
-          CREATE TABLE IF NOT EXISTS users (
-            id INT AUTO_INCREMENT PRIMARY KEY,
-            first_name VARCHAR(255) NOT NULL,
-            last_name VARCHAR(255) NOT NULL,
-            email VARCHAR(255) NOT NULL UNIQUE,
-            analyst_level VARCHAR(255) NOT NULL,
-            avatar VARCHAR(255) NOT NULL,
-            password VARCHAR(255) NOT NULL,
-            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-          )
-        login_db: "{{ db_name }}"
-        login_unix_socket: /var/run/mysqld/mysqld.sock
+- name: Créer la base de données
+  become: true
+  become_user: postgres
+  postgresql_db:
+    name: "{{ db_name }}"
+    owner: "{{ db_user }}"
+    state: present
 
-    - name: Table contents
-      mysql_query:
-        query: |
-          CREATE TABLE IF NOT EXISTS contents (
-            id INT AUTO_INCREMENT PRIMARY KEY,
-            author_id INT NOT NULL,
-            content TEXT NOT NULL,
-            FOREIGN KEY (author_id) REFERENCES users(id)
-          )
-        login_db: "{{ db_name }}"
-        login_unix_socket: /var/run/mysqld/mysqld.sock
+- name: Configurer l'authentification pour les connexions locales (mettre à jour pg_hba.conf)
+  lineinfile:
+    path: "/etc/postgresql/*/main/pg_hba.conf"
+    regexp: '^local\s+all\s+postgres\s+peer'
+    line: 'local   all             postgres                                peer'
+    state: present
+  register: pg_hba_updated
 
-    - name: Table custom_payloads
-      mysql_query:
-        query: |
-          CREATE TABLE IF NOT EXISTS custom_payloads (
-            id INT AUTO_INCREMENT PRIMARY KEY,
-            author_id INT NOT NULL,
-            name VARCHAR(255) NOT NULL,
-            content TEXT NOT NULL,
-            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-            FOREIGN KEY (author_id) REFERENCES users(id)
-          )
-        login_db: "{{ db_name }}"
-        login_unix_socket: /var/run/mysqld/mysqld.sock
-
-    - name: Table atomic_tests
-      mysql_query:
-        query: |
-          CREATE TABLE IF NOT EXISTS atomic_tests (
-            id INT AUTO_INCREMENT PRIMARY KEY,
-            tactic VARCHAR(255),
-            technique_id VARCHAR(255),
-            technique_name VARCHAR(255),
-            test VARCHAR(255),
-            test_name VARCHAR(255),
-            Test_GUID VARCHAR(255),
-            Executor_Name VARCHAR(255),
-            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-          )
-        login_db: "{{ db_name }}"
-        login_unix_socket: /var/run/mysqld/mysqld.sock
+- name: Redémarrer PostgreSQL si pg_hba.conf a été modifié
+  service:
+    name: postgresql
+    state: restarted
+  when: pg_hba_updated.changed
 
 - name: Créer le répertoire d'importation
   file:
     path: /var/www/html/enterprise-attack
     state: directory
     mode: '0755'
-    owner: mysql
-    group: mysql
+    owner: postgres
+    group: postgres
 
 - name: Copier le fichier CSV des tests atomiques
   copy:
     src: ../../enterprise-attack/index_atomic.csv
     dest: /var/www/html/enterprise-attack/index.csv
     mode: '0644'
-    owner: mysql
-    group: mysql
+    owner: postgres
+    group: postgres
+
+- name: Créer les tables dans PostgreSQL
+  become: true
+  become_user: postgres
+  postgresql_query:
+    db: "{{ db_name }}"
+    query: |
+      CREATE TABLE IF NOT EXISTS users (
+        id SERIAL PRIMARY KEY,
+        first_name VARCHAR(255) NOT NULL,
+        last_name VARCHAR(255) NOT NULL,
+        email VARCHAR(255) NOT NULL UNIQUE,
+        analyst_level VARCHAR(255) NOT NULL,
+        avatar VARCHAR(255) NOT NULL,
+        password VARCHAR(255) NOT NULL,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      );
+      
+      CREATE TABLE IF NOT EXISTS contents (
+        id SERIAL PRIMARY KEY,
+        author_id INTEGER NOT NULL,
+        content TEXT NOT NULL,
+        FOREIGN KEY (author_id) REFERENCES users(id)
+      );
+      
+      CREATE TABLE IF NOT EXISTS custom_payloads (
+        id SERIAL PRIMARY KEY,
+        author_id INTEGER NOT NULL,
+        name VARCHAR(255) NOT NULL,
+        content TEXT NOT NULL,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (author_id) REFERENCES users(id)
+      );
+      
+      CREATE TABLE IF NOT EXISTS atomic_tests (
+        id SERIAL PRIMARY KEY,
+        tactic VARCHAR(255),
+        technique_id VARCHAR(255),
+        technique_name VARCHAR(255),
+        test VARCHAR(255),
+        test_name VARCHAR(255),
+        Test_GUID VARCHAR(255),
+        Executor_Name VARCHAR(255),
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      );
 
 - name: Importer les données CSV dans atomic_tests
-  shell: >
-    mysql --local-infile=1 --socket=/var/run/mysqld/mysqld.sock -e
-    "LOAD DATA LOCAL INFILE '/var/www/html/enterprise-attack/index.csv'
-     INTO TABLE {{ db_name }}.atomic_tests
-     FIELDS TERMINATED BY ';' 
-     ENCLOSED BY '\"'
-     LINES TERMINATED BY '\n'
-     IGNORE 1 ROWS
-     (tactic, technique_id, technique_name, test, test_name, Test_GUID, Executor_Name);"
+  become: true
+  become_user: postgres
+  shell: |
+    psql -d {{ db_name }} -c "\COPY atomic_tests(tactic, technique_id, technique_name, test, test_name, Test_GUID, Executor_Name) FROM '/var/www/html/enterprise-attack/index.csv' WITH (FORMAT csv, DELIMITER ';', HEADER true, NULL '');"
   ignore_errors: yes
 
 - name: Supprimer l'utilisateur admin s'il existe
-  mysql_query:
+  become: true
+  become_user: postgres
+  postgresql_query:
+    db: "{{ db_name }}"
     query: "DELETE FROM users WHERE email='admin@local.com';"
-    login_db: "{{ db_name }}"
-    login_unix_socket: /var/run/mysqld/mysqld.sock
+  ignore_errors: yes
 
 - name: Créer le fichier admin.txt avec le template
   copy:
@@ -215,21 +167,9 @@
   register: hashed_password
   changed_when: false
 
-- name: Afficher le hash généré
-  debug:
-    var: hashed_password.stdout
-
-- name: Créer un fichier temporaire pour le hash
-  copy:
-    content: "{{ hashed_password.stdout }}"
-    dest: /tmp/admin_hash.txt
-    mode: '0600'
-
 - name: Ajouter l'utilisateur admin
-  shell: |
-    mysql -u {{ db_user }} -p{{ db_pass }} -e "USE {{ db_name }}; INSERT INTO users (first_name, last_name, email, analyst_level, avatar, password) VALUES ('Admin', 'Admin', 'admin@local.com', 'n3', '/MD_image/admin.png', '$(cat /tmp/admin_hash.txt)');"
-
-- name: Supprimer le fichier temporaire
-  file:
-    path: /tmp/admin_hash.txt
-    state: absent
+  become: true
+  become_user: postgres
+  postgresql_query:
+    db: "{{ db_name }}"
+    query: "INSERT INTO users (first_name, last_name, email, analyst_level, avatar, password) VALUES ('Admin', 'Admin', 'admin@local.com', 'n3', '/MD_image/admin.png', '{{ hashed_password.stdout }}');"
