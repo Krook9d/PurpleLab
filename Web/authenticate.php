@@ -3,38 +3,41 @@
 error_reporting(E_ALL);
 ini_set('display_errors', 1);
 
-
-
 session_start();
 
 $email = $_POST['email'];
 $password = $_POST['password'];
 
-$conn = new mysqli(
-    getenv('DB_HOST'), 
-    getenv('DB_USER'), 
-    getenv('DB_PASS'), 
-    getenv('DB_NAME')
+$conn_string = sprintf(
+    "host=%s port=5432 dbname=%s user=%s password=%s",
+    getenv('DB_HOST'),
+    getenv('DB_NAME'),
+    getenv('DB_USER'),
+    getenv('DB_PASS')
 );
 
-if ($conn->connect_error) {
-    die("Connection failed: " . $conn->connect_error);
+$conn = pg_connect($conn_string);
+
+if (!$conn) {
+    die("PostgreSQL connection failure");
 }
 
-$sql = "SELECT id, password FROM users WHERE email=?";
-$stmt = $conn->prepare($sql);
-$stmt->bind_param('s', $email);
-$stmt->execute();
-$stmt->bind_result($user_id, $hash);
+$sql = "SELECT id, password FROM users WHERE email=$1";
+$result = pg_query_params($conn, $sql, array($email));
 
-if ($stmt->fetch() && password_verify($password, $hash)) {
-    $_SESSION['user_id'] = $user_id;
-    $_SESSION['email'] = $email;
-    header('Location: index.php');
-} else {
-    echo "Connection error. Incorrect email or password.";
+if ($result && $row = pg_fetch_assoc($result)) {
+    $user_id = $row['id'];
+    $hash = $row['password'];
+    
+    if (password_verify($password, $hash)) {
+        $_SESSION['user_id'] = $user_id;
+        $_SESSION['email'] = $email;
+        header('Location: index.php');
+        exit;
+    }
 }
 
-$stmt->close();
-$conn->close();
+echo "Login error. Incorrect email or password.";
+pg_free_result($result);
+pg_close($conn);
 ?>
