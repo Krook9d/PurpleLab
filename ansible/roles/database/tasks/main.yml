@@ -32,18 +32,31 @@
     state: present
 
 - name: Configurer l'authentification pour les connexions locales (mettre à jour pg_hba.conf)
-  lineinfile:
-    path: "/etc/postgresql/*/main/pg_hba.conf"
-    regexp: '^local\s+all\s+postgres\s+peer'
-    line: 'local   all             postgres                                peer'
-    state: present
-  register: pg_hba_updated
+  block:
+    - name: Trouver le chemin du fichier pg_hba.conf
+      shell: find /etc/postgresql -name pg_hba.conf
+      register: pg_hba_path
+      changed_when: false
+    
+    - name: Vérifier que le fichier pg_hba.conf existe
+      debug:
+        msg: "Fichier pg_hba.conf trouvé à: {{ pg_hba_path.stdout_lines[0] }}"
+      when: pg_hba_path.stdout_lines | length > 0
+    
+    - name: Mettre à jour pg_hba.conf pour les connexions locales
+      lineinfile:
+        path: "{{ pg_hba_path.stdout_lines[0] }}"
+        regexp: '^local\s+all\s+postgres\s+peer'
+        line: 'local   all             postgres                                peer'
+        state: present
+      when: pg_hba_path.stdout_lines | length > 0
+      register: pg_hba_updated
 
 - name: Redémarrer PostgreSQL si pg_hba.conf a été modifié
   service:
     name: postgresql
     state: restarted
-  when: pg_hba_updated.changed
+  when: pg_hba_updated is defined and pg_hba_updated.changed
 
 - name: Créer le répertoire d'importation
   file:
