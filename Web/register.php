@@ -1,15 +1,18 @@
 <?php
 
-$conn = new mysqli(
-    getenv('DB_HOST'), 
-    getenv('DB_USER'), 
-    getenv('DB_PASS'), 
-    getenv('DB_NAME')
+// PostgreSQL connection
+$conn_string = sprintf(
+    "host=%s port=5432 dbname=%s user=%s password=%s",
+    getenv('DB_HOST'),
+    getenv('DB_NAME'),
+    getenv('DB_USER'),
+    getenv('DB_PASS')
 );
 
+$conn = pg_connect($conn_string);
 
-if ($conn->connect_error) {
-    die("Connection failed: " . $conn->connect_error);
+if (!$conn) {
+    die("Connection failed: " . pg_last_error());
 }
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
@@ -45,16 +48,12 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 if ($imageFileType == "jpg" || $imageFileType == "png" || $imageFileType == "jpeg") {
                     // Move file to destination folder
                     if (move_uploaded_file($_FILES["avatar"]["tmp_name"], $avatarFile)) {
-                        // Use prepared statements to avoid SQL injections
-                        $stmt = $conn->prepare("INSERT INTO users (first_name, last_name, email, analyst_level, avatar, password) VALUES (?, ?, ?, ?, ?, ?)");
-
-                        if ($stmt === false) {
-                            die("Error in prepared statement<br>");
-                        }
-
-                        $stmt->bind_param("ssssss", $firstName, $lastName, $email, $analystLevel, $avatarFile, $hashedPassword);
-
-                        if ($stmt->execute()) {
+                        // Use PostgreSQL parameterized query to avoid SQL injections
+                        $sql = "INSERT INTO users (first_name, last_name, email, analyst_level, avatar, password) VALUES ($1, $2, $3, $4, $5, $6)";
+                        
+                        $result = pg_query_params($conn, $sql, array($firstName, $lastName, $email, $analystLevel, $avatarFile, $hashedPassword));
+                        
+                        if ($result) {
                             echo "<script type='text/javascript'>
                                     alert('User successfully created');
                                     if (confirm('User successfully created. Do you want to go to the login page?')) {
@@ -62,10 +61,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                                     }
                                   </script>";
                         } else {
-                            echo "Error: " . $stmt->error . "<br>";
+                            echo "Error: " . pg_last_error($conn) . "<br>";
                         }
-
-                        $stmt->close();
                     } else {
                         die("Sorry, there was an error uploading your file.");
                     }
@@ -85,6 +82,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     echo "Form not submitted.<br>";
 }
 
-$conn->close();
+pg_close($conn);
 
 ?>
