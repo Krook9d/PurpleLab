@@ -67,9 +67,9 @@ echo -e "${YELLOW}Installing Ansible...${NC}"
 apt-add-repository --yes --update ppa:ansible/ansible
 apt-get install -y ansible
 
-# Install PyMySQL for the MySQL module
-echo -e "${YELLOW}Installing PyMySQL...${NC}"
-pip install PyMySQL
+# Install psycopg2 for the PostgreSQL module
+echo -e "${YELLOW}Installing psycopg2...${NC}"
+pip install psycopg2-binary
 
 # Prepare the web directory
 echo -e "${YELLOW}Preparing the web directory...${NC}"
