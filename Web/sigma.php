@@ -11,31 +11,37 @@ if (!isset($_SESSION['email'])) {
     exit();
 }
 
-$conn = new mysqli(
-    getenv('DB_HOST'), 
-    getenv('DB_USER'), 
-    getenv('DB_PASS'), 
-    getenv('DB_NAME')
+$conn_string = sprintf(
+    "host=%s port=5432 dbname=%s user=%s password=%s",
+    getenv('DB_HOST'),
+    getenv('DB_NAME'),
+    getenv('DB_USER'),
+    getenv('DB_PASS')
 );
 
-if ($conn->connect_error) {
-    die("Connection failed: " . $conn->connect_error);
+$conn = pg_connect($conn_string);
+
+if (!$conn) {
+    die("Connection failed: " . pg_last_error());
 }
 
 $email = $_SESSION['email'];
 
-$sql = "SELECT first_name, last_name, email, analyst_level, avatar FROM users WHERE email=?";
-$stmt = $conn->prepare($sql);
-$stmt->bind_param('s', $email);
-$stmt->execute();
-$stmt->bind_result($first_name, $last_name, $email, $analyst_level, $avatar);
+$sql = "SELECT first_name, last_name, email, analyst_level, avatar FROM users WHERE email=$1";
+$result = pg_query_params($conn, $sql, array($email));
 
-if (!$stmt->fetch()) {
+if ($result && $row = pg_fetch_assoc($result)) {
+    $first_name = $row['first_name'];
+    $last_name = $row['last_name'];
+    $email = $row['email'];
+    $analyst_level = $row['analyst_level'];
+    $avatar = $row['avatar'];
+} else {
     die("Error retrieving user information.");
 }
 
-$stmt->close();
-$conn->close();
+pg_free_result($result);
+pg_close($conn);
 
 $rulesPath = '/var/www/html/Downloaded/Sigma/rules';
 
