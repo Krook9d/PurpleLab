@@ -217,7 +217,7 @@ echo -e "\n\e[32mAll checks passed. Continuing with the installation...\e[0m\n"
     # Download the sandbox.ova file
     
     #curl -L -o sandbox.ova -H "User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3" "https://dl-15ur2kes.swisstransfer.com/api/download/88c4eede-91db-4016-b8a6-57f7282dbab7/c367102d-17c1-4e5c-8161-3233f98c83b0"
-    curl -L -o sandbox.ova -H "User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3" "https://dl-29vb9178.swisstransfer.com/api/download/8bde5d12-f669-4f7f-82da-36a4c9f806b3/9e6f02f9-dfef-4875-9807-32c20fd46f6b"
+    curl -L -o sandbox.ova -H "User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3" "https://dl-312naes4.swisstransfer.com/api/download/8984a31c-f75c-4bef-a1b4-df2efe9d0948/ebf32b9f-6176-4897-9cea-0e1e395e84ea"
     
     mv sandbox.ova /var/www/html/
 
