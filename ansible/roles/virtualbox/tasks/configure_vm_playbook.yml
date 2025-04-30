@@ -708,6 +708,11 @@
     var: import_module_result.stdout_lines
   when: import_module_result is defined
 
+- name: Créer un snapshot de la VM avant de l'éteindre
+  shell: sudo VBoxManage snapshot "sandbox" take "Snapshot1" --description "snapshot before the mess"
+  become: yes
+  changed_when: true
+
 - name: Éteindre la VM proprement (si elle est allumée)
   shell: |
     VM_STATE=$(sudo VBoxManage showvminfo "sandbox" --machinereadable | grep -i VMState= | cut -d'=' -f2 | tr -d '"')
