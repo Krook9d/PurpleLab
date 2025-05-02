@@ -37,7 +37,7 @@ The lab contains :
 - A web interface with a complete front end to control features
 - The Virtualbox tool with a ready-to-use Windows 10 VM and forensic tools
 - A Flask back end
-- A mysql database
+- A postgresql database
 - An elasticsearch server
 
 # Installation procedure
