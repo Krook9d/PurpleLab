@@ -1,0 +1,264 @@
+{
+    "summary": {
+      "intrusion_sets": 50,
+      "malware": 40,
+      "reports": 0,
+      "indicators": 1177
+    },
+    "top_threats": [
+      {
+        "name": "Backdoor",
+        "count": 5
+      },
+      {
+        "name": "Ransomware",
+        "count": 4
+      },
+      {
+        "name": "Spyware",
+        "count": 1
+      },
+      {
+        "name": "Worm",
+        "count": 1
+      }
+    ],
+    "most_targeted": [
+      {
+        "name": "Government",
+        "count": 9
+      },
+      {
+        "name": "Education",
+        "count": 3
+      },
+      {
+        "name": "Finance",
+        "count": 2
+      },
+      {
+        "name": "Energy",
+        "count": 1
+      },
+      {
+        "name": "Technology",
+        "count": 1
+      }
+    ],
+    "top_cves": [
+      {
+        "cve": "CVE-2024-50623",
+        "count": 30
+      },
+      {
+        "cve": "CVE-2025-0283",
+        "count": 28
+      },
+      {
+        "cve": "CVE-2022-41328",
+        "count": 28
+      },
+      {
+        "cve": "CVE-2023-7624",
+        "count": 25
+      },
+      {
+        "cve": "CVE-2024-3312",
+        "count": 22
+      }
+    ],
+    "activity_by_month": [
+      {
+        "date": "count",
+        "count": 7043
+      }
+    ],
+    "geo_data": {
+      "United States": 35,
+      "Russia": 28,
+      "China": 25,
+      "Germany": 18,
+      "France": 15,
+      "United Kingdom": 12,
+      "Russian Federation": 1,
+      "United States of America": 2,
+      "Netherlands": 1
+    },
+    "recent_pulses": [
+      {
+        "id": "680965ec5fefc9e20eb4bef2",
+        "name": "Introducing ToyMaker",
+        "created": "2025-04-23T22:12:59.613000",
+        "description": "The initial access broker (IAB), whom Talos calls \u201cToyMaker\u201d and assesses with medium confidence is a financially motivated threat actor, exploits vulnerable systems exposed to the internet. They deploy their custom-made backdoor we call \u201cLAGTOY\u201d and extract credentials from the victim enterprise. LAGTOY can be used to create reverse shells and execute commands on infected endpoints.",
+        "tags": [
+          "initial access broker",
+          "ransomware",
+          "lagtoy",
+          "toymaker",
+          "cactus"
+        ],
+        "author_name": "AlienVault",
+        "references": [
+          "https://blog.talosintelligence.com/introducing-toymaker-an-initial-access-broker/"
+        ]
+      },
+      {
+        "id": "6809436ac67098f19bfd41e5",
+        "name": "NFC Fraud Wave: Evolution of Ghost Tap on the Dark Web",
+        "created": "2025-04-23T19:45:46.232000",
+        "description": "Chinese cybercriminals are exploiting NFC technologies for fraudulent purposes, targeting financial institutions and consumers worldwide. They use sophisticated tools like Z-NFC and King NFC to facilitate illegal transactions at scale. The fraudsters leverage Host Card Emulation (HCE) to mimic physical NFC smart cards and create 'farms' of mobile devices to automate fraud. They target countries including the US, UK, EU, Australia, Canada, and others. The criminals also abuse NFC-enabled POS terminals and exploit loyalty points programs. This growing threat has led to significant financial losses and poses serious risks to payment security and digital identity systems globally.",
+        "tags": [
+          "carding",
+          "mobile wallets",
+          "pos terminals",
+          "contactless payments",
+          "loyalty points fraud"
+        ],
+        "author_name": "AlienVault",
+        "references": [
+          "https://www.resecurity.com/blog/article/nfc-fraud-wave-evolution-of-ghost-tap-on-the-dark-web"
+        ]
+      },
+      {
+        "id": "68090ed8b46d4d2cc6fe229a",
+        "name": "New Stealer on the Horizon",
+        "created": "2025-04-23T16:01:28.022000",
+        "description": "SvcStealer 2025 is a novel information stealer delivered through spear phishing email attachments. It harvests sensitive data including machine information, installed software, user credentials, cryptocurrency wallets, and browser data. The malware creates a unique folder, terminates specific processes, and collects data from various sources. It compresses the gathered information, establishes a connection with a C2 server, and uploads the data. The malware can also capture screenshots and potentially download additional payloads. It employs evasion techniques by deleting traces and ensuring only one instance runs on the victim's machine. The threat actors behind SvcStealer could potentially act as initial access brokers, selling the gathered information on underground forums and criminal marketplaces.",
+        "tags": [
+          "data harvesting",
+          "svcstealer",
+          "evasion techniques",
+          "information stealer",
+          "cryptocurrency"
+        ],
+        "author_name": "AlienVault",
+        "references": [
+          "https://www.seqrite.com/blog/svc-new-stealer-on-the-horizon"
+        ]
+      },
+      {
+        "id": "68082a17ee5771aa012e93c3",
+        "name": "Threat Infrastructure Uncovered Before Activation",
+        "created": "2025-04-22T23:45:27.489000",
+        "description": "Between November 2024 and April 2025, a set of domains and servers impersonating an Iraqi academic organization and fictitious UK tech firms were tracked. The infrastructure, while dormant, exhibited characteristics similar to APT34 (OilRig), including shared SSH keys, structured websites, and decoy HTTP behavior on M247-hosted servers. Key observations include the use of port 8080 for fake 404 responses, consistent SSH fingerprint reuse, and domains registered through P.D.R. Solutions with regway.com nameservers. The setup suggests deliberate pre-operational staging, offering defenders an early warning opportunity. Detection strategies include monitoring SSH fingerprints, HTTP response patterns, and domain registration behaviors.",
+        "tags": [
+          "apt34",
+          "domain impersonation",
+          "infrastructure",
+          "ssh keys",
+          "pre-operational staging"
+        ],
+        "author_name": "AlienVault",
+        "references": [
+          "https://hunt.io/blog/track-apt34-like-infrastructure-before-it-strikes"
+        ]
+      },
+      {
+        "id": "6807d9bd776ee82a5a8a7112",
+        "name": "Sophisticated backdoor mimicking secure networking software updates",
+        "created": "2025-04-22T18:02:37.515000",
+        "description": "A sophisticated backdoor targeting Russian organizations in government, finance, and industry sectors was discovered masquerading as updates for ViPNet secure networking software. The malware, distributed in LZH archives, exploits a path substitution technique to execute a malicious loader that deploys a versatile backdoor. This backdoor can connect to a C2 server, steal files, and launch additional malicious components. The attack highlights the increasing complexity of APT group tactics and emphasizes the need for multi-layered security defenses to protect against such sophisticated threats.",
+        "tags": [
+          "backdoor",
+          "targeted attack",
+          "heur:trojan.win32.loader.gen",
+          "apt",
+          "software updates"
+        ],
+        "author_name": "AlienVault",
+        "references": [
+          "https://securelist.com/new-backdoor-mimics-security-software-update/116246/"
+        ]
+      },
+      {
+        "id": "6807c69906b162a197133ee9",
+        "name": "Case of Attacks Targeting MS-SQL Servers to Install Ammyy Admin",
+        "created": "2025-04-22T16:40:57.135000",
+        "description": "A series of attacks targeting poorly managed MS-SQL servers have been identified, involving the installation of Ammyy Admin, a remote control tool. The attackers exploit vulnerable servers, execute commands to gather system information, and use WGet to install additional malware. The installed malware includes Ammyy Admin (mscorsvw.exe), its settings file (settings3.bin), and PetitPotato (p.ax). The attackers utilize an old version of Ammyy Admin (v3.10) and employ known exploitation methods to gain remote control. They also use PetitPotato for privilege escalation, adding new users and activating RDP services. To prevent such attacks, administrators are advised to use strong passwords, update software regularly, and implement security measures like firewalls.",
+        "tags": [
+          "brute force",
+          "ms-sql",
+          "dictionary attack",
+          "remote control",
+          "wget"
+        ],
+        "author_name": "AlienVault",
+        "references": [
+          "https://asec.ahnlab.com/en/87606"
+        ]
+      },
+      {
+        "id": "6807c698b42f069fc7334d48",
+        "name": "APT Group Profiles - Larva-24005",
+        "created": "2025-04-22T16:40:56.616000",
+        "description": "A new operation named Larva-24005, linked to the Kimsuky group, has been discovered by ASEC. The threat actors exploited RDP vulnerabilities to infiltrate systems, installing MySpy malware and RDPWrap for continuous remote access. They also deployed keyloggers to record user inputs. The group has been targeting South Korea's software, energy, and financial industries since October 2023, with attacks extending to multiple countries worldwide. Their methods include exploiting the BlueKeep vulnerability (CVE-2019-0708) and using phishing emails. The attackers employ various tools such as RDP scanners, droppers, and keyloggers in their multi-stage attack process.",
+        "tags": [
+          "cve-2019-0708",
+          "rdp exploitation",
+          "cve-2017-11882",
+          "phishing",
+          "bluekeep"
+        ],
+        "author_name": "AlienVault",
+        "references": [
+          "https://asec.ahnlab.com/en/87554"
+        ]
+      },
+      {
+        "id": "6807c697bf4aed9f93dbef55",
+        "name": "DOGE Binary Loader Indicators of Compromise",
+        "created": "2025-04-22T16:40:55.293000",
+        "description": "This intelligence document provides a list of Indicators of Compromise (IoCs) associated with the DOGE Binary Loader. It includes several malicious URLs hosted on the domain 'hilarious-trifle-d9182e.netlify.app' along with their corresponding SHA-256 hashes. The listed files include PowerShell scripts ('lootsubmit.ps1' and 'trackerjacker.ps1'), a PNG image ('qrcode.png'), and an executable ('ktool.exe'). These IoCs are crucial for identifying and mitigating potential infections related to the DOGE Binary Loader malware campaign.",
+        "tags": [
+          "url",
+          "doge binary loader",
+          "powershell",
+          "sha-256",
+          "netlify"
+        ],
+        "author_name": "AlienVault",
+        "references": [
+          "https://documents.trendmicro.com/images/TEx/DOGE-Binary-Loader-IoCsfutsQEh.txt"
+        ]
+      },
+      {
+        "id": "6807bc8539bf1b2aa4d2ff28",
+        "name": "Infostealer Malware FormBook Spread via Phishing Campaign \u2013 Part I",
+        "created": "2025-04-22T15:57:57.572000",
+        "description": "A phishing campaign delivering a malicious Word document exploiting CVE-2017-11882 was observed spreading a new FormBook variant. The campaign tricks recipients into opening an attached document, which extracts a 64-bit DLL file and exploits the vulnerability to execute it. The DLL acts as a downloader and installer for FormBook, establishing persistence and downloading an encrypted payload disguised as a PNG file. The payload is decrypted and injected into a legitimate process using process hollowing techniques. This fileless variant of FormBook aims to evade detection by keeping the malware entirely in memory. The analysis covers the initial phishing email, exploitation process, payload download and decryption, and the sophisticated injection techniques used to deploy FormBook.",
+        "tags": [
+          "formbook",
+          "infostealer",
+          "cve-2017-11882",
+          "phishing",
+          "fileless malware"
+        ],
+        "author_name": "AlienVault",
+        "references": [
+          "https://www.fortinet.com/blog/threat-research/infostealer-malware-formbook-spread-via-phishing-campaign-part-i"
+        ]
+      },
+      {
+        "id": "6807bc7e44edbbe6afa50132",
+        "name": "Sophisticated backdoor mimicking secure networking software updates",
+        "created": "2025-04-22T15:57:50.010000",
+        "description": "A sophisticated backdoor targeting Russian organizations in government, finance, and industrial sectors has been discovered. The malware masquerades as updates for ViPNet, a secure networking software suite. It is distributed via LZH archives containing legitimate and malicious files. The backdoor exploits a path substitution technique to execute a malicious loader, which then decrypts and loads a versatile payload capable of connecting to a C2 server, stealing files, and launching additional malicious components. The complexity of this attack highlights the need for multi-layered security measures to protect against advanced persistent threats.",
+        "tags": [
+          "payload",
+          "c2 server",
+          "backdoor",
+          "targeted attack",
+          "secure networking"
+        ],
+        "author_name": "AlienVault",
+        "references": [
+          "https://securelist.com/new-backdoor-mimics-security-software-update/116246"
+        ]
+      }
+    ],
+    "time_metadata": {
+      "oldest_pulse": "2025-03-17T09:28:52.308000",
+      "newest_pulse": "2025-03-25T10:46:33.516000",
+      "pulse_count": 50
+    }
+  }
