@@ -1015,7 +1015,9 @@ am5.ready(function() {
 <script>
 async function loadDashboardData() {
     try {
-        const response = await fetch('alienvault/dashboard_data.json');
+        // Ajout d'un timestamp pour éviter le cache du navigateur
+        const timestamp = new Date().getTime();
+        const response = await fetch(`alienvault/dashboard_data.json?t=${timestamp}`);
         if (!response.ok) {
             throw new Error(`HTTP Error: ${response.status}`);
         }
