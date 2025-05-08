@@ -394,6 +394,11 @@ countYmlFiles($sigmaDirectory);
     <script src="https://cdn.amcharts.com/lib/5/hierarchy.js"></script>
     <script src="https://cdn.amcharts.com/lib/5/themes/Animated.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <!-- Ajout des bibliothèques pour les nouveaux KPI -->
+    <script src="https://cdn.amcharts.com/lib/5/map.js"></script>
+    <script src="https://cdn.amcharts.com/lib/5/geodata/worldLow.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
 
 
 
@@ -662,30 +667,38 @@ document.addEventListener("DOMContentLoaded", function() {
 <div class="health-section-separator"></div>
 
 <div class="index-dashboard">
-
     <div class="index-card">
-        <div id="wordcloud" style="width: 100%; height: 500px;"></div>
-        <div class="kpi-number"></div>
-        <div class="kpi-title">ProcessCreate Name On Windows VM</div>
+        <div style="width: 100%; height: 350px;"><canvas id="chart-threats"></canvas></div>
+        <div class="kpi-title">Main Threat Types <span class="time-scale">(Last 24h)</span></div>
     </div>
 
-
-
-<div class="index-card">
-    <canvas id="myBubbleChart" style="width: 100%; height: 100%;"></canvas>
-    <div class="kpi-title">Asset map </div>
+    <div class="index-card">
+        <div style="width: 100%; height: 350px;"><canvas id="chart-targets"></canvas></div>
+        <div class="kpi-title">Most Targeted Industries <span class="time-scale">(Last 24h)</span></div>
+    </div>
+    
+    <div class="index-card">
+        <div style="width: 100%; height: 350px;"><canvas id="chart-cves"></canvas></div>
+        <div class="kpi-title">Most Exploited CVEs <span class="time-scale">(Last 24h)</span></div>
+        <div id="cve-values" class="cve-values"></div>
+    </div>
 </div>
 
+<br><br>
+<div class="health-section-separator"></div>
 
-
+<div class="latest-threats">
+    <h2 class="chart-title">Latest Detected Threats</h2>
+    <div id="latest-threats-container"></div>
 </div>
-<br><br><br>
+
+<br><br>
 <div class="health-section-separator"></div>
 
 <div class="index-dashboard">
     <div class="index-card" id="index-card-sankey">
-        <div id="sankeyChartdiv" style="width: 95%; height: 500px;"></div>
-        <div class="kpi-title">Traffic Flow</div>
+        <div id="world-map" style="width: 95%; height: 500px;"></div>
+        <div class="kpi-title">Global Threat Map</div>
     </div>
 </div>
 
@@ -995,6 +1008,390 @@ am5.ready(function() {
     });
 
     series.appear(1000, 100);
+});
+</script>
+
+<!-- Chargement des données depuis dashboard_data.json -->
+<script>
+async function loadDashboardData() {
+    try {
+        const response = await fetch('alienvault/dashboard_data.json');
+        if (!response.ok) {
+            throw new Error(`HTTP Error: ${response.status}`);
+        }
+        const data = await response.json();
+        
+        // Graphique des menaces
+        new Chart(document.getElementById('chart-threats'), {
+            type: 'doughnut',
+            data: {
+                labels: data.top_threats.map(t => t.name),
+                datasets: [{
+                    label: 'Number of detections',
+                    data: data.top_threats.map(t => t.count),
+                    backgroundColor: [
+                        'rgba(99, 102, 241, 0.4)', // Indigo
+                        'rgba(236, 72, 153, 0.4)', // Pink
+                        'rgba(139, 92, 246, 0.4)', // Purple
+                        'rgba(16, 185, 129, 0.4)'  // Emerald
+                    ],
+                    borderColor: 'rgba(17, 24, 39, 0.5)',
+                    borderWidth: 2,
+                    hoverOffset: 15,
+                    borderRadius: 5
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                cutout: '65%',
+                plugins: {
+                    legend: { 
+                        display: true,
+                        position: 'right',
+                        labels: {
+                            color: '#ffffff',
+                            font: {
+                                size: 12
+                            },
+                            padding: 15,
+                            usePointStyle: true,
+                            pointStyle: 'circle'
+                        }
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                const label = context.label || '';
+                                const value = context.raw || 0;
+                                const total = context.chart.data.datasets[0].data.reduce((a, b) => a + b, 0);
+                                const percentage = Math.round((value / total) * 100);
+                                return `${label}: ${value} (${percentage}%)`;
+                            }
+                        },
+                        backgroundColor: 'rgba(17, 24, 39, 0.8)',
+                        titleColor: '#ffffff',
+                        bodyColor: '#ffffff',
+                        borderColor: '#5865F2',
+                        borderWidth: 1
+                    }
+                }
+            }
+        });
+        
+        // Graphique des cibles
+        new Chart(document.getElementById('chart-targets'), {
+            type: 'radar',
+            data: {
+                labels: data.most_targeted.map(t => t.name),
+                datasets: [{
+                    label: 'Number of attacks',
+                    data: data.most_targeted.map(t => t.count),
+                    backgroundColor: 'rgba(88, 101, 242, 0.4)',
+                    borderColor: '#5865F2',
+                    borderWidth: 2,
+                    pointBackgroundColor: '#7B82F5',
+                    pointBorderColor: '#ffffff',
+                    pointHoverBackgroundColor: '#ffffff',
+                    pointHoverBorderColor: '#5865F2',
+                    pointRadius: 5,
+                    pointHoverRadius: 7
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    r: {
+                        angleLines: {
+                            color: 'rgba(255, 255, 255, 0.1)'
+                        },
+                        grid: {
+                            color: 'rgba(255, 255, 255, 0.1)'
+                        },
+                        pointLabels: {
+                            color: 'rgba(255, 255, 255, 0.7)',
+                            font: {
+                                size: 12
+                            }
+                        },
+                        ticks: {
+                            backdropColor: 'transparent',
+                            color: 'rgba(255, 255, 255, 0.7)'
+                        }
+                    }
+                },
+                plugins: {
+                    legend: { 
+                        display: false 
+                    }
+                }
+            }
+        });
+        
+        // Graphique des CVEs
+        new Chart(document.getElementById('chart-cves'), {
+            type: 'bar',
+            data: {
+                labels: data.top_cves.map(c => c.cve),
+                datasets: [{
+                    axis: 'y',
+                    label: 'Exploitation frequency',
+                    data: data.top_cves.map(c => c.count),
+                    backgroundColor: 'rgba(236, 72, 153, 0.6)', // Rose pink
+                    borderColor: '#ec4899',
+                    borderWidth: 1,
+                    borderRadius: 5,
+                    barPercentage: 0.7,
+                    categoryPercentage: 0.8
+                }]
+            },
+            options: {
+                indexAxis: 'y',
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { 
+                        display: false 
+                    }
+                },
+                scales: {
+                    y: {
+                        grid: { color: 'rgba(255, 255, 255, 0.1)' },
+                        ticks: { 
+                            color: 'rgba(255, 255, 255, 0.7)',
+                            font: {
+                                family: 'monospace',
+                                weight: 'bold'
+                            }
+                        }
+                    },
+                    x: {
+                        grid: { color: 'rgba(255, 255, 255, 0.1)' },
+                        ticks: { color: 'rgba(255, 255, 255, 0.7)' }
+                    }
+                }
+            }
+        });
+        
+        // Créer des éléments copiables pour les CVEs
+        const createCopiableCVEs = (data) => {
+            const cveContainer = document.getElementById('cve-values');
+            if (!cveContainer) return;
+            
+            cveContainer.innerHTML = '';
+            
+            if (data.top_cves && data.top_cves.length > 0) {
+                data.top_cves.forEach(cve => {
+                    const cveElement = document.createElement('div');
+                    cveElement.className = 'cve-item';
+                    cveElement.textContent = cve.cve;
+                    cveContainer.appendChild(cveElement);
+                });
+            }
+        };
+
+        // Appeler cette fonction après avoir chargé les données
+        createCopiableCVEs(data);
+        
+        // Créer la carte mondiale
+        createWorldMap(data.geo_data || {});
+        
+        // Afficher les dernières menaces détectées
+        const latestThreatsContainer = document.getElementById('latest-threats-container');
+        
+        if (data.recent_pulses && data.recent_pulses.length > 0) {
+            // Trier les pulses par date (les plus récents en premier)
+            const sortedPulses = [...data.recent_pulses].sort((a, b) => {
+                return new Date(b.created) - new Date(a.created);
+            });
+            
+            // Prendre uniquement les 5 plus récents
+            sortedPulses.slice(0, 5).forEach(pulse => {
+                createThreatItem(latestThreatsContainer, pulse);
+            });
+        } else {
+            latestThreatsContainer.innerHTML = '<div class="threat-item">No recent threats available</div>';
+        }
+        
+    } catch (error) {
+        console.error('Error loading dashboard data:', error);
+    }
+}
+
+// Fonction pour créer un élément de menace
+function createThreatItem(container, pulse) {
+    const div = document.createElement('div');
+    div.className = 'threat-item';
+    
+    const tags = (pulse.tags || []).slice(0, 3).map(tag => 
+        `<span class="badge-threat">${tag}</span>`
+    ).join('');
+    
+    const date = new Date(pulse.created);
+    const formattedDate = date.toLocaleString('fr-FR', { 
+        year: 'numeric', 
+        month: 'long', 
+        day: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
+    });
+    
+    div.innerHTML = `
+        <div class="threat-title">${pulse.name}</div>
+        <div class="threat-date">Published on: ${formattedDate}</div>
+        <div>${tags}</div>
+        <div class="threat-desc">${truncateText(pulse.description, 200)}</div>
+        <a href="https://otx.alienvault.com/pulse/${pulse.id}" target="_blank" 
+           style="color: #7B82F5; text-decoration: none; margin-top: 0.5rem; display: inline-block;">
+          View details →
+        </a>
+    `;
+    container.appendChild(div);
+}
+
+// Helper pour tronquer le texte
+function truncateText(text, maxLength) {
+    if (!text) return '';
+    if (text.length <= maxLength) return text;
+    return text.substr(0, maxLength) + '...';
+}
+
+// Fonction pour créer la carte mondiale avec amCharts
+function createWorldMap(geoData) {
+    // Convertit geoData en format utilisable par amCharts
+    const processedData = [];
+    const countryCodeMap = {
+        'United States': 'US',
+        'USA': 'US',
+        'Russia': 'RU',
+        'China': 'CN',
+        'United Kingdom': 'GB',
+        'UK': 'GB',
+        'Germany': 'DE',
+        'France': 'FR',
+        'Canada': 'CA',
+        'Australia': 'AU',
+        'India': 'IN',
+        'Japan': 'JP',
+        'Brazil': 'BR',
+        'Italy': 'IT',
+        'Spain': 'ES',
+        'South Korea': 'KR'
+    };
+    
+    for (const country in geoData) {
+        const countryCode = countryCodeMap[country] || country;
+        if (countryCode) {
+            processedData.push({
+                id: countryCode,
+                value: geoData[country],
+                name: country
+            });
+        }
+    }
+    
+    // Créer root element
+    const root = am5.Root.new("world-map");
+    
+    // Définir thèmes
+    root.setThemes([
+        am5themes_Animated.new(root),
+        am5themes_Animated.new(root)
+    ]);
+    
+    // Créer la carte
+    const chart = root.container.children.push(
+        am5map.MapChart.new(root, {
+            panX: "rotateX",
+            panY: "rotateY",
+            projection: am5map.geoMercator(),
+            paddingLeft: 0,
+            paddingRight: 0,
+            paddingBottom: 0
+        })
+    );
+    
+    // Créer polygones de pays
+    const polygonSeries = chart.series.push(
+        am5map.MapPolygonSeries.new(root, {
+            geoJSON: am5geodata_worldLow,
+            exclude: ["AQ"],
+            valueField: "value",
+            calculateAggregates: true,
+            fill: am5.color(0x13254d),
+            stroke: am5.color(0xffffff),
+            strokeWidth: 0.5,
+            strokeOpacity: 0.3
+        })
+    );
+    
+    polygonSeries.mapPolygons.template.setAll({
+        tooltipText: "{name}: {value}",
+        toggleKey: "active",
+        interactive: true,
+        fill: am5.color(0x13254d)
+    });
+    
+    polygonSeries.mapPolygons.template.states.create("hover", {
+        fill: am5.color(0x5865F2)
+    });
+    
+    polygonSeries.mapPolygons.template.states.create("active", {
+        fill: am5.color(0x5865F2)
+    });
+    
+    // Coloration des polygones basée sur la valeur
+    polygonSeries.set("heatRules", [{
+        target: polygonSeries.mapPolygons.template,
+        dataField: "value",
+        min: am5.color(0x7B82F5),
+        max: am5.color(0x5865F2),
+        key: "fill"
+    }]);
+    
+    // Ajouter les données
+    polygonSeries.data.setAll(processedData);
+    
+    // Contrôles de zoom
+    chart.set("zoomControl", am5map.ZoomControl.new(root, {
+        x: 10,
+        y: 10,
+        homeGeoPoint: { longitude: 0, latitude: 0 },
+        homeZoomLevel: 1
+    }));
+    
+    // Animation de rotation
+    chart.appear(1000, 100);
+}
+
+// Fonction pour afficher un tooltip de confirmation de copie
+function showCopyTooltip(event, text) {
+    // Créer le tooltip s'il n'existe pas
+    let tooltip = document.getElementById('copy-tooltip');
+    if (!tooltip) {
+        tooltip = document.createElement('div');
+        tooltip.id = 'copy-tooltip';
+        tooltip.className = 'copy-tooltip';
+        document.body.appendChild(tooltip);
+    }
+    
+    // Positionnement du tooltip
+    tooltip.style.left = `${event.clientX + 10}px`;
+    tooltip.style.top = `${event.clientY + 10}px`;
+    tooltip.textContent = `${text} copied!`;
+    
+    // Afficher le tooltip
+    tooltip.classList.add('show');
+    
+    // Cacher le tooltip après un délai
+    setTimeout(() => {
+        tooltip.classList.remove('show');
+    }, 2000);
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    loadDashboardData();
 });
 </script>
 
