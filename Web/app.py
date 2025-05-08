@@ -665,6 +665,53 @@ Write-Output "END_RESULTS"
             "stderr": stderr
         }), 500
 
+@app.route('/refresh_alienvault', methods=['POST'])
+@cross_origin()
+def refresh_alienvault():
+    try:
+        # Exécute le script Python alienvault.py
+        subprocess.run(['python3', '/var/www/html/alienvault/alienvault.py'], 
+                      stdout=subprocess.PIPE, 
+                      stderr=subprocess.PIPE,
+                      check=True)
+        
+        return jsonify({
+            "status": "success", 
+            "message": "AlienVault data successfully refreshed"
+        }), 200
+    except subprocess.CalledProcessError as e:
+        return jsonify({
+            "status": "error", 
+            "message": f"Failed to refresh AlienVault data: {str(e)}",
+            "stderr": e.stderr.decode() if e.stderr else ""
+        }), 500
+
+@app.route('/api/refresh_alienvault', methods=['POST'])
+@jwt_required(optional=True)
+def api_refresh_alienvault():
+    if request.remote_addr != "127.0.0.1" and not get_jwt_identity():
+        return jsonify({"msg": "Access denied"}), 401
+    
+    try:
+        # Exécute le script Python alienvault.py
+        result = subprocess.run(['python3', '/var/www/html/alienvault/alienvault.py'], 
+                              stdout=subprocess.PIPE, 
+                              stderr=subprocess.PIPE,
+                              check=True)
+        
+        return jsonify({
+            "status": "success", 
+            "message": "AlienVault data successfully refreshed",
+            "stdout": result.stdout.decode(),
+            "stderr": result.stderr.decode()
+        }), 200
+    except subprocess.CalledProcessError as e:
+        return jsonify({
+            "status": "error", 
+            "message": f"Failed to refresh AlienVault data: {str(e)}",
+            "stderr": e.stderr.decode() if e.stderr else ""
+        }), 500
+
 
 if __name__ == '__main__':
-    app.run(debug=True, host='0.0.0.0')
+    app.run(host='0.0.0.0', port=5000, debug=True)
