@@ -61,3 +61,115 @@
     text-overflow: ellipsis;
     color: #cbd3da; 
 }
+
+/* AlienVault API Key Management styles */
+.alienvault-key-status {
+    padding: 15px;
+    border-radius: 5px;
+    margin-bottom: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+}
+
+.alienvault-key-status.active {
+    background-color: rgba(0, 128, 0, 0.1);
+    border: 1px solid rgba(0, 128, 0, 0.3);
+}
+
+.alienvault-key-status.inactive {
+    background-color: rgba(128, 128, 128, 0.1);
+    border: 1px solid rgba(128, 128, 128, 0.3);
+}
+
+.alienvault-status-indicator {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    display: inline-block;
+    margin-right: 10px;
+}
+
+.alienvault-key-status.active .alienvault-status-indicator {
+    background-color: #00cc00;
+    box-shadow: 0 0 5px #00cc00;
+}
+
+.alienvault-key-status.inactive .alienvault-status-indicator {
+    background-color: #999;
+}
+
+.alienvault-key-updated {
+    font-size: 0.8em;
+    color: #666;
+    margin-top: 5px;
+}
+
+.alienvault-api-info {
+    font-size: 0.9em;
+    color: #999;
+    margin-top: 5px;
+}
+
+.alienvault-api-info a {
+    color: #5865F2;
+    text-decoration: none;
+}
+
+.alienvault-api-info a:hover {
+    text-decoration: underline;
+}
+
+.alienvault-delete-button {
+    background-color: #d9534f !important;
+    margin-top: 10px;
+}
+
+.alienvault-delete-button:hover {
+    background-color: #c9302c !important;
+}
+
+.alienvault-refresh-button {
+    background: linear-gradient(45deg, #2196F3, #00BCD4) !important;
+    margin-top: 10px;
+    margin-right: 10px;
+}
+
+.alienvault-refresh-button:hover {
+    background: linear-gradient(45deg, #00BCD4, #2196F3) !important;
+}
+
+.alienvault-refresh-button i {
+    margin-right: 5px;
+}
+
+.alienvault-button-group {
+    display: flex;
+    align-items: center;
+    margin-top: 5px;
+}
+
+.alienvault-refresh-status {
+    margin-top: 10px;
+    padding: 10px;
+    border-radius: 5px;
+    font-size: 0.9em;
+}
+
+.alienvault-refresh-status.success {
+    background-color: rgba(0, 128, 0, 0.1);
+    border: 1px solid rgba(0, 128, 0, 0.3);
+    color: #00cc00;
+}
+
+.alienvault-refresh-status.error {
+    background-color: rgba(255, 0, 0, 0.1);
+    border: 1px solid rgba(255, 0, 0, 0.3);
+    color: #ff3333;
+}
+
+.alienvault-refresh-status.loading {
+    background-color: rgba(128, 128, 128, 0.1);
+    border: 1px solid rgba(128, 128, 128, 0.3);
+    color: #999;
+}
