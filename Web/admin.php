@@ -152,6 +152,79 @@ pg_close($conn);
 
 </div>
 
+        <h1 class="title">AlienVault OTX API Configuration</h1>
+        <div class="ldap-configuration">
+            <?php
+            $configFile = '/var/www/html/alienvault/config.json';
+            $hasApiKey = false;
+            $keyLastUpdated = '';
+            
+            if (file_exists($configFile)) {
+                $config = json_decode(file_get_contents($configFile), true);
+                if (isset($config['api_key_configured']) && $config['api_key_configured'] === true) {
+                    $hasApiKey = true;
+                    $maskedKey = $config['key_preview'] ?? '****';
+                    $keyLastUpdated = isset($config['last_updated']) ? $config['last_updated'] : '';
+                }
+            }
+            ?>
+            
+            <?php if ($hasApiKey): ?>
+            <div class="alienvault-key-status active">
+                <div class="alienvault-status-indicator"></div>
+                <p>API Key is active: <strong><?php echo $maskedKey; ?></strong></p>
+                <p class="alienvault-key-updated">Last updated: <?php echo $keyLastUpdated; ?></p>
+                <div class="alienvault-button-group">
+                    <button id="refreshAlienvaultBtn" class="admin-button alienvault-refresh-button">
+                        <i class="fas fa-sync-alt"></i> Update KPI
+                    </button>
+                    <form action="/scripts/php/saveAlienVaultConfig.php" method="post" onsubmit="return confirm('Are you sure you want to delete this API key?');">
+                        <input type="hidden" name="action" value="delete">
+                        <button type="submit" class="admin-button alienvault-delete-button">Delete API Key</button>
+                    </form>
+                </div>
+                <div id="refreshStatus" class="alienvault-refresh-status" style="display: none;"></div>
+            </div>
+            <?php else: ?>
+            <div class="alienvault-key-status inactive">
+                <div class="alienvault-status-indicator"></div>
+                <p>No API key configured. Please enter your AlienVault OTX API key below.</p>
+            </div>
+            
+            <form id="alienVaultConfigForm" method="post" action="/scripts/php/saveAlienVaultConfig.php">
+                <div class="form-group">
+                    <label for="apiKey">AlienVault OTX API Key:</label>
+                    <input type="text" id="apiKey" name="apiKey" placeholder="Enter your AlienVault OTX API key" required>
+                </div>
+                <div class="form-group">
+                    <p class="alienvault-api-info">You can get your API key from the <a href="https://otx.alienvault.com/api" target="_blank">AlienVault OTX portal</a> after registering.</p>
+                </div>
+                <button type="submit" class="admin-button">Save API Key</button>
+            </form>
+            <?php endif; ?>
+
+            <?php if (isset($_SESSION['alienvault_config_saved']) && $_SESSION['alienvault_config_saved'] === true): ?>
+            <div style="color: green; margin-top: 20px;">
+                The AlienVault API key has been successfully saved.
+            </div>
+            <?php unset($_SESSION['alienvault_config_saved']); ?>
+            <?php endif; ?>
+            
+            <?php if (isset($_SESSION['alienvault_config_deleted']) && $_SESSION['alienvault_config_deleted'] === true): ?>
+            <div style="color: green; margin-top: 20px;">
+                The AlienVault API key has been successfully deleted.
+            </div>
+            <?php unset($_SESSION['alienvault_config_deleted']); ?>
+            <?php endif; ?>
+            
+            <?php if (isset($_SESSION['alienvault_config_error'])): ?>
+            <div style="color: red; margin-top: 20px;">
+                Error: <?php echo $_SESSION['alienvault_config_error']; ?>
+            </div>
+            <?php unset($_SESSION['alienvault_config_error']); ?>
+            <?php endif; ?>
+        </div>
+
     </div>
 
     <script>
@@ -179,6 +252,58 @@ pg_close($conn);
                 $('#tokenContainer').hide();
                 tokenInput.val('');
                 alert('Token copied!');
+            });
+            
+            // Gestion du bouton de rafraîchissement des KPI AlienVault
+            $('#refreshAlienvaultBtn').click(function() {
+                var refreshBtn = $(this);
+                var statusDiv = $('#refreshStatus');
+                
+                // Désactiver le bouton et afficher le statut de chargement
+                refreshBtn.prop('disabled', true);
+                refreshBtn.html('<i class="fas fa-spinner fa-spin"></i> Updating...');
+                statusDiv.removeClass('success error').addClass('loading').html('Refreshing AlienVault data...').show();
+                
+                // Appel à l'API
+                $.ajax({
+                    url: 'http://' + window.location.hostname + ':5000/refresh_alienvault',
+                    type: 'POST',
+                    contentType: 'application/json',
+                    data: JSON.stringify({}),
+                    xhrFields: {
+                        withCredentials: false
+                    },
+                    crossDomain: true,
+                    success: function(response) {
+                        // Afficher le succès
+                        statusDiv.removeClass('loading error').addClass('success')
+                               .html('<i class="fas fa-check-circle"></i> KPI data successfully updated. The changes will be reflected on the dashboard.');
+                        
+                        // Mise à jour de l'heure de dernière mise à jour
+                        var now = new Date();
+                        var formattedDate = now.getFullYear() + '-' + 
+                                          ('0' + (now.getMonth() + 1)).slice(-2) + '-' + 
+                                          ('0' + now.getDate()).slice(-2) + ' ' + 
+                                          ('0' + now.getHours()).slice(-2) + ':' + 
+                                          ('0' + now.getMinutes()).slice(-2) + ':' + 
+                                          ('0' + now.getSeconds()).slice(-2);
+                        $('.alienvault-key-updated').text('Last updated: ' + formattedDate);
+                    },
+                    error: function(xhr, status, error) {
+                        // Afficher l'erreur
+                        var errorMessage = xhr.responseJSON && xhr.responseJSON.message 
+                            ? xhr.responseJSON.message 
+                            : 'An error occurred while refreshing the data.';
+                        
+                        statusDiv.removeClass('loading success').addClass('error')
+                               .html('<i class="fas fa-exclamation-circle"></i> Error: ' + errorMessage);
+                    },
+                    complete: function() {
+                        // Réactiver le bouton
+                        refreshBtn.prop('disabled', false);
+                        refreshBtn.html('<i class="fas fa-sync-alt"></i> Update KPI');
+                    }
+                });
             });
         });
     </script>
