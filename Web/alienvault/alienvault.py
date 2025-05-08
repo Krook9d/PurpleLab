@@ -3,67 +3,123 @@ import json
 from datetime import datetime, timedelta
 import time
 import sys
+import os
+import base64
+from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
+from cryptography.hazmat.backends import default_backend
 
-API_KEY = "17bac06aa9ac0919a24f17cdf6051f30d7deaeca8bf20dd668d8896d21b6fd6a"
+# Path to the encrypted API key file
+ENCRYPTED_KEY_FILE = '/var/www/html/alienvault/api_key.enc'
+SECRET_KEY_FILE = '/var/www/html/alienvault/.secret_key'
 BASE_URL = "https://otx.alienvault.com/api/v1"
 
 def log(message):
-    """Fonction pour afficher des logs avec timestamp"""
+    """Function to display logs with timestamp"""
     timestamp = datetime.now().strftime("%H:%M:%S")
     print(f"[{timestamp}] {message}", flush=True)
 
+def get_api_key():
+    """Retrieve and decrypt the API key"""
+    if not os.path.exists(ENCRYPTED_KEY_FILE) or not os.path.exists(SECRET_KEY_FILE):
+        log("ERROR: API key files not found. Please configure the API key in the admin panel.")
+        return None
+    
+    try:
+        # Read the secret key
+        with open(SECRET_KEY_FILE, 'r') as f:
+            secret_key = bytes.fromhex(f.read().strip())
+        
+        # Read the encrypted API key with IV
+        with open(ENCRYPTED_KEY_FILE, 'r') as f:
+            data = f.read().strip()
+        
+        # Split the IV and encrypted data
+        iv_b64, encrypted_key = data.split(':', 1)
+        iv = base64.b64decode(iv_b64)
+        
+        # Initialize cipher with secret key and IV
+        cipher = Cipher(algorithms.AES(secret_key), modes.CBC(iv), backend=default_backend())
+        decryptor = cipher.decryptor()
+        
+        # Decrypt the API key
+        decrypted = decryptor.update(base64.b64decode(encrypted_key)) + decryptor.finalize()
+        
+        # Remove padding (PKCS7)
+        padding_length = decrypted[-1]
+        api_key = decrypted[:-padding_length].decode('utf-8')
+        
+        return api_key
+    except Exception as e:
+        log(f"Error decrypting API key: {str(e)}")
+        return None
+
 def get_headers():
+    api_key = get_api_key()
+    if not api_key:
+        log("No valid API key found. Using demo data.")
+        return {}
+    
     return {
-        "X-OTX-API-KEY": API_KEY,
+        "X-OTX-API-KEY": api_key,
         "User-Agent": "Python Script"
     }
 
 def get_recent_pulses(limit=20):
-    log(f"Récupération de {limit} pulses récents...")
+    log(f"Retrieving {limit} recent pulses...")
     url = f"{BASE_URL}/pulses/subscribed"
     params = {"limit": limit}
     
     try:
-        response = requests.get(url, headers=get_headers(), params=params, timeout=10)
-        log(f"Statut de la réponse pour pulses: {response.status_code}")
+        headers = get_headers()
+        if not headers:
+            log("No API key available. Returning empty pulses list.")
+            return []
+            
+        response = requests.get(url, headers=headers, params=params, timeout=10)
+        log(f"Response status for pulses: {response.status_code}")
         if response.status_code != 200:
-            log(f"Erreur lors de la récupération des pulses : {response.status_code} {response.text}")
+            log(f"Error retrieving pulses: {response.status_code} {response.text}")
             return []
         
         results = response.json().get("results", [])
-        log(f"Nombre de pulses récupérés: {len(results)}")
+        log(f"Number of pulses retrieved: {len(results)}")
         return results
     except requests.exceptions.Timeout:
-        log("Timeout lors de la récupération des pulses")
+        log("Timeout while retrieving pulses")
         return []
     except Exception as e:
-        log(f"Exception lors de la récupération des pulses: {str(e)}")
+        log(f"Exception while retrieving pulses: {str(e)}")
         return []
 
 def get_pulse_indicators(pulse_id):
-    log(f"Récupération des indicateurs pour le pulse {pulse_id}")
+    log(f"Retrieving indicators for pulse {pulse_id}")
     url = f"{BASE_URL}/pulses/{pulse_id}/indicators"
     try:
-        response = requests.get(url, headers=get_headers(), timeout=10)
-        log(f"Statut de la réponse pour indicateurs: {response.status_code}")
+        headers = get_headers()
+        if not headers:
+            log("No API key available. Returning empty indicators list.")
+            return []
+            
+        response = requests.get(url, headers=headers, timeout=10)
+        log(f"Response status for indicators: {response.status_code}")
         if response.status_code != 200:
-            log(f"Erreur lors de la récupération des indicateurs : {response.status_code}")
+            log(f"Error retrieving indicators: {response.status_code}")
             return []
         
         results = response.json().get("results", [])
-        log(f"Nombre d'indicateurs récupérés: {len(results)}")
+        log(f"Number of indicators retrieved: {len(results)}")
         return results
     except requests.exceptions.Timeout:
-        log("Timeout lors de la récupération des indicateurs")
+        log("Timeout while retrieving indicators")
         return []
     except Exception as e:
-        log(f"Exception lors de la récupération des indicateurs: {str(e)}")
+        log(f"Exception while retrieving indicators: {str(e)}")
         return []
 
 def get_geo_data():
-    log("Récupération des données géographiques...")
-    # Pour éviter les blocages, on utilise moins de pulses et on ajoute des données de démonstration
-    pulses = get_recent_pulses(10)  # Réduit à 10 pulses
+    log("Retrieving geographic data...")
+    # To avoid blocking, use fewer pulses and add demo data
+    pulses = get_recent_pulses(10)  # Reduced to 10 pulses
     geo_data = {
         "United States": 35,
         "Russia": 28,
@@ -71,54 +127,59 @@ def get_geo_data():
         "Germany": 18,
         "France": 15,
         "United Kingdom": 12
-    }  # Données par défaut
+    }  # Default data
     
     try:
         processed = 0
-        for pulse in pulses[:5]:  # Limite à 5 pulses pour accélérer
-            log(f"Traitement du pulse {pulse.get('id')} pour les données géo")
+        for pulse in pulses[:5]:  # Limit to 5 pulses to speed up
+            log(f"Processing pulse {pulse.get('id')} for geo data")
             indicators = get_pulse_indicators(pulse.get("id", ""))
             ip_indicators = [i for i in indicators if i.get("type") in ["IPv4", "IPv6"]]
-            log(f"Nombre d'indicateurs IP trouvés: {len(ip_indicators)}")
+            log(f"Number of IP indicators found: {len(ip_indicators)}")
             
-            # Limite le nombre d'IP à traiter pour éviter les blocages
+            # Limit the number of IPs to process to avoid blocking
             for indicator in ip_indicators[:3]:  
                 ip = indicator.get("indicator")
-                log(f"Récupération des données géo pour l'IP {ip}")
+                log(f"Retrieving geo data for IP {ip}")
                 ip_data = get_ip_geo(ip)
                 country = ip_data.get("country_name")
                 if country:
                     geo_data[country] = geo_data.get(country, 0) + 1
                 processed += 1
-                if processed > 10:  # Limite le nombre total d'IP traitées
+                if processed > 10:  # Limit the total number of IPs processed
                     break
             if processed > 10:
                 break
     except Exception as e:
-        log(f"Exception dans get_geo_data: {str(e)}")
+        log(f"Exception in get_geo_data: {str(e)}")
     
-    log(f"Données géographiques récupérées pour {len(geo_data)} pays")
+    log(f"Geographic data retrieved for {len(geo_data)} countries")
     return geo_data
 
 def get_ip_geo(ip):
     url = f"{BASE_URL}/indicators/IPv4/{ip}/geo"
     try:
-        response = requests.get(url, headers=get_headers(), timeout=10)
-        log(f"Statut de la réponse pour geo IP {ip}: {response.status_code}")
+        headers = get_headers()
+        if not headers:
+            log(f"No API key available. Returning empty geo data for IP {ip}.")
+            return {}
+            
+        response = requests.get(url, headers=headers, timeout=10)
+        log(f"Response status for geo IP {ip}: {response.status_code}")
         if response.status_code != 200:
             return {}
         
         return response.json()
     except requests.exceptions.Timeout:
-        log(f"Timeout lors de la récupération des données géo pour {ip}")
+        log(f"Timeout while retrieving geo data for {ip}")
         return {}
     except Exception as e:
-        log(f"Exception lors de la récupération des données géo: {str(e)}")
+        log(f"Exception while retrieving geo data: {str(e)}")
         return {}
 
 def get_top_cves(limit=10):
-    log("Récupération des CVEs les plus actives...")
-    # Pour éviter les blocages, on utilise des données de démonstration
+    log("Retrieving most active CVEs...")
+    # To avoid blocking, use demo data
     demo_cves = [
         {"cve": "CVE-2024-50623", "count": 30},
         {"cve": "CVE-2025-0283", "count": 28},
@@ -129,17 +190,23 @@ def get_top_cves(limit=10):
     
     try:
         url = f"{BASE_URL}/search/pulses"
-        params = {"q": "CVE", "limit": 20}  # Réduit à 20
-        log(f"Requête API pour les CVEs: {url}")
-        response = requests.get(url, headers=get_headers(), params=params, timeout=10)
+        params = {"q": "CVE", "limit": 20}  # Reduced to 20
+        log(f"API request for CVEs: {url}")
         
-        log(f"Statut de la réponse pour CVEs: {response.status_code}")
+        headers = get_headers()
+        if not headers:
+            log("No API key available. Returning demo CVE data.")
+            return demo_cves
+            
+        response = requests.get(url, headers=headers, params=params, timeout=10)
+        
+        log(f"Response status for CVEs: {response.status_code}")
         if response.status_code != 200:
-            log("Retour aux données de démonstration pour les CVEs")
+            log("Reverting to demo data for CVEs")
             return demo_cves
         
         pulses = response.json().get("results", [])
-        log(f"Nombre de pulses CVE récupérés: {len(pulses)}")
+        log(f"Number of CVE pulses retrieved: {len(pulses)}")
         
         cve_counts = {}
         for pulse in pulses:
@@ -147,19 +214,19 @@ def get_top_cves(limit=10):
                 if tag.startswith("CVE-"):
                     cve_counts[tag] = cve_counts.get(tag, 0) + 1
         
-        # Trie les CVEs par nombre d'occurrences
+        # Sort CVEs by number of occurrences
         sorted_cves = sorted(cve_counts.items(), key=lambda x: x[1], reverse=True)
         result = [{"cve": cve, "count": count} for cve, count in sorted_cves[:limit]]
         
-        log(f"Nombre de CVEs uniques trouvées: {len(cve_counts)}")
+        log(f"Number of unique CVEs found: {len(cve_counts)}")
         return result if result else demo_cves
     except Exception as e:
-        log(f"Exception dans get_top_cves: {str(e)}")
+        log(f"Exception in get_top_cves: {str(e)}")
         return demo_cves
 
 def get_targeted_industries(pulses):
-    log("Analyse des industries ciblées...")
-    # Données de démonstration
+    log("Analyzing targeted industries...")
+    # Demo data
     demo_industries = [
         {"name": "Finance", "count": 45},
         {"name": "Government", "count": 38},
@@ -181,18 +248,18 @@ def get_targeted_industries(pulses):
                 if industry in desc:
                     industries[industry.capitalize()] = industries.get(industry.capitalize(), 0) + 1
         
-        # Trie les industries par nombre d'occurrences
+        # Sort industries by number of occurrences
         sorted_industries = sorted(industries.items(), key=lambda x: x[1], reverse=True)
         result = [{"name": name, "count": count} for name, count in sorted_industries[:5]]
         
-        log(f"Nombre d'industries identifiées: {len(industries)}")
+        log(f"Number of identified industries: {len(industries)}")
         return result if result else demo_industries
     except Exception as e:
-        log(f"Exception dans get_targeted_industries: {str(e)}")
+        log(f"Exception in get_targeted_industries: {str(e)}")
         return demo_industries
 
 def filter_malware_pulses(pulses):
-    log("Filtrage des pulses liés aux malwares...")
+    log("Filtering pulses related to malware...")
     keywords = ['malware', 'ransomware', 'trojan', 'spyware', 'virus']
     try:
         malware_pulses = [
@@ -200,19 +267,19 @@ def filter_malware_pulses(pulses):
             if any(kw in pulse.get("name", "").lower() or kw in pulse.get("description", "").lower()
                 for kw in keywords)
         ]
-        log(f"Nombre de pulses malware trouvés: {len(malware_pulses)}")
+        log(f"Number of malware pulses found: {len(malware_pulses)}")
         return malware_pulses
     except Exception as e:
-        log(f"Exception dans filter_malware_pulses: {str(e)}")
+        log(f"Exception in filter_malware_pulses: {str(e)}")
         return []
 
 def generate_dashboard_data():
-    log("Génération des données pour le dashboard...")
+    log("Generating data for the dashboard...")
     try:
-        pulses = get_recent_pulses(100)  # Augmenté à 100 pulses pour plus de données
+        pulses = get_recent_pulses(100)  # Increased to 100 pulses for more data
         if not pulses:
-            log("Aucun pulse récupéré, génération de données de démonstration")
-            # Données de démonstration
+            log("No pulses retrieved, generating demo data")
+            # Demo data
             return {
                 "summary": {
                     "intrusion_sets": 1020,
@@ -233,11 +300,11 @@ def generate_dashboard_data():
                 "geo_data": get_geo_data()
             }
         
-        log("Filtrage des pulses malware...")
+        log("Filtering malware pulses...")
         malware_pulses = filter_malware_pulses(pulses)
         
-        log("Comptage des types de menaces...")
-        # Compte les types de menaces
+        log("Counting threat types...")
+        # Count threat types
         threat_types = {}
         for pulse in malware_pulses:
             name = pulse.get("name", "").lower()
@@ -245,7 +312,7 @@ def generate_dashboard_data():
                 if threat in name:
                     threat_types[threat.capitalize()] = threat_types.get(threat.capitalize(), 0) + 1
         
-        # Trie les menaces par nombre d'occurrences
+        # Sort threats by number of occurrences
         sorted_threats = sorted(threat_types.items(), key=lambda x: x[1], reverse=True)
         top_threats = [{"name": name, "count": count} for name, count in sorted_threats[:5]]
         
@@ -258,37 +325,37 @@ def generate_dashboard_data():
                 {"name": "Worm", "count": 22}
             ]
         
-        log("Récupération des données géographiques...")
+        log("Retrieving geographic data...")
         geo_data = get_geo_data()
         
-        log("Préparation des pulses récents pour le dashboard...")
-        # Prépare les pulses récents pour le dashboard
+        log("Preparing recent pulses for the dashboard...")
+        # Prepare recent pulses for the dashboard
         recent_pulses = []
-        # Trie les pulses par date (du plus récent au plus ancien)
+        # Sort pulses by date (from most recent to oldest)
         sorted_pulses = sorted(pulses, key=lambda x: x.get("created", ""), reverse=True)
         
-        for pulse in sorted_pulses[:10]:  # Prend les 10 plus récents, le dashboard en affichera 5
-            # Nettoie et filtre les données pour éviter des problèmes de sérialisation JSON
+        for pulse in sorted_pulses[:10]:  # Take the 10 most recent, the dashboard will display 5
+            # Clean and filter data to avoid JSON serialization issues
             recent_pulse = {
                 "id": pulse.get("id", ""),
                 "name": pulse.get("name", ""),
                 "created": pulse.get("created", ""),
-                "description": pulse.get("description", ""),  # Description complète
-                "tags": pulse.get("tags", [])[:5],  # Limite à 5 tags
+                "description": pulse.get("description", ""),  # Full description
+                "tags": pulse.get("tags", [])[:5],  # Limit to 5 tags
                 "author_name": pulse.get("author_name", ""),
-                "references": pulse.get("references", [])[:3]  # Limite à 3 références
+                "references": pulse.get("references", [])[:3]  # Limit to 3 references
             }
             recent_pulses.append(recent_pulse)
         
-        # Calcule la plage de temps couverte par les pulses
+        # Calculate the time range covered by the pulses
         time_metadata = {
             "oldest_pulse": pulses[-1].get("created", "") if pulses else "",
             "newest_pulse": pulses[0].get("created", "") if pulses else "",
             "pulse_count": len(pulses)
         }
         
-        log("Calcul des statistiques...")
-        # Génère les données pour le dashboard
+        log("Calculating statistics...")
+        # Generate data for the dashboard
         dashboard_data = {
             "summary": {
                 "intrusion_sets": len(pulses),
@@ -305,11 +372,11 @@ def generate_dashboard_data():
             "time_metadata": time_metadata
         }
         
-        log("Données du dashboard générées avec succès")
+        log("Dashboard data successfully generated")
         return dashboard_data
     except Exception as e:
-        log(f"Exception dans generate_dashboard_data: {str(e)}")
-        # Retourne des données de démo en cas d'erreur
+        log(f"Exception in generate_dashboard_data: {str(e)}")
+        # Return demo data in case of error
         return {
             "summary": {
                 "intrusion_sets": 1020,
@@ -350,33 +417,36 @@ def generate_dashboard_data():
         }
 
 def main():
-    log("Démarrage de l'application OTX AlienVault")
-    log("Récupération des données depuis OTX AlienVault...")
+    log("Starting OTX AlienVault application")
+    log("Retrieving data from OTX AlienVault...")
     
     try:
         dashboard_data = generate_dashboard_data()
         
-        log("Sauvegarde des données dans dashboard_data.json")
-        # Sauvegarde les données dans un fichier JSON
-        with open("dashboard_data.json", "w") as f:
+        # Create directory if it doesn't exist
+        os.makedirs("/var/www/html/alienvault", exist_ok=True)
+        
+        log("Saving data to /var/www/html/alienvault/dashboard_data.json")
+        # Save data to a JSON file
+        with open("/var/www/html/alienvault/dashboard_data.json", "w") as f:
             json.dump(dashboard_data, f, indent=2)
         
-        log("Données du dashboard générées avec succès et sauvegardées dans dashboard_data.json")
+        log("Dashboard data successfully generated and saved to /var/www/html/alienvault/dashboard_data.json")
         
-        # Affiche également les pulses liés aux malwares comme avant
-        log("Récupération d'exemples de pulses malware")
-        pulses = get_recent_pulses(10)  # Réduit à 10
+        # Also display malware-related pulses as before
+        log("Retrieving examples of malware pulses")
+        pulses = get_recent_pulses(10)  # Reduced to 10
         malware_pulses = filter_malware_pulses(pulses)
         
-        log("\n=== Pulses liés aux malwares ===")
-        for pulse in malware_pulses[:3]:  # Limite à 3 pour la lisibilité
-            log(f"\nNom : {pulse.get('name')}")
-            log(f"Créé le : {pulse.get('created')}")
-            log(f"Description : {pulse.get('description')[:100]}...")  # Tronque la description
-            log(f"Lien : https://otx.alienvault.com/pulse/{pulse.get('id')}")
+        log("\n=== Pulses related to malware ===")
+        for pulse in malware_pulses[:3]:  # Limit to 3 for readability
+            log(f"\nName: {pulse.get('name')}")
+            log(f"Created on: {pulse.get('created')}")
+            log(f"Description: {pulse.get('description')[:100]}...")  # Truncate description
+            log(f"Link: https://otx.alienvault.com/pulse/{pulse.get('id')}")
     
     except Exception as e:
-        log(f"Exception dans la fonction main: {str(e)}")
+        log(f"Exception in main function: {str(e)}")
 
 if __name__ == "__main__":
     main()
