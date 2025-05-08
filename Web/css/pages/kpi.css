@@ -59,3 +59,113 @@
     color: #ffffff; 
     margin-bottom: 5px;
 }
+
+/* Styles pour les news de cybersécurité */
+.latest-threats {
+    background: #13254d;
+    border-radius: 15px;
+    padding: 20px;
+    margin: 20px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.latest-threats:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+}
+
+.threat-item {
+    padding: 15px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    transition: background-color 0.3s ease;
+}
+
+.threat-item:hover {
+    background-color: rgba(123, 130, 245, 0.1);
+}
+
+.threat-item:last-child {
+    border-bottom: none;
+}
+
+.threat-title {
+    font-size: 1.1rem;
+    margin-bottom: 0.5rem;
+    color: #f43f5e;
+    font-weight: bold;
+}
+
+.threat-date {
+    font-size: 0.9rem;
+    color: rgba(255, 255, 255, 0.6);
+    margin-bottom: 8px;
+}
+
+.threat-desc {
+    margin-top: 10px;
+    margin-bottom: 10px;
+    font-size: 0.95rem;
+    line-height: 1.5;
+    color: #ffffff;
+}
+
+.badge-threat {
+    background-color: #f43f5e;
+    color: white;
+    padding: 3px 8px;
+    border-radius: 4px;
+    margin-right: 5px;
+    font-size: 0.8rem;
+    display: inline-block;
+    margin-bottom: 5px;
+}
+
+.time-scale {
+    font-size: 14px;
+    color: rgba(255, 255, 255, 0.6);
+    font-weight: normal;
+    margin-left: 6px;
+}
+
+.cve-values {
+    display: none; /* Hidden by default but contains copyable text */
+    position: absolute;
+    left: -9999px;
+}
+
+.cve-item {
+    margin: 5px 0;
+    padding: 5px;
+    background-color: rgba(17, 24, 39, 0.3);
+    border-radius: 4px;
+    font-family: monospace;
+    font-size: 0.9rem;
+    user-select: text;
+    cursor: text;
+}
+
+/* Popup that appears when copying CVE */
+.copy-tooltip {
+    position: absolute;
+    background-color: rgba(88, 101, 242, 0.9);
+    color: white;
+    padding: 5px 10px;
+    border-radius: 4px;
+    font-size: 12px;
+    pointer-events: none;
+    z-index: 1000;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.copy-tooltip.show {
+    opacity: 1;
+}
+
+.chart-title {
+    font-size: 1.2rem;
+    margin-bottom: 1rem;
+    color: #ffffff;
+    text-align: center;
+}
