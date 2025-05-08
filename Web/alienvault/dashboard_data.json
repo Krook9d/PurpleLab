@@ -1,264 +1,248 @@
 {
-    "summary": {
-      "intrusion_sets": 50,
-      "malware": 40,
-      "reports": 0,
-      "indicators": 1177
+  "summary": {
+    "intrusion_sets": 50,
+    "malware": 35,
+    "reports": 0,
+    "indicators": 1565
+  },
+  "top_threats": [
+    {
+      "name": "Ransomware",
+      "count": 3
     },
-    "top_threats": [
-      {
-        "name": "Backdoor",
-        "count": 5
-      },
-      {
-        "name": "Ransomware",
-        "count": 4
-      },
-      {
-        "name": "Spyware",
-        "count": 1
-      },
-      {
-        "name": "Worm",
-        "count": 1
-      }
-    ],
-    "most_targeted": [
-      {
-        "name": "Government",
-        "count": 9
-      },
-      {
-        "name": "Education",
-        "count": 3
-      },
-      {
-        "name": "Finance",
-        "count": 2
-      },
-      {
-        "name": "Energy",
-        "count": 1
-      },
-      {
-        "name": "Technology",
-        "count": 1
-      }
-    ],
-    "top_cves": [
-      {
-        "cve": "CVE-2024-50623",
-        "count": 30
-      },
-      {
-        "cve": "CVE-2025-0283",
-        "count": 28
-      },
-      {
-        "cve": "CVE-2022-41328",
-        "count": 28
-      },
-      {
-        "cve": "CVE-2023-7624",
-        "count": 25
-      },
-      {
-        "cve": "CVE-2024-3312",
-        "count": 22
-      }
-    ],
-    "activity_by_month": [
-      {
-        "date": "count",
-        "count": 7043
-      }
-    ],
-    "geo_data": {
-      "United States": 35,
-      "Russia": 28,
-      "China": 25,
-      "Germany": 18,
-      "France": 15,
-      "United Kingdom": 12,
-      "Russian Federation": 1,
-      "United States of America": 2,
-      "Netherlands": 1
-    },
-    "recent_pulses": [
-      {
-        "id": "680965ec5fefc9e20eb4bef2",
-        "name": "Introducing ToyMaker",
-        "created": "2025-04-23T22:12:59.613000",
-        "description": "The initial access broker (IAB), whom Talos calls \u201cToyMaker\u201d and assesses with medium confidence is a financially motivated threat actor, exploits vulnerable systems exposed to the internet. They deploy their custom-made backdoor we call \u201cLAGTOY\u201d and extract credentials from the victim enterprise. LAGTOY can be used to create reverse shells and execute commands on infected endpoints.",
-        "tags": [
-          "initial access broker",
-          "ransomware",
-          "lagtoy",
-          "toymaker",
-          "cactus"
-        ],
-        "author_name": "AlienVault",
-        "references": [
-          "https://blog.talosintelligence.com/introducing-toymaker-an-initial-access-broker/"
-        ]
-      },
-      {
-        "id": "6809436ac67098f19bfd41e5",
-        "name": "NFC Fraud Wave: Evolution of Ghost Tap on the Dark Web",
-        "created": "2025-04-23T19:45:46.232000",
-        "description": "Chinese cybercriminals are exploiting NFC technologies for fraudulent purposes, targeting financial institutions and consumers worldwide. They use sophisticated tools like Z-NFC and King NFC to facilitate illegal transactions at scale. The fraudsters leverage Host Card Emulation (HCE) to mimic physical NFC smart cards and create 'farms' of mobile devices to automate fraud. They target countries including the US, UK, EU, Australia, Canada, and others. The criminals also abuse NFC-enabled POS terminals and exploit loyalty points programs. This growing threat has led to significant financial losses and poses serious risks to payment security and digital identity systems globally.",
-        "tags": [
-          "carding",
-          "mobile wallets",
-          "pos terminals",
-          "contactless payments",
-          "loyalty points fraud"
-        ],
-        "author_name": "AlienVault",
-        "references": [
-          "https://www.resecurity.com/blog/article/nfc-fraud-wave-evolution-of-ghost-tap-on-the-dark-web"
-        ]
-      },
-      {
-        "id": "68090ed8b46d4d2cc6fe229a",
-        "name": "New Stealer on the Horizon",
-        "created": "2025-04-23T16:01:28.022000",
-        "description": "SvcStealer 2025 is a novel information stealer delivered through spear phishing email attachments. It harvests sensitive data including machine information, installed software, user credentials, cryptocurrency wallets, and browser data. The malware creates a unique folder, terminates specific processes, and collects data from various sources. It compresses the gathered information, establishes a connection with a C2 server, and uploads the data. The malware can also capture screenshots and potentially download additional payloads. It employs evasion techniques by deleting traces and ensuring only one instance runs on the victim's machine. The threat actors behind SvcStealer could potentially act as initial access brokers, selling the gathered information on underground forums and criminal marketplaces.",
-        "tags": [
-          "data harvesting",
-          "svcstealer",
-          "evasion techniques",
-          "information stealer",
-          "cryptocurrency"
-        ],
-        "author_name": "AlienVault",
-        "references": [
-          "https://www.seqrite.com/blog/svc-new-stealer-on-the-horizon"
-        ]
-      },
-      {
-        "id": "68082a17ee5771aa012e93c3",
-        "name": "Threat Infrastructure Uncovered Before Activation",
-        "created": "2025-04-22T23:45:27.489000",
-        "description": "Between November 2024 and April 2025, a set of domains and servers impersonating an Iraqi academic organization and fictitious UK tech firms were tracked. The infrastructure, while dormant, exhibited characteristics similar to APT34 (OilRig), including shared SSH keys, structured websites, and decoy HTTP behavior on M247-hosted servers. Key observations include the use of port 8080 for fake 404 responses, consistent SSH fingerprint reuse, and domains registered through P.D.R. Solutions with regway.com nameservers. The setup suggests deliberate pre-operational staging, offering defenders an early warning opportunity. Detection strategies include monitoring SSH fingerprints, HTTP response patterns, and domain registration behaviors.",
-        "tags": [
-          "apt34",
-          "domain impersonation",
-          "infrastructure",
-          "ssh keys",
-          "pre-operational staging"
-        ],
-        "author_name": "AlienVault",
-        "references": [
-          "https://hunt.io/blog/track-apt34-like-infrastructure-before-it-strikes"
-        ]
-      },
-      {
-        "id": "6807d9bd776ee82a5a8a7112",
-        "name": "Sophisticated backdoor mimicking secure networking software updates",
-        "created": "2025-04-22T18:02:37.515000",
-        "description": "A sophisticated backdoor targeting Russian organizations in government, finance, and industry sectors was discovered masquerading as updates for ViPNet secure networking software. The malware, distributed in LZH archives, exploits a path substitution technique to execute a malicious loader that deploys a versatile backdoor. This backdoor can connect to a C2 server, steal files, and launch additional malicious components. The attack highlights the increasing complexity of APT group tactics and emphasizes the need for multi-layered security defenses to protect against such sophisticated threats.",
-        "tags": [
-          "backdoor",
-          "targeted attack",
-          "heur:trojan.win32.loader.gen",
-          "apt",
-          "software updates"
-        ],
-        "author_name": "AlienVault",
-        "references": [
-          "https://securelist.com/new-backdoor-mimics-security-software-update/116246/"
-        ]
-      },
-      {
-        "id": "6807c69906b162a197133ee9",
-        "name": "Case of Attacks Targeting MS-SQL Servers to Install Ammyy Admin",
-        "created": "2025-04-22T16:40:57.135000",
-        "description": "A series of attacks targeting poorly managed MS-SQL servers have been identified, involving the installation of Ammyy Admin, a remote control tool. The attackers exploit vulnerable servers, execute commands to gather system information, and use WGet to install additional malware. The installed malware includes Ammyy Admin (mscorsvw.exe), its settings file (settings3.bin), and PetitPotato (p.ax). The attackers utilize an old version of Ammyy Admin (v3.10) and employ known exploitation methods to gain remote control. They also use PetitPotato for privilege escalation, adding new users and activating RDP services. To prevent such attacks, administrators are advised to use strong passwords, update software regularly, and implement security measures like firewalls.",
-        "tags": [
-          "brute force",
-          "ms-sql",
-          "dictionary attack",
-          "remote control",
-          "wget"
-        ],
-        "author_name": "AlienVault",
-        "references": [
-          "https://asec.ahnlab.com/en/87606"
-        ]
-      },
-      {
-        "id": "6807c698b42f069fc7334d48",
-        "name": "APT Group Profiles - Larva-24005",
-        "created": "2025-04-22T16:40:56.616000",
-        "description": "A new operation named Larva-24005, linked to the Kimsuky group, has been discovered by ASEC. The threat actors exploited RDP vulnerabilities to infiltrate systems, installing MySpy malware and RDPWrap for continuous remote access. They also deployed keyloggers to record user inputs. The group has been targeting South Korea's software, energy, and financial industries since October 2023, with attacks extending to multiple countries worldwide. Their methods include exploiting the BlueKeep vulnerability (CVE-2019-0708) and using phishing emails. The attackers employ various tools such as RDP scanners, droppers, and keyloggers in their multi-stage attack process.",
-        "tags": [
-          "cve-2019-0708",
-          "rdp exploitation",
-          "cve-2017-11882",
-          "phishing",
-          "bluekeep"
-        ],
-        "author_name": "AlienVault",
-        "references": [
-          "https://asec.ahnlab.com/en/87554"
-        ]
-      },
-      {
-        "id": "6807c697bf4aed9f93dbef55",
-        "name": "DOGE Binary Loader Indicators of Compromise",
-        "created": "2025-04-22T16:40:55.293000",
-        "description": "This intelligence document provides a list of Indicators of Compromise (IoCs) associated with the DOGE Binary Loader. It includes several malicious URLs hosted on the domain 'hilarious-trifle-d9182e.netlify.app' along with their corresponding SHA-256 hashes. The listed files include PowerShell scripts ('lootsubmit.ps1' and 'trackerjacker.ps1'), a PNG image ('qrcode.png'), and an executable ('ktool.exe'). These IoCs are crucial for identifying and mitigating potential infections related to the DOGE Binary Loader malware campaign.",
-        "tags": [
-          "url",
-          "doge binary loader",
-          "powershell",
-          "sha-256",
-          "netlify"
-        ],
-        "author_name": "AlienVault",
-        "references": [
-          "https://documents.trendmicro.com/images/TEx/DOGE-Binary-Loader-IoCsfutsQEh.txt"
-        ]
-      },
-      {
-        "id": "6807bc8539bf1b2aa4d2ff28",
-        "name": "Infostealer Malware FormBook Spread via Phishing Campaign \u2013 Part I",
-        "created": "2025-04-22T15:57:57.572000",
-        "description": "A phishing campaign delivering a malicious Word document exploiting CVE-2017-11882 was observed spreading a new FormBook variant. The campaign tricks recipients into opening an attached document, which extracts a 64-bit DLL file and exploits the vulnerability to execute it. The DLL acts as a downloader and installer for FormBook, establishing persistence and downloading an encrypted payload disguised as a PNG file. The payload is decrypted and injected into a legitimate process using process hollowing techniques. This fileless variant of FormBook aims to evade detection by keeping the malware entirely in memory. The analysis covers the initial phishing email, exploitation process, payload download and decryption, and the sophisticated injection techniques used to deploy FormBook.",
-        "tags": [
-          "formbook",
-          "infostealer",
-          "cve-2017-11882",
-          "phishing",
-          "fileless malware"
-        ],
-        "author_name": "AlienVault",
-        "references": [
-          "https://www.fortinet.com/blog/threat-research/infostealer-malware-formbook-spread-via-phishing-campaign-part-i"
-        ]
-      },
-      {
-        "id": "6807bc7e44edbbe6afa50132",
-        "name": "Sophisticated backdoor mimicking secure networking software updates",
-        "created": "2025-04-22T15:57:50.010000",
-        "description": "A sophisticated backdoor targeting Russian organizations in government, finance, and industrial sectors has been discovered. The malware masquerades as updates for ViPNet, a secure networking software suite. It is distributed via LZH archives containing legitimate and malicious files. The backdoor exploits a path substitution technique to execute a malicious loader, which then decrypts and loads a versatile payload capable of connecting to a C2 server, stealing files, and launching additional malicious components. The complexity of this attack highlights the need for multi-layered security measures to protect against advanced persistent threats.",
-        "tags": [
-          "payload",
-          "c2 server",
-          "backdoor",
-          "targeted attack",
-          "secure networking"
-        ],
-        "author_name": "AlienVault",
-        "references": [
-          "https://securelist.com/new-backdoor-mimics-security-software-update/116246"
-        ]
-      }
-    ],
-    "time_metadata": {
-      "oldest_pulse": "2025-03-17T09:28:52.308000",
-      "newest_pulse": "2025-03-25T10:46:33.516000",
-      "pulse_count": 50
+    {
+      "name": "Trojan",
+      "count": 2
     }
+  ],
+  "most_targeted": [
+    {
+      "name": "Government",
+      "count": 8
+    },
+    {
+      "name": "Telecommunications",
+      "count": 4
+    },
+    {
+      "name": "Finance",
+      "count": 4
+    },
+    {
+      "name": "Technology",
+      "count": 3
+    },
+    {
+      "name": "Healthcare",
+      "count": 1
+    }
+  ],
+  "top_cves": [
+    {
+      "cve": "CVE-2024-50623",
+      "count": 30
+    },
+    {
+      "cve": "CVE-2025-0283",
+      "count": 28
+    },
+    {
+      "cve": "CVE-2022-41328",
+      "count": 28
+    },
+    {
+      "cve": "CVE-2023-7624",
+      "count": 25
+    },
+    {
+      "cve": "CVE-2024-3312",
+      "count": 22
+    }
+  ],
+  "activity_by_month": [],
+  "geo_data": {
+    "United States": 35,
+    "Russia": 28,
+    "China": 25,
+    "Germany": 18,
+    "France": 15,
+    "United Kingdom": 12,
+    "United States of America": 1
+  },
+  "recent_pulses": [
+    {
+      "id": "681cca01d5614df4fe6476e9",
+      "name": "Spam campaign targeting Brazil abuses Remote Monitoring and Management tools",
+      "created": "2025-05-08T15:13:05.097000",
+      "description": "A spam campaign targeting Brazilian users, particularly C-level executives and financial/HR accounts, has been identified since January 2025. The campaign exploits commercial remote monitoring and management (RMM) tools, specifically PDQ Connect and N-able remote access tools. Attackers use Brazilian electronic invoice system (NF-e) as bait, leading victims to malicious content on Dropbox. The threat actor, likely an initial access broker, abuses free trial periods of RMM tools to gain complete control of target machines. The campaign's objective is to create a network of compromised machines for potential sale to third parties, including ransomware operators and state-sponsored actors. The abuse of commercial RMM tools is increasing due to their digital signatures, full backdoor capabilities, and low cost.",
+      "tags": [
+        "initial access broker",
+        "nf-e",
+        "n-able",
+        "spam",
+        "dropbox"
+      ],
+      "author_name": "AlienVault",
+      "references": [
+        "https://blog.talosintelligence.com/spam-campaign-targeting-brazil-abuses-rmm-tools"
+      ]
+    },
+    {
+      "id": "681bc89f39996f610a89a741",
+      "name": "Agenda Ransomware Group Adds SmokeLoader and NETXLOADER to Their Arsenal",
+      "created": "2025-05-07T20:54:54.746000",
+      "description": "The Agenda ransomware group has expanded its capabilities by incorporating SmokeLoader malware and a new loader called NETXLOADER. NETXLOADER is a highly obfuscated .NET-based loader that utilizes advanced techniques to evade detection and complicate analysis. The group has been targeting healthcare, technology, financial services, and telecommunications sectors across multiple countries. NETXLOADER employs sophisticated methods such as JIT hooking, API obfuscation, and memory manipulation to deploy payloads like Agenda ransomware and SmokeLoader. The attack chain involves multiple stages of evasion, discovery, and command and control communications. This evolution in tactics poses increased risks of data theft and device compromise for potential targets.",
+      "tags": [
+        "ransomware",
+        "SmokeLoader",
+        "NETXLOADER",
+        "evasion",
+        "Rust"
+      ],
+      "author_name": "AlienVault",
+      "references": [
+        "https://www.trendmicro.com/en_us/research/25/e/agenda-ransomware-group-adds-smokeloader-and-netxloader-to-their.html",
+        "https://documents.trendmicro.com/assets/txt/NETXLOADER-IOCsy4h6Kis.txt"
+      ]
+    },
+    {
+      "id": "681ba0e01c36344c7ac60892",
+      "name": "COLDRIVER Using New Malware To Steal Documents From Western Targets and NGOs",
+      "created": "2025-05-07T18:05:20.713000",
+      "description": "Russian government-backed threat group COLDRIVER has developed a new malware called LOSTKEYS, capable of stealing files and system information. The group targets high-profile individuals, NGOs, and former intelligence officers through credential phishing and malware delivery. LOSTKEYS is delivered through a multi-step infection chain, starting with a fake CAPTCHA and involving PowerShell commands. The malware evades detection in VMs and uses a substitution cipher for decoding. COLDRIVER's primary goal is intelligence collection for Russia's strategic interests, targeting Western governments, militaries, journalists, and Ukraine-related individuals. The group has been linked to hack-and-leak campaigns in the UK and against NGOs.",
+      "tags": [
+        "powershell",
+        "clickfix",
+        "spica",
+        "phishing",
+        "document theft"
+      ],
+      "author_name": "AlienVault",
+      "references": [
+        "https://cloud.google.com/blog/topics/threat-intelligence/coldriver-steal-documents-western-targets-ngos"
+      ]
+    },
+    {
+      "id": "681b395ae41f5ea9f3fa3a33",
+      "name": "Malware Analysis Mamona: Technical Analysis of a New Ransomware Strain",
+      "created": "2025-05-07T10:43:38.939000",
+      "description": "Mamona is a newly identified commodity ransomware that operates entirely offline, with no observed Command and Control channels or data exfiltration. It uses custom local encryption routines and employs an obfuscated delay technique involving a ping to 127.0.0.7. The ransomware encrypts user files, renames them with the .HAes extension, and drops ransom notes in multiple directories. Despite false claims of data leaks, analysis confirms no actual exfiltration occurs. A working decryption tool has been identified, enabling file recovery. Mamona's simplicity and offline nature make it harder to detect through conventional network-based defenses, highlighting a trend towards easy-to-use, builder-based ransomware that prioritizes accessibility over sophistication.",
+      "tags": [
+        "encryption",
+        "ransomware",
+        "mamona"
+      ],
+      "author_name": "AlienVault",
+      "references": [
+        "https://any.run/cybersecurity-blog/mamona-ransomware-analysis"
+      ]
+    },
+    {
+      "id": "681b3957829a1697e47b11e9",
+      "name": "Iranian Cyber Actors Impersonate Model Agency in Suspected Espionage Operation",
+      "created": "2025-05-07T10:43:35.544000",
+      "description": "Iranian cyber actors have been identified impersonating a German model agency in a suspected espionage operation. The attackers created a fraudulent website mimicking the authentic agency's branding and content, which triggers obfuscated JavaScript to capture detailed visitor information. This data collection enables selective targeting. The website also replaces a real model's profile with a fake one, likely for social engineering purposes. The operation's complexity and methods suggest involvement of an Iranian threat group, possibly overlapping with Agent Serpens (APT35 or Charming Kitten). This group is known for targeting Iranian dissidents, journalists, and activists abroad. The fake website includes sophisticated data collection routines and dynamic profile alterations, indicating an ongoing and evolving threat.",
+      "tags": [
+        "javascript",
+        "phishing",
+        "social engineering",
+        "data collection",
+        "espionage"
+      ],
+      "author_name": "AlienVault",
+      "references": [
+        "https://unit42.paloaltonetworks.com/iranian-attackers-impersonate-model-agency"
+      ]
+    },
+    {
+      "id": "681a72feaa4cdb32c7d870d5",
+      "name": "CoGUI Phish Kit Targets Japan with Millions of Messages",
+      "created": "2025-05-06T20:37:18.140000",
+      "description": "A sophisticated phishing kit named CoGUI is targeting Japanese organizations with high-volume campaigns, primarily impersonating consumer and finance brands to steal credentials and payment data. The kit employs advanced evasion techniques like geofencing and fingerprinting to avoid detection. Since October 2024, CoGUI campaigns have sent millions of messages monthly, peaking at 172 million in January 2025. While mainly focused on Japan, some campaigns have targeted other countries. The kit shares similarities with Darcula, another phishing framework used by Chinese-speaking actors. CoGUI's activity aligns with recent warnings from Japanese financial authorities about increased phishing attacks leading to financial theft.",
+      "tags": [
+        "brand impersonation",
+        "darcula",
+        "cogui",
+        "phishing",
+        "credential theft"
+      ],
+      "author_name": "AlienVault",
+      "references": [
+        "https://www.proofpoint.com/us/blog/threat-insight/cogui-phish-kit-targets-japan-millions-messages"
+      ]
+    },
+    {
+      "id": "681a66fd8309a0fad22d97ae",
+      "name": "Investigating Iranian Intrusion into Strategic Middle East Critical Infrastructure",
+      "created": "2025-05-06T19:46:05.811000",
+      "description": "This report details a prolonged Iranian state-sponsored intrusion into critical national infrastructure in the Middle East from May 2023 to February 2025. The threat actors employed various tactics including web shells, custom malware, and legitimate tools to maintain persistent access across multiple network segments. Key findings include the use of novel malware families like HanifNet and NeoExpressRAT, as well as extensive credential harvesting and lateral movement techniques. The intrusion demonstrated sophisticated evasion capabilities and targeted attempts to access operational technology networks. Forensic analysis revealed potential links to previously reported Iranian APT campaigns. The report provides detailed technical indicators and recommends enhanced logging, EDR deployment, and multi-factor authentication to defend against similar threats.",
+      "tags": [
+        "apt",
+        "credinterceptor",
+        "custom malware",
+        "systembc",
+        "credential harvesting"
+      ],
+      "author_name": "AlienVault",
+      "references": [
+        "https://www.fortinet.com/content/dam/fortinet/assets/reports/report-incident-response-middle-east.pdf"
+      ]
+    },
+    {
+      "id": "681a65ede3e45431290ce415",
+      "name": "APT36-Style ClickFix Attack Spoofs Indian Ministry to Target Windows & Linux",
+      "created": "2025-05-06T19:41:33.972000",
+      "description": "A recent campaign attributed to APT36 has been observed spoofing India's Ministry of Defence to deliver cross-platform malware. The attackers used a ClickFix-style infection chain, mimicking government press releases and leveraging a compromised .in domain for payload staging. The campaign targeted both Windows and Linux users, employing clipboard-based execution techniques. On Windows, the attack utilized mshta.exe to execute a heavily obfuscated HTA file, while on Linux, it attempted to execute a shell script. The tradecraft observed, including government-themed lures, HTA-based delivery, and decoy documents, aligns with known APT36 tactics. This activity demonstrates the continued evolution of ClickFix techniques in new contexts.",
+      "tags": [
+        "social engineering",
+        "spoofing",
+        "clickfix",
+        "ministry of defence",
+        "clipboard-based execution"
+      ],
+      "author_name": "AlienVault",
+      "references": [
+        "https://hunt.io/blog/apt36-clickfix-campaign-indian-ministry-of-defence"
+      ]
+    },
+    {
+      "id": "681a2fbdb6a3c2b834cac40d",
+      "name": "Uncovering Actor TTP Patterns and the Role of DNS in Investment Scams",
+      "created": "2025-05-06T15:50:21.436000",
+      "description": "This report analyzes common techniques, tactics, and procedures (TTPs) used by several investment scam actors who lure victims with fake platforms, including crypto exchanges. Key TTPs include registering large numbers of domains algorithmically, embedding similar web forms to collect user data, hiding activity through traffic distribution systems, leveraging fake news with celebrity endorsements, and sharing website structures indicative of using kits. The report focuses on two notable actors, Reckless Rabbit and Ruthless Rabbit, detailing their distinct characteristics and DNS exploitation methods. It highlights the importance of DNS in building and maintaining scam infrastructure, emphasizing the use of registered domain generation algorithms (RDGAs) and traffic distribution systems (TDSs) to strengthen resilience and evade detection.",
+      "tags": [
+        "dns exploitation",
+        "cryptocurrency",
+        "social engineering",
+        "investment scams",
+        "registered domain generation algorithms"
+      ],
+      "author_name": "AlienVault",
+      "references": [
+        "https://blogs.infoblox.com/threat-intelligence/uncovering-actor-ttp-patterns-and-the-role-of-dns-in-investment-scams"
+      ]
+    },
+    {
+      "id": "6819eb7a7ae574079c9d055a",
+      "name": "Lampion Is Back With ClickFix Lures",
+      "created": "2025-05-06T10:59:06.210000",
+      "description": "A highly focused malicious campaign targeting Portuguese organizations, particularly in government, finance, and transportation sectors, has been uncovered. The campaign is linked to Lampion malware, an infostealer focusing on banking information. The threat actors have incorporated ClickFix lures, a social engineering technique that tricks victims into executing malicious commands. The infection chain involves multiple stages of obfuscated Visual Basic scripts, evasion techniques, and a complex execution method. While the final payload was not delivered in this instance, the campaign demonstrates the threat actors' adaptation and sophistication. The article emphasizes the importance of enhanced detection capabilities and provides recommendations for security practitioners to address this evolving threat.",
+      "tags": [
+        "clickfix",
+        "infostealer",
+        "lampion",
+        "social engineering",
+        "powershell"
+      ],
+      "author_name": "AlienVault",
+      "references": [
+        "https://unit42.paloaltonetworks.com/lampion-malware-clickfix-lures"
+      ]
+    }
+  ],
+  "time_metadata": {
+    "oldest_pulse": "2025-04-30T08:17:57.646000",
+    "newest_pulse": "2025-05-08T15:13:05.097000",
+    "pulse_count": 50
   }
+}
