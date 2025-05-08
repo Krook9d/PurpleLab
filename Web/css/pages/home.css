@@ -264,11 +264,3 @@ input:checked + .slider:before {
   fill: #333;
   transition: fill 0.2s ease-in-out;
 }
-
-
-    
-
-
-
-
-
