@@ -669,19 +669,22 @@ Write-Output "END_RESULTS"
 @cross_origin()
 def refresh_alienvault():
     try:
-        # Exécute le script Python alienvault.py
-        subprocess.run(['python3', '/var/www/html/alienvault/alienvault.py'], 
-                      stdout=subprocess.PIPE, 
-                      stderr=subprocess.PIPE,
-                      check=True)
-        
+        # Supprimer le fichier JSON avant de lancer le script
+        json_path = '/var/www/html/alienvault/dashboard_data.json'
+        if os.path.exists(json_path):
+            os.remove(json_path)
+        # Exécuter le script Python
+        subprocess.run(['python3', '/var/www/html/alienvault/alienvault.py'],
+                       stdout=subprocess.PIPE,
+                       stderr=subprocess.PIPE,
+                       check=True)
         return jsonify({
-            "status": "success", 
+            "status": "success",
             "message": "AlienVault data successfully refreshed"
         }), 200
     except subprocess.CalledProcessError as e:
         return jsonify({
-            "status": "error", 
+            "status": "error",
             "message": f"Failed to refresh AlienVault data: {str(e)}",
             "stderr": e.stderr.decode() if e.stderr else ""
         }), 500
@@ -693,7 +696,11 @@ def api_refresh_alienvault():
         return jsonify({"msg": "Access denied"}), 401
     
     try:
-        # Exécute le script Python alienvault.py
+        # Supprimer le fichier JSON avant de lancer le script
+        json_path = '/var/www/html/alienvault/dashboard_data.json'
+        if os.path.exists(json_path):
+            os.remove(json_path)
+        # Exécuter le script Python
         result = subprocess.run(['python3', '/var/www/html/alienvault/alienvault.py'], 
                               stdout=subprocess.PIPE, 
                               stderr=subprocess.PIPE,
