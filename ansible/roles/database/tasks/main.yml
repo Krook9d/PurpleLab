@@ -74,6 +74,14 @@
     owner: postgres
     group: postgres
 
+- name: Copier le fichier Excel des techniques Mitre
+  copy:
+    src: ../../enterprise-attack/enterprise-attack-techniques.xlsx
+    dest: /var/www/html/enterprise-attack/enterprise-attack-techniques.xlsx
+    mode: '0644'
+    owner: postgres
+    group: postgres
+
 - name: Créer les tables dans PostgreSQL
   become: true
   become_user: postgres
@@ -118,12 +126,134 @@
         Executor_Name VARCHAR(255),
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       );
+      
+      CREATE TABLE IF NOT EXISTS mitre_techniques (
+        id VARCHAR(255) PRIMARY KEY,
+        stix_id VARCHAR(255),
+        name VARCHAR(255),
+        description TEXT,
+        url VARCHAR(255),
+        created VARCHAR(255),
+        last_modified VARCHAR(255),
+        domain VARCHAR(255),
+        version VARCHAR(255),
+        tactics TEXT,
+        detection TEXT,
+        platforms TEXT,
+        data_sources TEXT,
+        is_sub_technique BOOLEAN,
+        sub_technique_of VARCHAR(255),
+        defenses_bypassed TEXT,
+        contributors TEXT,
+        permissions_required TEXT,
+        supports_remote BOOLEAN,
+        system_requirements TEXT,
+        impact_type TEXT,
+        effective_permissions TEXT,
+        relationship_citations TEXT
+      );
 
 - name: Importer les données CSV dans atomic_tests
   become: true
   become_user: postgres
   shell: |
     psql -d {{ db_name }} -c "\COPY atomic_tests(tactic, technique_id, technique_name, test, test_name, Test_GUID, Executor_Name) FROM '/var/www/html/enterprise-attack/index.csv' WITH (FORMAT csv, DELIMITER ';', HEADER true, NULL '');"
+  ignore_errors: yes
+
+- name: Créer le script PHP d'importation des techniques Mitre
+  copy:
+    content: |
+      <?php
+      // Script pour importer les données Excel dans PostgreSQL
+      require '/var/www/html/vendor/autoload.php';
+      use PhpOffice\PhpSpreadsheet\Reader\Xlsx;
+
+      ini_set('memory_limit', '512M');
+      set_time_limit(300);
+
+      $conn_string = "host=localhost dbname={{ db_name }} user={{ db_user }} password={{ db_pass }}";
+      $conn = pg_connect($conn_string);
+
+      if (!$conn) {
+          die("Error connecting to database: " . pg_last_error());
+      }
+
+      pg_query($conn, "TRUNCATE TABLE mitre_techniques");
+
+      $reader = new Xlsx();
+      $spreadsheet = $reader->load('/var/www/html/enterprise-attack/enterprise-attack-techniques.xlsx');
+      $worksheet = $spreadsheet->getActiveSheet();
+      $highestRow = $worksheet->getHighestRow();
+      $headers = [];
+
+      foreach ($worksheet->getRowIterator(1, 1) as $row) {
+          $cellIterator = $row->getCellIterator();
+          $cellIterator->setIterateOnlyExistingCells(FALSE);
+          foreach ($cellIterator as $cell) {
+              $headers[] = $cell->getValue();
+          }
+      }
+
+      $count = 0;
+      foreach ($worksheet->getRowIterator(2) as $row) {
+          $data = [];
+          $cellIterator = $row->getCellIterator();
+          $cellIterator->setIterateOnlyExistingCells(FALSE);
+          
+          foreach ($cellIterator as $cell) {
+              $data[] = $cell->getValue();
+          }
+          
+          // Fill with NULL if necessary
+          while (count($data) < count($headers)) {
+              $data[] = null;
+          }
+          
+          $values = [];
+          $placeholders = [];
+          for ($i = 0; $i < count($headers); $i++) {
+              if ($i == 13 || $i == 18) {
+                  // Convert boolean fields
+                  $value = strtolower($data[$i]);
+                  if ($value === 'true' || $value === true) {
+                      $values[] = 'true';
+                  } elseif ($value === 'false' || $value === false) {
+                      $values[] = 'false';
+                  } else {
+                      $values[] = $data[$i];
+                  }
+              } else {
+                  $values[] = $data[$i];
+              }
+              $placeholders[] = '$' . ($i + 1);
+          }
+          
+          $query = "INSERT INTO mitre_techniques VALUES (" . implode(',', $placeholders) . ")";
+          $result = pg_query_params($conn, $query, $values);
+          
+          if ($result) {
+              $count++;
+          } else {
+              echo "Error: " . pg_last_error($conn) . "\n";
+          }
+          
+          if ($count % 100 == 0) {
+              echo "Imported: $count rows\n";
+          }
+      }
+
+      echo "Import completed: $count techniques imported\n";
+      pg_close($conn);
+      ?>
+    dest: /var/www/html/scripts/php/import_mitre_excel.php
+    mode: '0755'
+    owner: www-data
+    group: www-data
+
+- name: Importer les données Excel dans mitre_techniques
+  become: true
+  become_user: www-data
+  shell: php /var/www/html/scripts/php/import_mitre_excel.php
   ignore_errors: yes
 
 - name: Supprimer l'utilisateur admin s'il existe
@@ -186,3 +316,158 @@
   postgresql_query:
     db: "{{ db_name }}"
     query: "INSERT INTO users (first_name, last_name, email, analyst_level, avatar, password) VALUES ('Admin', 'Admin', 'admin@local.com', 'n3', '/MD_image/admin.png', '{{ hashed_password.stdout }}');"
+
+- name: Mettre à jour les scripts PHP pour utiliser la base de données
+  copy:
+    content: |
+      <?php
+      // search_techniques.php
+
+      // Database connection
+      $conn_string = "host=localhost dbname={{ db_name }} user={{ db_user }} password={{ db_pass }}";
+      $conn = pg_connect($conn_string);
+
+      if (!$conn) {
+          header('Content-Type: application/json');
+          die(json_encode(['error' => 'Database connection error']));
+      }
+
+      // Function to search techniques from database
+      function searchTechniques($searchTerm) {
+          global $conn;
+          
+          $searchTerm = strtoupper($searchTerm);
+          $searchPattern = "%$searchTerm%";
+          
+          $query = "SELECT id, name 
+                    FROM mitre_techniques 
+                    WHERE UPPER(id) LIKE $1 
+                    ORDER BY id";
+          
+          $result = pg_query_params($conn, $query, [$searchPattern]);
+          
+          if (!$result) {
+              die(json_encode(['error' => 'Search error']));
+          }
+          
+          $techniques = [];
+          while ($row = pg_fetch_assoc($result)) {
+              $techniques[] = $row;
+          }
+          
+          return $techniques;
+      }
+
+      // Function to get technique details from database
+      function getTechniqueDetails($id) {
+          global $conn;
+          
+          $query = "SELECT * FROM mitre_techniques WHERE id = $1";
+          $result = pg_query_params($conn, $query, [$id]);
+          
+          if (!$result) {
+              die(json_encode(['error' => 'Error retrieving details']));
+          }
+          
+          $technique = pg_fetch_assoc($result);
+          
+          if ($technique) {
+              // Map database columns to expected field names
+              $techniqueDetails = [
+                  'ID' => $technique['id'],
+                  'Name' => $technique['name'],
+                  'description' => $technique['description'],
+                  'url' => $technique['url'],
+                  'created' => $technique['created'],
+                  'last_modified' => $technique['last_modified'],
+                  'tactics' => $technique['tactics'],
+                  'detection' => $technique['detection'],
+                  'platforms' => $technique['platforms'],
+                  'data_sources' => $technique['data_sources'],
+                  'defenses_bypassed' => $technique['defenses_bypassed'],
+                  'permissions_required' => $technique['permissions_required'],
+                  'system_requirements' => $technique['system_requirements'],
+                  'impact_type' => $technique['impact_type'],
+                  'effective_permissions' => $technique['effective_permissions']
+              ];
+              
+              return $techniqueDetails;
+          }
+          
+          return [];
+      }
+
+      // Process requests
+      if (isset($_POST['searchTerm'])) {
+          $searchTerm = $_POST['searchTerm'];
+          $techniques = searchTechniques($searchTerm);
+          header('Content-Type: application/json');
+          echo json_encode($techniques);
+      } elseif (isset($_POST['id'])) {
+          $id = $_POST['id'];
+          $techniqueDetails = getTechniqueDetails($id);
+          header('Content-Type: application/json');
+          echo json_encode($techniqueDetails);
+      }
+
+      // Close connection
+      pg_close($conn);
+      ?>
+    dest: /var/www/html/scripts/php/search_techniques.php
+    mode: '0644'
+    owner: www-data
+    group: www-data
+
+- name: Mettre à jour le script de lecture CSV pour utiliser la base de données
+  copy:
+    content: |
+      <?php
+      // read_csv.php
+      header('Content-Type: application/json');
+
+      if (!isset($_GET['techniqueId'])) {
+          die(json_encode(['error' => 'Missing technique ID']));
+      }
+
+      $techniqueId = $_GET['techniqueId'];
+
+      // Database connection
+      $conn_string = "host=localhost dbname={{ db_name }} user={{ db_user }} password={{ db_pass }}";
+      $conn = pg_connect($conn_string);
+
+      if (!$conn) {
+          die(json_encode(['error' => 'Database connection error']));
+      }
+
+      // Get all atomic tests for this technique
+      $query = "SELECT tactic, technique_id, technique_name, test, test_name, test_guid, executor_name 
+                FROM atomic_tests 
+                WHERE technique_id = $1 
+                ORDER BY test";
+
+      $result = pg_query_params($conn, $query, [$techniqueId]);
+
+      if (!$result) {
+          die(json_encode(['error' => 'Error retrieving data: ' . pg_last_error($conn)]));
+      }
+
+      $data = [];
+      while ($row = pg_fetch_assoc($result)) {
+          $data[] = [
+              $row['tactic'],
+              $row['technique_id'],
+              $row['technique_name'],
+              $row['test'],
+              $row['test_name'],
+              $row['test_guid'],
+              $row['executor_name']
+          ];
+      }
+
+      echo json_encode($data);
+      pg_close($conn);
+      ?>
+    dest: /var/www/html/scripts/php/read_csv.php
+    mode: '0644'
+    owner: www-data
+    group: www-data
