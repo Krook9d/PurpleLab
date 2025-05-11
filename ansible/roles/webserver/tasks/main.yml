@@ -63,18 +63,6 @@
     state: started
     enabled: yes
 
-- name: Installer Composer
-  shell: |
-    curl -sS https://getcomposer.org/installer -o /tmp/composer-installer
-    php /tmp/composer-installer --install-dir=/usr/local/bin --filename=composer
-  args:
-    creates: /usr/local/bin/composer
-
-- name: Supprimer l'installateur Composer
-  file:
-    path: /tmp/composer-installer
-    state: absent
-
 - name: Déplacer les fichiers PurpleLab vers le webroot
   shell: |
     cp -r /home/{{ ansible_user }}/PurpleLab/* /var/www/html/
@@ -91,45 +79,6 @@
     remote_src: yes
     mode: '0755'
 
-- name: Créer un répertoire temporaire pour composer
-  file:
-    path: /tmp/composer
-    state: directory
-    mode: '0755'
-    owner: www-data
-    group: www-data
-
-- name: Créer le fichier composer.json
-  copy:
-    content: |
-      {
-          "require": {
-              "phpoffice/phpspreadsheet": "^1.29"
-          }
-      }
-    dest: /var/www/html/composer.json
-    mode: '0644'
-    owner: www-data
-    group: www-data
-
-- name: Créer le répertoire de cache de composer
-  file:
-    path: /var/www/.cache/composer
-    state: directory
-    mode: '0755'
-    owner: www-data
-    group: www-data
-    recurse: yes
-
-- name: Créer le répertoire de cache de composer pour packagist
-  file:
-    path: /var/www/.cache/composer/repo/https---repo.packagist.org
-    state: directory
-    mode: '0755'
-    owner: www-data
-    group: www-data
-    recurse: yes
-
 - name: S'assurer que le répertoire du projet est accessible en écriture
   file:
     path: /var/www/html
@@ -138,18 +87,6 @@
     owner: www-data
     group: www-data
     recurse: yes
-
-- name: Installation de PhpSpreadsheet
-  shell: |
-    cd /var/www/html
-    sudo -u www-data composer require phpoffice/phpspreadsheet --no-interaction
-  args:
-    executable: /bin/bash
-
-- name: Supprimer le répertoire temporaire
-  file:
-    path: /tmp/composer
-    state: absent
 
 - name: Supprimer index.html par défaut
   file:
