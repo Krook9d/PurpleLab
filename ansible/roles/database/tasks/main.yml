@@ -211,7 +211,7 @@
     mode: '0600'
 
 - name: Générer un mot de passe aléatoire sécurisé
-  shell: tr -dc 'A-Za-z0-9!@#$%^&*()' < /dev/urandom | head -c 12
+  shell: tr -dc 'A-Za-z0-9!@#%^&' < /dev/urandom | head -c 12
   register: admin_password
   changed_when: false
 
