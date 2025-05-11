@@ -160,100 +160,36 @@
     psql -d {{ db_name }} -c "\COPY atomic_tests(tactic, technique_id, technique_name, test, test_name, Test_GUID, Executor_Name) FROM '/var/www/html/enterprise-attack/index.csv' WITH (FORMAT csv, DELIMITER ';', HEADER true, NULL '');"
   ignore_errors: yes
 
-- name: Créer le script PHP d'importation des techniques Mitre
-  copy:
-    content: |
-      <?php
-      // Script pour importer les données Excel dans PostgreSQL
-      require '/var/www/html/vendor/autoload.php';
-      use PhpOffice\PhpSpreadsheet\Reader\Xlsx;
+- name: Installer xlsx2csv (outil de conversion Excel vers CSV)
+  apt:
+    name: python3-pip
+    state: present
+    update_cache: yes
 
-      ini_set('memory_limit', '512M');
-      set_time_limit(300);
+- name: Installer xlsx2csv via pip
+  pip:
+    name: xlsx2csv
+    state: present
 
-      $conn_string = "host=localhost dbname={{ db_name }} user={{ db_user }} password={{ db_pass }}";
-      $conn = pg_connect($conn_string);
-
-      if (!$conn) {
-          die("Error connecting to database: " . pg_last_error());
-      }
-
-      pg_query($conn, "TRUNCATE TABLE mitre_techniques");
-
-      $reader = new Xlsx();
-      $spreadsheet = $reader->load('/var/www/html/enterprise-attack/enterprise-attack-techniques.xlsx');
-      $worksheet = $spreadsheet->getActiveSheet();
-      $highestRow = $worksheet->getHighestRow();
-      $headers = [];
-
-      foreach ($worksheet->getRowIterator(1, 1) as $row) {
-          $cellIterator = $row->getCellIterator();
-          $cellIterator->setIterateOnlyExistingCells(FALSE);
-          foreach ($cellIterator as $cell) {
-              $headers[] = $cell->getValue();
-          }
-      }
-
-      $count = 0;
-      foreach ($worksheet->getRowIterator(2) as $row) {
-          $data = [];
-          $cellIterator = $row->getCellIterator();
-          $cellIterator->setIterateOnlyExistingCells(FALSE);
-          
-          foreach ($cellIterator as $cell) {
-              $data[] = $cell->getValue();
-          }
-          
-          // Fill with NULL if necessary
-          while (count($data) < count($headers)) {
-              $data[] = null;
-          }
-          
-          $values = [];
-          $placeholders = [];
-          for ($i = 0; $i < count($headers); $i++) {
-              if ($i == 13 || $i == 18) {
-                  // Convert boolean fields
-                  $value = strtolower($data[$i]);
-                  if ($value === 'true' || $value === true) {
-                      $values[] = 'true';
-                  } elseif ($value === 'false' || $value === false) {
-                      $values[] = 'false';
-                  } else {
-                      $values[] = $data[$i];
-                  }
-              } else {
-                  $values[] = $data[$i];
-              }
-              $placeholders[] = '$' . ($i + 1);
-          }
-          
-          $query = "INSERT INTO mitre_techniques VALUES (" . implode(',', $placeholders) . ")";
-          $result = pg_query_params($conn, $query, $values);
-          
-          if ($result) {
-              $count++;
-          } else {
-              echo "Error: " . pg_last_error($conn) . "\n";
-          }
-          
-          if ($count % 100 == 0) {
-              echo "Imported: $count rows\n";
-          }
-      }
-
-      echo "Import completed: $count techniques imported\n";
-      pg_close($conn);
-      ?>
-    dest: /var/www/html/scripts/php/import_mitre_excel.php
-    mode: '0755'
-    owner: www-data
-    group: www-data
-
-- name: Importer les données Excel dans mitre_techniques
+- name: Convertir le fichier Excel MITRE en CSV
   become: true
-  become_user: www-data
-  shell: php /var/www/html/scripts/php/import_mitre_excel.php
+  become_user: postgres
+  shell: |
+    xlsx2csv -d ";" /var/www/html/enterprise-attack/enterprise-attack-techniques.xlsx /tmp/mitre_techniques.csv
+  ignore_errors: yes
+
+- name: Préparer la table pour l'importation
+  become: true
+  become_user: postgres
+  postgresql_query:
+    db: "{{ db_name }}"
+    query: "TRUNCATE TABLE mitre_techniques;"
+
+- name: Importer les données Excel dans mitre_techniques via CSV
+  become: true
+  become_user: postgres
+  shell: |
+    psql -d {{ db_name }} -c "\COPY mitre_techniques(id, stix_id, name, description, url, created, last_modified, domain, version, tactics, detection, platforms, data_sources, is_sub_technique, sub_technique_of, defenses_bypassed, contributors, permissions_required, supports_remote, system_requirements, impact_type, effective_permissions, relationship_citations) FROM '/tmp/mitre_techniques.csv' WITH (FORMAT csv, DELIMITER ';', HEADER true, NULL '');"
   ignore_errors: yes
 
 - name: Supprimer l'utilisateur admin s'il existe
