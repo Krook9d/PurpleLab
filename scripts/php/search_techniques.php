@@ -1,81 +1,87 @@
 <?php
 // search_techniques.php
-require '/var/www/html/vendor/autoload.php'; 
 
-use PhpOffice\PhpSpreadsheet\Reader\Xlsx;
+// Connexion à la base de données
+$conn_string = "host=localhost dbname=purplelab user=toor password=root";
+$conn = pg_connect($conn_string);
 
-// Function to read the Excel file and return filtered techniques
+if (!$conn) {
+    header('Content-Type: application/json');
+    die(json_encode(['error' => 'Erreur de connexion à la base de données']));
+}
+
+// Function to search techniques from database
 function searchTechniques($searchTerm) {
-    $reader = new Xlsx();
-    $spreadsheet = $reader->load('/var/www/html/enterprise-attack/enterprise-attack-techniques.xlsx');
-    $worksheet = $spreadsheet->getActiveSheet();
-    $techniques = [];
-
+    global $conn;
+    
     $searchTerm = strtoupper($searchTerm);
-
-    foreach ($worksheet->getRowIterator() as $row) {
-        $cellIterator = $row->getCellIterator();
-        $cellIterator->setIterateOnlyExistingCells(FALSE); 
-
-        $cells = [];
-        foreach ($cellIterator as $cell) {
-            $cells[] = $cell->getValue();
-        }
-
-        $cellValue = strtoupper($cells[0]);
-
-        if (strncmp($cellValue, $searchTerm, strlen($searchTerm)) === 0) {
-            $techniques[] = [
-                'id' => $cells[0], // ID of the technique
-                'name' => $cells[2] // Name of the technique
-            ];
-        }
+    $searchPattern = "$searchTerm%";
+    
+    $query = "SELECT id, name 
+              FROM mitre_techniques 
+              WHERE UPPER(id) LIKE $1 
+              ORDER BY id";
+    
+    $result = pg_query_params($conn, $query, [$searchPattern]);
+    
+    if (!$result) {
+        die(json_encode(['error' => 'Erreur lors de la recherche']));
     }
-
+    
+    $techniques = [];
+    while ($row = pg_fetch_assoc($result)) {
+        $techniques[] = $row;
+    }
+    
     return $techniques;
 }
 
-
-// Function to obtain details of a specific technique by its ID
+// Function to get technique details from database
 function getTechniqueDetails($id) {
-    $reader = new Xlsx();
-    $spreadsheet = $reader->load('/var/www/html/enterprise-attack/enterprise-attack-techniques.xlsx');
-    $worksheet = $spreadsheet->getActiveSheet();
+    global $conn;
     
-    $highestColumn = $worksheet->getHighestColumn();
-    $headers = $worksheet->rangeToArray('A1:' . $highestColumn . '1', NULL, TRUE, FALSE)[0];
-
-    $techniqueDetails = [];
-
-    foreach ($worksheet->getRowIterator(2) as $row) {
-
-        $cellIterator = $row->getCellIterator();
-        $cellIterator->setIterateOnlyExistingCells(FALSE);
-
-        $cells = [];
-        foreach ($cellIterator as $cell) {
-            $cells[] = $cell->getValue();
-        }
-
-        if (strtoupper($cells[0]) === strtoupper($id)) {
-            foreach ($cells as $index => $value) {
-               
-                $techniqueDetails[$headers[$index]] = $value;
-            }
-            break; 
-        }
+    $query = "SELECT * FROM mitre_techniques WHERE id = $1";
+    $result = pg_query_params($conn, $query, [$id]);
+    
+    if (!$result) {
+        die(json_encode(['error' => 'Erreur lors de la récupération des détails']));
     }
-
-    // Filter details to exclude certain columns
-    $excludedColumns = ['STIX ID', 'domain', 'is sub-technique', 'contributors', 'supports remote', 'relationship citations'];
-    foreach ($excludedColumns as $excludedColumn) {
-        unset($techniqueDetails[$excludedColumn]);
+    
+    $technique = pg_fetch_assoc($result);
+    
+    if ($technique) {
+        // Map database columns to expected field names
+        $techniqueDetails = [
+            'ID' => $technique['id'],
+            'Name' => $technique['name'],
+            'description' => $technique['description'],
+            'url' => $technique['url'],
+            'created' => $technique['created'],
+            'last_modified' => $technique['last_modified'],
+            'tactics' => $technique['tactics'],
+            'detection' => $technique['detection'],
+            'platforms' => $technique['platforms'],
+            'data_sources' => $technique['data_sources'],
+            'defenses_bypassed' => $technique['defenses_bypassed'],
+            'permissions_required' => $technique['permissions_required'],
+            'system_requirements' => $technique['system_requirements'],
+            'impact_type' => $technique['impact_type'],
+            'effective_permissions' => $technique['effective_permissions']
+        ];
+        
+        // Filter details to exclude certain columns
+        $excludedColumns = ['STIX ID', 'domain', 'is sub-technique', 'contributors', 'supports remote', 'relationship citations'];
+        foreach ($excludedColumns as $excludedColumn) {
+            unset($techniqueDetails[$excludedColumn]);
+        }
+        
+        return $techniqueDetails;
     }
-
-    return $techniqueDetails;
+    
+    return [];
 }
 
-
+// Process requests
 if (isset($_POST['searchTerm'])) {
     $searchTerm = $_POST['searchTerm'];
     $techniques = searchTechniques($searchTerm);
@@ -87,4 +93,7 @@ if (isset($_POST['searchTerm'])) {
     header('Content-Type: application/json');
     echo json_encode($techniqueDetails);
 }
+
+// Close connection
+pg_close($conn);
 ?>
