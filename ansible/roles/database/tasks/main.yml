@@ -160,17 +160,6 @@
     psql -d {{ db_name }} -c "\COPY atomic_tests(tactic, technique_id, technique_name, test, test_name, Test_GUID, Executor_Name) FROM '/var/www/html/enterprise-attack/index.csv' WITH (FORMAT csv, DELIMITER ';', HEADER true, NULL '');"
   ignore_errors: yes
 
-- name: Installer xlsx2csv (outil de conversion Excel vers CSV)
-  apt:
-    name: python3-pip
-    state: present
-    update_cache: yes
-
-- name: Installer xlsx2csv via pip
-  pip:
-    name: xlsx2csv
-    state: present
-
 - name: Convertir le fichier Excel MITRE en CSV
   become: true
   become_user: postgres
