@@ -9,6 +9,7 @@ import shlex
 from datetime import datetime
 from werkzeug.utils import secure_filename
 import base64
+import json
 
 
 app = Flask(__name__)
@@ -359,13 +360,31 @@ def api_generate_logs():
 @cross_origin()
 def update_mitre_database():
     try:
-        working_directory = '/var/www/html/'
-
-        subprocess.run(['python3', 'scripts/attackToExcel.py'], check=True, cwd=working_directory)
-
-        return jsonify({'status': 'success'}), 200
+        # Utiliser le script PHP pour exécuter le script Python avec les variables d'environnement
+        result = subprocess.run(['php', '/var/www/html/scripts/php/update_mitre.php'], 
+                               check=True, 
+                               stdout=subprocess.PIPE, 
+                               stderr=subprocess.PIPE)
+        
+        # Essayer de parser la sortie JSON
+        try:
+            output = json.loads(result.stdout.decode('utf-8'))
+            return jsonify(output), 200
+        except json.JSONDecodeError:
+            # Si la sortie n'est pas du JSON valide, retourner la sortie brute
+            return jsonify({
+                'status': 'success',
+                'message': 'Le script de mise à jour a été exécuté',
+                'raw_output': result.stdout.decode('utf-8')
+            }), 200
+            
     except subprocess.CalledProcessError as e:
-        return jsonify({'status': 'error', 'message': str(e)}), 500
+        return jsonify({
+            'status': 'error', 
+            'message': 'Erreur lors de l\'exécution du script PHP',
+            'error': str(e),
+            'stderr': e.stderr.decode('utf-8') if e.stderr else ""
+        }), 500
 
 @app.route('/api/update_mitre_database', methods=['POST'])
 @jwt_required(optional=True)
@@ -374,11 +393,31 @@ def api_update_mitre_database():
         return jsonify({"msg": "Access denied"}), 401
 
     try:
-        working_directory = '/var/www/html/'
-        subprocess.run(['python3', 'scripts/attackToExcel.py'], check=True, cwd=working_directory)
-        return jsonify({'status': 'success'}), 200
+        # Utiliser le script PHP pour exécuter le script Python avec les variables d'environnement
+        result = subprocess.run(['php', '/var/www/html/scripts/php/update_mitre.php'], 
+                               check=True, 
+                               stdout=subprocess.PIPE, 
+                               stderr=subprocess.PIPE)
+        
+        # Essayer de parser la sortie JSON
+        try:
+            output = json.loads(result.stdout.decode('utf-8'))
+            return jsonify(output), 200
+        except json.JSONDecodeError:
+            # Si la sortie n'est pas du JSON valide, retourner la sortie brute
+            return jsonify({
+                'status': 'success',
+                'message': 'Le script de mise à jour a été exécuté',
+                'raw_output': result.stdout.decode('utf-8')
+            }), 200
+            
     except subprocess.CalledProcessError as e:
-        return jsonify({'status': 'error', 'message': str(e)}), 500
+        return jsonify({
+            'status': 'error', 
+            'message': 'Erreur lors de l\'exécution du script PHP',
+            'error': str(e),
+            'stderr': e.stderr.decode('utf-8') if e.stderr else ""
+        }), 500
 
 
 @app.route('/execute_usecase', methods=['POST'])
