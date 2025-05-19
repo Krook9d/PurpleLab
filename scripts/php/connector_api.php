@@ -42,7 +42,7 @@ $action = $_POST['action'];
 log_message("Action requested: $action");
 
 // Validate action
-if (!in_array($action, ['test', 'save', 'get', 'list', 'delete', 'retrieve_rules', 'payload_list', 'payload_create', 'payload_update', 'payload_delete', 'payload_get', 'sync_rules', 'get_rules', 'get_rule_payload_map', 'save_rule_payload'])) {
+if (!in_array($action, ['test', 'save', 'get', 'list', 'delete', 'retrieve_rules', 'payload_list', 'payload_create', 'payload_update', 'payload_delete', 'payload_get', 'sync_rules', 'get_rules', 'get_rule_payload_map', 'save_rule_payload', 'execute_payload'])) {
     http_response_code(400);
     echo json_encode(['error' => 'Invalid action']);
     exit;
@@ -57,7 +57,7 @@ $opensearchScript = '/var/www/html/scripts/Connector/opensearch.py';
 $splunkScript = '/var/www/html/scripts/Connector/splunk_alerts.py';
 
 // Validate action
-if (!in_array($action, ['test', 'save', 'get', 'list', 'delete', 'retrieve_rules', 'payload_list', 'payload_create', 'payload_update', 'payload_delete', 'payload_get', 'sync_rules', 'get_rules', 'get_rule_payload_map', 'save_rule_payload'])) {
+if (!in_array($action, ['test', 'save', 'get', 'list', 'delete', 'retrieve_rules', 'payload_list', 'payload_create', 'payload_update', 'payload_delete', 'payload_get', 'sync_rules', 'get_rules', 'get_rule_payload_map', 'save_rule_payload', 'execute_payload'])) {
     http_response_code(400);
     echo json_encode(['error' => 'Invalid action']);
     exit;
@@ -578,6 +578,33 @@ switch ($action) {
         $rule_id = $_POST['rule_id'] ?? '';
         $payload_id = $_POST['payload_id'] ?? '';
         echo save_rule_payload($rule_id, $payload_id);
+        exit;
+    case 'execute_payload':
+        $content = $_POST['content'] ?? '';
+        if (!$content) {
+            echo json_encode(['status' => 'error', 'message' => 'Missing content']);
+            exit;
+        }
+        $api_data = json_encode(['content' => $content]);
+        $ch = curl_init('http://127.0.0.1:5000/api/execute_payload');
+        curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "POST");
+        curl_setopt($ch, CURLOPT_POSTFIELDS, $api_data);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_HTTPHEADER, [
+            'Content-Type: application/json',
+            'Content-Length: ' . strlen($api_data)
+        ]);
+        $result = curl_exec($ch);
+        $http_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        curl_close($ch);
+        if ($http_code === 200) {
+            echo $result;
+        } else {
+            echo json_encode([
+                'status' => 'error',
+                'message' => 'Failed to execute payload'
+            ]);
+        }
         exit;
     default:
         echo json_encode(['error' => 'Action inconnue']);
