@@ -6,12 +6,25 @@ from datetime import datetime
 import time
 import argparse
 from collections import Counter
+import requests
+import urllib3
+import os
 
-# Configuration
-HOST = "127.0.0.1"
-PORT = 8089
-USERNAME = "put username here"  # Change this for security
-PASSWORD = "put password here"  # Change this for security
+# Configuration from environment variables
+SPLUNK_HOST = os.environ.get("SPLUNK_HOST", "localhost")
+SPLUNK_PORT = os.environ.get("SPLUNK_PORT", "8089")
+SPLUNK_USERNAME = os.environ.get("SPLUNK_USERNAME", "admin")
+SPLUNK_PASSWORD = os.environ.get("SPLUNK_PASSWORD", "changeme")
+
+# Log environment variables for debugging
+if 'SPLUNK_HOST' in os.environ:
+    print(f"Using SPLUNK_HOST from environment: {SPLUNK_HOST}")
+if 'SPLUNK_PORT' in os.environ:
+    print(f"Using SPLUNK_PORT from environment: {SPLUNK_PORT}")
+if 'SPLUNK_USERNAME' in os.environ:
+    print(f"Using SPLUNK_USERNAME from environment: {os.environ.get('SPLUNK_USERNAME')}")
+if 'SPLUNK_PASSWORD' in os.environ:
+    print("Using SPLUNK_PASSWORD from environment (value hidden)")
 
 def connect_to_splunk(host, port, username, password):
     return client.connect(
@@ -520,23 +533,126 @@ def get_alert_details_by_sid(service, sid, show_header=True, sample_only=False):
         print(f"  Error retrieving details for SID {sid}: {str(e)}")
         return False
 
-def main(action, sid=None, verbose=False):
-    service = connect_to_splunk(HOST, PORT, USERNAME, PASSWORD)
+def get_all_saved_searches():
+    try:
+        service = connect_to_splunk(SPLUNK_HOST, SPLUNK_PORT, SPLUNK_USERNAME, SPLUNK_PASSWORD)
+        saved_searches = []
+        
+        for search in service.saved_searches:
+            search_info = {
+                "name": search.name,
+                "is_scheduled": bool(search.get("is_scheduled", False)),
+                "search": search.get("search", ""),
+                "description": search.get("description", ""),
+                "cron_schedule": search.get("cron_schedule", ""),
+                "alert_type": search.get("alert_type", ""),
+                "alert_threshold": search.get("alert_threshold", "")
+            }
+            
+            # Add all properties that start with 'action.' or 'alert.'
+            for key, value in search.content.items():
+                if key.startswith('action.') or key.startswith('alert.'):
+                    search_info[key] = value
+            
+            saved_searches.append(search_info)
+        
+        return saved_searches
+    except Exception as e:
+        return f"Error retrieving saved searches: {str(e)}"
 
-    if action == "list_alerts":
-        list_saved_alerts(service)
-    elif action == "triggered_alerts":
-        list_triggered_alerts(service, sid, verbose)
-    else:
-        print("Unknown action. Use: list_alerts or triggered_alerts")
+def list_saved_searches(json_output=False):
+    """List all saved searches with their properties"""
+    if json_output:
+        searches_data = get_all_saved_searches()
+        if isinstance(searches_data, str) and searches_data.startswith("Error"):
+            return {"error": searches_data}
+        
+        # Convert to a format suitable for the frontend
+        saved_searches = []
+        for search in searches_data:
+            search_data = {
+                "name": search.get("name", "Unknown"),
+                "search": search.get("search", ""),
+                "description": search.get("description", ""),
+                "is_scheduled": search.get("is_scheduled", False),
+                "cron_schedule": search.get("cron_schedule", ""),
+                "alert_type": search.get("alert_type", ""),
+                "alert_threshold": search.get("alert_threshold", ""),
+                "severity": search.get("alert.severity", ""),
+                "actions": []
+            }
+            
+            # Extract actions
+            for key in search:
+                if key.startswith("action.") and search.get(key) == "1":
+                    action_name = key.split(".")[1]
+                    search_data["actions"].append(action_name)
+            
+            saved_searches.append(search_data)
+        
+        return {"saved_searches": saved_searches}
+    
+    # Regular console output
+    searches_data = get_all_saved_searches()
+    if isinstance(searches_data, str):
+        print(searches_data)
+        return
+    
+    print(f"\nFound {len(searches_data)} saved searches:")
+    for i, search in enumerate(searches_data, 1):
+        is_alert = search.get("alert_type") and search.get("is_scheduled")
+        print(f"\n[{i}] {search.get('name')}")
+        print(f"  - Is Alert: {is_alert}")
+        print(f"  - Is Scheduled: {search.get('is_scheduled')}")
+        print(f"  - Search: {search.get('search')[:100]}...")
+        if search.get("description"):
+            print(f"  - Description: {search.get('description')}")
+        if search.get("is_scheduled"):
+            print(f"  - Schedule: {search.get('cron_schedule')}")
+        if is_alert:
+            print(f"  - Alert Type: {search.get('alert_type')}")
+            severity = search.get("alert.severity", "N/A")
+            print(f"  - Severity: {severity}")
+            
+            # Display actions
+            actions = []
+            for key in search:
+                if key.startswith("action.") and search.get(key) == "1":
+                    action_name = key.split(".")[1]
+                    actions.append(action_name)
+            
+            if actions:
+                print(f"  - Actions: {', '.join(actions)}")
 
-if __name__ == "__main__":
+def main():
     parser = argparse.ArgumentParser(description="Splunk alert management tool")
-    parser.add_argument("action", choices=["list_alerts", "triggered_alerts"], 
+    parser.add_argument("action", choices=["list_alerts", "triggered_alerts", "list_searches"], 
                         help="Action to perform")
     parser.add_argument("--sid", help="Specific SID to get details for")
     parser.add_argument("--verbose", "-v", action="store_true", 
                         help="Display all details of alerts")
+    parser.add_argument("--list-saved-searches-json", action="store_true", 
+                        help="List all saved searches in JSON format")
     
     args = parser.parse_args()
-    main(args.action, args.sid, args.verbose)
+    
+    if args.list_saved_searches_json:
+        result = list_saved_searches(json_output=True)
+        print(json.dumps(result))
+        return
+    
+    if args.action == "list_searches":
+        list_saved_searches()
+        return
+    
+    service = connect_to_splunk(SPLUNK_HOST, SPLUNK_PORT, SPLUNK_USERNAME, SPLUNK_PASSWORD)
+    
+    if args.action == "list_alerts":
+        list_saved_alerts(service)
+    elif args.action == "triggered_alerts":
+        list_triggered_alerts(service, args.sid, args.verbose)
+    else:
+        print("Unknown action. Use: list_alerts, triggered_alerts, or list_searches")
+
+if __name__ == "__main__":
+    main()
