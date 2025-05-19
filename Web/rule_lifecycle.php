@@ -423,7 +423,6 @@ function saveRulePayloadAssociation(ruleId, payloadId) {
 // Fonction pour exécuter un payload sur une règle
 function executePayload(payloadId, ruleId) {
     console.log(`Exécution du payload ${payloadId} sur la règle ${ruleId}`);
-    
     // Récupérer le payload
     fetch('scripts/php/connector_api.php', {
         method: 'POST',
@@ -438,57 +437,54 @@ function executePayload(payloadId, ruleId) {
             showToast(data.error, 'error');
             return;
         }
-        
         if (!data.payload) {
             showToast('Payload not found', 'error');
             return;
         }
-        
         // Récupérer les données de la règle
         const rule = RULES.find(r => (r.id === ruleId || r.name === ruleId || r.monitor_id === ruleId || r.trigger_name === ruleId));
         if (!rule) {
             showToast('Rule not found', 'error');
             return;
         }
-        
-        // Ici, vous exécuteriez le code du payload avec les données de la règle
-        // Par exemple, en affichant une fenêtre avec le code et les données
-        
-        // Pour l'exemple, affichons simplement un toast
-        showToast(`Executed payload "${data.payload.name}" on rule "${rule.name || ruleId}"`);
-        
-        // Et affiche une boîte de dialogue avec le résultat simulé
-        const modalContent = document.createElement('div');
-        modalContent.innerHTML = `
-            <h3>Payload Execution</h3>
-            <div class="payload-execution-details">
-                <p><strong>Payload:</strong> ${data.payload.name}</p>
-                <p><strong>Rule:</strong> ${rule.name || ruleId}</p>
-                <pre class="code-block">${data.payload.code}</pre>
-                <div class="execution-result">
-                    <h4>Execution Result:</h4>
-                    <pre class="result-block">
-// Simulation du résultat d'exécution
-{
-    "status": "success",
-    "execution_time": "0.523s",
-    "rule_data": ${JSON.stringify(rule, null, 2)}
-}
-                    </pre>
+        // Exécution réelle du code PowerShell via PHP (comme custom_payloads.php)
+        const formData = new FormData();
+        formData.append('action', 'execute_payload');
+        formData.append('content', data.payload.code);
+        fetch('scripts/php/connector_api.php', {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => response.json())
+        .then(result => {
+            // Afficher le résultat dans la modale
+            const modalContent = document.createElement('div');
+            modalContent.innerHTML = `
+                <h3>Payload Execution</h3>
+                <div class="payload-execution-details">
+                    <p><strong>Payload:</strong> ${data.payload.name}</p>
+                    <p><strong>Rule:</strong> ${rule.name || ruleId}</p>
+                    <pre class="code-block">${data.payload.code}</pre>
+                    <div class="execution-result">
+                        <h4>Execution Result:</h4>
+                        <pre class="result-block">${result.status === 'success' ? result.output : result.error || result.message || 'Unknown error'}</pre>
+                    </div>
                 </div>
-            </div>
-        `;
-        
-        const modal = document.getElementById('generic-modal');
-        const modalTitle = document.getElementById('generic-modal-title');
-        const modalBody = document.getElementById('generic-modal-body');
-        
-        if (modal && modalTitle && modalBody) {
-            modalTitle.textContent = 'Payload Execution';
-            modalBody.innerHTML = '';
-            modalBody.appendChild(modalContent);
-            modal.style.display = 'block';
-        }
+            `;
+            const modal = document.getElementById('generic-modal');
+            const modalTitle = document.getElementById('generic-modal-title');
+            const modalBody = document.getElementById('generic-modal-body');
+            if (modal && modalTitle && modalBody) {
+                modalTitle.textContent = 'Payload Execution';
+                modalBody.innerHTML = '';
+                modalBody.appendChild(modalContent);
+                modal.style.display = 'block';
+            }
+        })
+        .catch(error => {
+            console.error('Error executing payload:', error);
+            showToast('Error executing payload', 'error');
+        });
     })
     .catch(error => {
         console.error('Error executing payload:', error);
@@ -932,7 +928,7 @@ document.addEventListener('DOMContentLoaded', function() {
             });
     };
 
-    function showRuleModal(rule) {
+    window.showRuleModal = function(rule) {
         const modal = document.getElementById('rulesModal');
         const title = document.getElementById('rulesModalTitle');
         const content = document.getElementById('rulesContent');
@@ -1025,12 +1021,6 @@ document.addEventListener('DOMContentLoaded', function() {
             }
             html += '</div>';
             
-            // Ajouter les données JSON complètes (repliées par défaut)
-            html += '<div class="rule-json-container">';
-            html += '<div class="rule-json-header" onclick="toggleRuleJson()">Show full JSON data</div>';
-            html += `<div class="rule-json" id="ruleJsonData" style="display:none;"><pre>${JSON.stringify(rule, null, 2)}</pre></div>`;
-            html += '</div>';
-            
             html += '</div>';
             content.innerHTML = html;
             
@@ -1069,20 +1059,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 modal.style.display = 'none';
             }
         });
-    }
-
-    // Fonction pour basculer l'affichage des données JSON complètes
-    function toggleRuleJson() {
-        const jsonData = document.getElementById('ruleJsonData');
-        const jsonHeader = document.querySelector('.rule-json-header');
-        if (jsonData.style.display === 'none') {
-            jsonData.style.display = 'block';
-            jsonHeader.textContent = 'Hide full JSON data';
-        } else {
-            jsonData.style.display = 'none';
-            jsonHeader.textContent = 'Show full JSON data';
-        }
-    }
+    };
 
     // Charger les connecteurs, mais pas les payloads ni les règles initialement
     loadConnectorConfigs();
@@ -1636,7 +1613,9 @@ function fetchPayloads() {
     .catch(error => {
         console.error('Fetch error:', error);
         PAYLOADS = [];
-        showToast('Error loading payloads: ' + error.message, 'error');
+        if (error.message && error.message.includes('Network')) {
+            showToast('Network error while retrieving payloads', 'error');
+        }
     });
 }
 
