@@ -56,6 +56,7 @@
       - Flask-JWT-Extended
       - sigma-cli
       - xlsx2csv
+      - splunk-sdk
     state: present
 
 - name: Configuration du pare-feu pour permettre les connexions HTTP et HTTPS
