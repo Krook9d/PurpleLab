@@ -957,14 +957,22 @@
 .execution-controls {
     display: flex;
     align-items: center;
-    margin-bottom: 20px;
+    gap: 18px;
+    margin-bottom: 28px;
     flex-wrap: wrap;
-    gap: 10px;
+    background: rgba(123,130,245,0.04);
+    padding: 18px 24px;
+    border-radius: 12px;
+    box-shadow: 0 2px 10px rgba(123,130,245,0.06);
 }
 
 .execution-controls label {
-    margin-right: 5px;
-    color: #cbd3da;
+    color: #bfc8e2;
+    font-size: 16px;
+    font-weight: 500;
+    margin-right: 6px;
+    margin-bottom: 0;
+    letter-spacing: 0.2px;
 }
 
 .execution-controls select {
@@ -977,15 +985,19 @@
 }
 
 .execution-results-table {
+    max-width: 1400px;
+    margin: 0 auto 24px auto;
     background-color: rgba(18, 22, 58, 0.5);
     border-radius: 8px;
     padding: 15px;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
 }
 
-.execution-results-table table {
+.execution-results-table table.rules-table {
     width: 100%;
-    border-collapse: collapse;
+    min-width: 600px;
+    max-width: 1400px;
+    margin: 0 auto;
 }
 
 .execution-results-table th,
@@ -1304,4 +1316,70 @@
     color: #9cdcfe;
 }
 
-/* Fin des nouveaux styles */ 
+/* Fin des nouveaux styles */
+
+/* --- Styles pour les menus déroulants de l'onglet Execution & Results --- */
+.select-execution {
+    background-color: #232336;
+    color: #fff;
+    border: 1.5px solid #5865F2;
+    padding: 10px 18px;
+    border-radius: 8px;
+    min-width: 160px;
+    font-size: 15px;
+    font-weight: 500;
+    margin-right: 16px;
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg width='12' height='8' viewBox='0 0 12 8' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1L6 6L11 1' stroke='%237B82F5' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 14px center;
+    background-size: 16px 10px;
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+.select-execution:focus {
+    border-color: #7B82F5;
+    outline: none;
+    box-shadow: 0 0 0 2px rgba(123,130,245,0.18);
+}
+.select-execution:hover {
+    border-color: #7B82F5;
+}
+
+#display-execution-rules {
+    background: linear-gradient(145deg, #7B82F5, #5865F2);
+    color: #fff;
+    border: none;
+    padding: 12px 24px;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 15px;
+    margin-right: 12px;
+    cursor: pointer;
+    box-shadow: 0 4px 12px rgba(123,130,245,0.10);
+    transition: background 0.2s, box-shadow 0.2s, transform 0.2s;
+}
+#display-execution-rules:hover {
+    background: linear-gradient(145deg, #5865F2, #7B82F5);
+    box-shadow: 0 6px 18px rgba(123,130,245,0.18);
+    transform: translateY(-2px);
+}
+
+@media (max-width: 700px) {
+    .execution-controls {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 10px;
+        padding: 12px 8px;
+    }
+    .execution-controls label {
+        margin-bottom: 2px;
+    }
+}
+
+@media (max-width: 1000px) {
+    .execution-results-table, .execution-results-table table.rules-table {
+        max-width: 100%;
+        min-width: 0;
+    }
+} 
+ 
