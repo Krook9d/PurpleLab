@@ -155,20 +155,28 @@ pg_close($conn);
         <div class="rlc-tab-content" id="tab-execution" style="display: none;">
             <!-- Section Exécution & Résultats -->
             <div class="execution-section">
-                <h2>Execution & Results</h2>
                 <div class="execution-controls">
                     <label for="execution-connector-select">Connector:</label>
-                    <select id="execution-connector-select">
+                    <select id="execution-connector-select" class="select-execution">
                         <option value="opensearch">OpenSearch</option>
                         <option value="splunk">Splunk</option>
                     </select>
                     <label for="execution-status-filter">Status:</label>
-                    <select id="execution-status-filter">
+                    <select id="execution-status-filter" class="select-execution">
                         <option value="all">All</option>
                         <option value="triggered">Triggered</option>
                         <option value="not_triggered">Not triggered</option>
                         <option value="error">Error</option>
                     </select>
+                    <label for="execution-time-filter">Time:</label>
+                    <select id="execution-time-filter" class="select-execution">
+                        <option value="all">All time</option>
+                        <option value="24h">Last 24h</option>
+                        <option value="7d">Last 7 days</option>
+                        <option value="1m">Last month</option>
+                        <option value="3m">Last 3 months</option>
+                    </select>
+                    <button class="btn" id="display-execution-rules">Display Rules</button>
                     <button class="btn btn-test" id="execute-all-payloads">Execute All Payloads</button>
                 </div>
                 <div id="execution-results-table" class="execution-results-table"></div>
@@ -238,8 +246,10 @@ pg_close($conn);
 <!-- Modale générique pour l'affichage des résultats d'exécution -->
 <div id="generic-modal" class="modal">
     <div class="modal-content modal-content-large">
-        <span class="close-button">&times;</span>
-        <h2 id="generic-modal-title">Results</h2>
+        <div class="modal-header" style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;border-bottom:1px solid rgba(255,255,255,0.1);padding-bottom:10px;">
+            <h2 id="generic-modal-title" style="flex:1;text-align:center;margin:0;color:#fff;font-size:24px;text-transform:uppercase;letter-spacing:1px;">Result</h2>
+            <button id="close-generic-modal-btn" class="modal-close-btn" style="font-size:24px;background:none;border:none;color:#fff;cursor:pointer;width:40px;height:40px;display:flex;align-items:center;justify-content:center;border-radius:50%;transition:all 0.2s ease;margin-left:10px;">&times;</button>
+        </div>
         <div id="generic-modal-body"></div>
     </div>
 </div>
@@ -316,8 +326,8 @@ function renderRulesTable() {
         
         // Actions
         html += '<td class="rule-actions">';
+        html += `<button class="btn btn-small execute-payload" data-rule-id="${ruleId}">Execute Payload</button>`;
         html += `<button class="btn btn-small view-rule" data-rule-id="${ruleId}">View</button>`;
-        html += `<button class="btn btn-small execute-payload" data-rule-id="${ruleId}">Execute</button>`;
         html += `<button class="btn btn-small create-payload" data-rule-id="${ruleId}">Create Payload</button>`;
         html += '</td>';
         
@@ -364,14 +374,24 @@ function renderRulesTable() {
             const ruleId = this.getAttribute('data-rule-id');
             const select = document.querySelector(`.payload-select[data-rule-id="${ruleId}"]`);
             const payloadId = select ? select.value : '';
-            
+
             if (!payloadId) {
                 showToast('Please select a payload for this rule first');
                 return;
             }
-            
+
+            // --- Ajout de l'état de chargement sur le bouton ---
+            const originalText = this.innerHTML;
+            this.innerHTML = '<span class="loading-spinner"></span> Loading...';
+            this.disabled = true;
+            const btn = this;
+
             // Exécution du payload sur cette règle
-            executePayload(payloadId, ruleId);
+            executePayload(payloadId, ruleId, function() {
+                // Callback pour restaurer le bouton
+                btn.innerHTML = 'Execute Payload';
+                btn.disabled = false;
+            });
         });
     });
     
@@ -421,7 +441,7 @@ function saveRulePayloadAssociation(ruleId, payloadId) {
 }
 
 // Fonction pour exécuter un payload sur une règle
-function executePayload(payloadId, ruleId) {
+function executePayload(payloadId, ruleId, onComplete) {
     console.log(`Exécution du payload ${payloadId} sur la règle ${ruleId}`);
     // Récupérer le payload
     fetch('scripts/php/connector_api.php', {
@@ -435,16 +455,19 @@ function executePayload(payloadId, ruleId) {
     .then(data => {
         if (data.error) {
             showToast(data.error, 'error');
+            if (onComplete) onComplete();
             return;
         }
         if (!data.payload) {
             showToast('Payload not found', 'error');
+            if (onComplete) onComplete();
             return;
         }
         // Récupérer les données de la règle
         const rule = RULES.find(r => (r.id === ruleId || r.name === ruleId || r.monitor_id === ruleId || r.trigger_name === ruleId));
         if (!rule) {
             showToast('Rule not found', 'error');
+            if (onComplete) onComplete();
             return;
         }
         // Exécution réelle du code PowerShell via PHP (comme custom_payloads.php)
@@ -460,7 +483,6 @@ function executePayload(payloadId, ruleId) {
             // Afficher le résultat dans la modale
             const modalContent = document.createElement('div');
             modalContent.innerHTML = `
-                <h3>Payload Execution</h3>
                 <div class="payload-execution-details">
                     <p><strong>Payload:</strong> ${data.payload.name}</p>
                     <p><strong>Rule:</strong> ${rule.name || ruleId}</p>
@@ -480,60 +502,32 @@ function executePayload(payloadId, ruleId) {
                 modalBody.appendChild(modalContent);
                 modal.style.display = 'block';
             }
+            if (onComplete) onComplete();
         })
         .catch(error => {
             console.error('Error executing payload:', error);
             showToast('Error executing payload', 'error');
+            if (onComplete) onComplete();
         });
     })
     .catch(error => {
         console.error('Error executing payload:', error);
         showToast('Error executing payload', 'error');
+        if (onComplete) onComplete();
     });
 }
 
 // Fonction pour afficher les résultats d'exécution dans l'onglet Execution & Results
 function renderExecutionResults() {
     console.log('Rendering execution results');
-    
-    // Pour l'instant, nous allons simplement afficher un message d'information
-    // Mais dans une version future, on pourrait stocker les résultats d'exécution
-    // dans la base de données et les récupérer ici
-    
     const container = document.getElementById('execution-results-table');
     if (!container) return;
-    
-    // S'il y a des résultats d'exécution stockés, on les afficherait ici
-    // Pour l'instant, un simple message d'information
-    container.innerHTML = `
-        <div class="execution-header">
-            <h3>Execution Results</h3>
-            <span>No payloads have been executed yet.</span>
-        </div>
-        <table>
-            <thead>
-                <tr>
-                    <th>Rule</th>
-                    <th>Payload</th>
-                    <th>Execution Time</th>
-                    <th>Status</th>
-                    <th>Results</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr>
-                    <td colspan="5" class="no-results">No execution results available. Execute a payload from the Rules & Payloads tab.</td>
-                </tr>
-            </tbody>
-        </table>
-    `;
-    
+    container.innerHTML = '<div class="no-results">No rules match your criteria.</div>';
     // Ajout d'un gestionnaire pour le bouton d'exécution de tous les payloads
     const executeAllBtn = document.getElementById('execute-all-payloads');
     if (executeAllBtn) {
         executeAllBtn.onclick = function() {
-            // On pourrait implémenter ici l'exécution groupée de tous les payloads
-            showToast('This feature is not implemented yet');
+            executeAllPayloadsForDisplayedRules();
         };
     }
 }
@@ -562,27 +556,21 @@ document.addEventListener('DOMContentLoaded', function() {
                 fetchPayloads();
                 fetchRulesAndPayloads();
             } else if (tabBtn.dataset.tab === 'tab-execution') {
-                renderExecutionResults();
+                // Synchroniser automatiquement les règles à chaque accès à l'onglet Execution & Results
+                synchronizeRulesForExecutionTab();
             }
         });
     });
 
     // Gestionnaire d'événements pour la modale générique
     const genericModal = document.getElementById('generic-modal');
-    const closeGenericModal = genericModal.querySelector('.close-button');
-    if (closeGenericModal) {
-        closeGenericModal.onclick = function() {
+    const closeGenericModalBtn = document.getElementById('close-generic-modal-btn');
+    if (closeGenericModalBtn) {
+        closeGenericModalBtn.onclick = function() {
             genericModal.style.display = 'none';
         };
     }
     
-    // Fermer la modale générique en cliquant en dehors
-    window.addEventListener('click', function(event) {
-        if (event.target === genericModal) {
-            genericModal.style.display = 'none';
-        }
-    });
-
     // Connector card click handlers
     const splunkConnector = document.getElementById('splunk-connector');
     if (splunkConnector) {
@@ -1103,6 +1091,40 @@ document.addEventListener('DOMContentLoaded', function() {
             descField.parentNode.appendChild(infoElement);
         }
     }
+
+    const displayRulesBtn = document.getElementById('display-execution-rules');
+    if (displayRulesBtn) {
+        displayRulesBtn.onclick = function() {
+            renderExecutionRulesTable();
+        };
+    }
+
+    // Gestionnaire pour la synchronisation automatique lors du changement de connecteur dans l'onglet Execution & Results
+    const executionConnectorSelect = document.getElementById('execution-connector-select');
+    if (executionConnectorSelect) {
+        executionConnectorSelect.addEventListener('change', function() {
+            // Synchroniser automatiquement les règles du nouveau connecteur sélectionné
+            synchronizeRulesForExecutionTab();
+        });
+    }
+
+    // Ajout d'un gestionnaire pour le bouton d'exécution de tous les payloads
+    function attachExecuteAllPayloadsHandler() {
+        const executeAllBtn = document.getElementById('execute-all-payloads');
+        if (executeAllBtn) {
+            executeAllBtn.onclick = function() {
+                console.log('[DEBUG] Clicked Execute All Payloads');
+                executeAllPayloadsForDisplayedRules();
+            };
+        }
+    }
+    attachExecuteAllPayloadsHandler();
+    // Réattacher à chaque changement d'onglet
+    document.querySelectorAll('.rlc-tab').forEach(function(tabBtn) {
+        tabBtn.addEventListener('click', function() {
+            setTimeout(attachExecuteAllPayloadsHandler, 100); // Pour s'assurer que le DOM est prêt
+        });
+    });
 });
 
 function testConnection(connectorType) {
@@ -1567,8 +1589,8 @@ function displaySplunkRules(data, container) {
     container.innerHTML = html;
 }
 
-function fetchPayloads() {
-    console.log('Fetching payloads');
+function fetchPayloads(callback) {
+    console.log('[DEBUG] fetchPayloads called');
     fetch('scripts/php/connector_api.php', {
         method: 'POST',
         body: new URLSearchParams({ action: 'payload_list' })
@@ -1581,41 +1603,21 @@ function fetchPayloads() {
     })
     .then(data => {
         console.log('Payloads received:', data);
-        
         if (data.error) {
             showToast(data.error, 'error');
             console.error('Error fetching payloads:', data.error);
+            PAYLOADS = [];
+            if (callback) callback();
             return;
         }
-        
         PAYLOADS = data.payloads || [];
         console.log('Payloads updated:', PAYLOADS.length, 'payloads');
-        
-        // Rafraîchir le tableau des règles si les règles ont été chargées
-        if (RULES && RULES.length > 0) {
-            console.log('Rules loaded, rendering rules table');
-            renderRulesTable();
-        } else {
-            console.log('No rules loaded yet, skipping renderRulesTable');
-        }
-        
-        // Mettre à jour la liste déroulante dans le formulaire de modal
-        const select = document.getElementById('rule-for-payload');
-        if (select) {
-            select.innerHTML = '<option value="">-- Select Rule --</option>';
-            for (const rule of RULES) {
-                const ruleId = rule.id || rule.name || rule.monitor_id || rule.trigger_name || 'Unknown';
-                const ruleName = rule.name || rule.trigger_name || rule.monitor_name || ruleId;
-                select.innerHTML += `<option value="${ruleId}">${ruleName}</option>`;
-            }
-        }
+        if (callback) callback();
     })
     .catch(error => {
         console.error('Fetch error:', error);
         PAYLOADS = [];
-        if (error.message && error.message.includes('Network')) {
-            showToast('Network error while retrieving payloads', 'error');
-        }
+        if (callback) callback();
     });
 }
 
@@ -1780,7 +1782,243 @@ function highlightPowerShellSyntax() {
     // Cette fonction est juste un placeholder
     console.log('Syntax highlighting for PowerShell would be applied here');
 }
+
+function renderExecutionRulesTable() {
+    // Récupérer les sélections
+    const connector = document.getElementById('execution-connector-select').value;
+    const status = document.getElementById('execution-status-filter').value;
+    const timeFilter = document.getElementById('execution-time-filter').value;
+    // Filtrer les règles selon le connecteur et le statut
+    let filteredRules = RULES.filter(rule => {
+        let matchConnector = true;
+        if (connector && connector !== 'all') {
+            matchConnector = (rule.connector || SELECTED_CONNECTOR) === connector;
+        }
+        let matchStatus = true;
+        // Gestion du filtre de temps pour les règles triggered
+        let isTriggered = !!rule.is_active;
+        let triggerTime = rule.start_time || rule.trigger_time || null;
+        let now = Date.now();
+        let triggeredRecently = true;
+        if (isTriggered && triggerTime && timeFilter && timeFilter !== 'all') {
+            let triggerTimestamp = typeof triggerTime === 'string' ? Date.parse(triggerTime) : triggerTime;
+            if (String(triggerTimestamp).length === 10) triggerTimestamp = triggerTimestamp * 1000; // Si timestamp en secondes
+            let diffMs = now - triggerTimestamp;
+            let maxMs = 0;
+            if (timeFilter === '24h') maxMs = 24 * 3600 * 1000;
+            else if (timeFilter === '7d') maxMs = 7 * 24 * 3600 * 1000;
+            else if (timeFilter === '1m') maxMs = 30 * 24 * 3600 * 1000;
+            else if (timeFilter === '3m') maxMs = 90 * 24 * 3600 * 1000;
+            triggeredRecently = diffMs <= maxMs;
+        }
+        if (status === 'triggered') matchStatus = isTriggered && triggeredRecently;
+        else if (status === 'not_triggered') matchStatus = !isTriggered || (isTriggered && !triggeredRecently);
+        else if (status === 'error') matchStatus = rule.status === 'error';
+        return matchConnector && matchStatus;
+    });
+    // Afficher les règles filtrées
+    const container = document.getElementById('execution-results-table');
+    if (!container) return;
+    if (filteredRules.length === 0) {
+        container.innerHTML = '<div class="no-results">No rules match your criteria.</div>';
+        return;
+    }
+    let html = '<table class="rules-table"><thead><tr>';
+    html += '<th>Name</th><th>Rule ID</th><th>Type</th><th>Severity</th><th>Payload</th><th>Status</th></tr></thead><tbody>';
+    for (const rule of filteredRules) {
+        const ruleId = rule.id || rule.monitor_id || rule.trigger_name || '-';
+        let payloadCell = '<span class="no-payload">None</span>';
+        if (rulePayloadMap && rulePayloadMap[ruleId]) {
+            const payloadId = rulePayloadMap[ruleId];
+            const payload = PAYLOADS.find(p => p.id == payloadId);
+            if (payload) {
+                payloadCell = `<span class=\"has-payload\">${payload.name}</span>`;
+            } else {
+                payloadCell = '<span class=\"no-payload\">Unknown</span>';
+            }
+        }
+        html += `<tr><td>${rule.name || rule.trigger_name || rule.monitor_name || '-'}</td>`;
+        html += `<td>${ruleId}</td>`;
+        html += `<td>${rule.rule_type || rule.type || '-'}</td>`;
+        html += `<td>${rule.severity || '-'}</td>`;
+        html += `<td>${payloadCell}</td>`;
+        html += `<td>${rule.is_active ? '<span class=\"status-triggered\">Triggered</span>' : '<span class=\"status-not-triggered\">Not triggered</span>'}</td></tr>`;
+    }
+    html += '</tbody></table>';
+    container.innerHTML = html;
+}
+
+function synchronizeRulesForExecutionTab() {
+    // Récupérer le connecteur sélectionné dans l'onglet Execution & Results
+    const executionConnectorSelect = document.getElementById('execution-connector-select');
+    const selectedConnector = executionConnectorSelect ? executionConnectorSelect.value : 'opensearch';
+    
+    // Afficher un indicateur de chargement
+    const container = document.getElementById('execution-results-table');
+    if (container) {
+        container.innerHTML = '<div class="loading-container"><div class="loading-spinner"></div><p>Synchronizing ' + selectedConnector + ' rules...</p></div>';
+    }
+    
+    // Appel API pour synchroniser les règles du connecteur sélectionné
+    fetch('scripts/php/connector_api.php', {
+        method: 'POST',
+        body: new URLSearchParams({ action: 'retrieve_rules', connector_type: selectedConnector })
+    })
+    .then(r => r.json())
+    .then(data => {
+        let rules = [];
+        if (data.triggers) {
+            rules = data.triggers;
+        } else if (data.saved_searches) {
+            rules = data.saved_searches;
+        }
+        
+        // Ajouter le type de connecteur à chaque règle pour le filtrage
+        rules = rules.map(rule => ({
+            ...rule,
+            connector: selectedConnector
+        }));
+        
+        // Mettre à jour RULES
+        RULES = rules;
+        
+        // Charger les payloads puis afficher le message
+        fetchPayloads(function() {
+            if (container) container.innerHTML = '<div class="no-results">Select filters and display rules.</div>';
+        });
+    })
+    .catch(error => {
+        console.error('Error synchronizing rules:', error);
+        if (container) container.innerHTML = '<div class="no-results">Error synchronizing rules.</div>';
+    });
+}
+
+function executeAllPayloadsForDisplayedRules() {
+    console.log('[DEBUG] Début executeAllPayloadsForDisplayedRules');
+    // Récupérer les règles actuellement affichées (après filtrage)
+    const connector = document.getElementById('execution-connector-select').value;
+    const status = document.getElementById('execution-status-filter').value;
+    const timeFilter = document.getElementById('execution-time-filter').value;
+    let filteredRules = RULES.filter(rule => {
+        let matchConnector = true;
+        if (connector && connector !== 'all') {
+            matchConnector = (rule.connector || SELECTED_CONNECTOR) === connector;
+        }
+        let matchStatus = true;
+        let isTriggered = !!rule.is_active;
+        let triggerTime = rule.start_time || rule.trigger_time || null;
+        let now = Date.now();
+        let triggeredRecently = true;
+        if (isTriggered && triggerTime && timeFilter && timeFilter !== 'all') {
+            let triggerTimestamp = typeof triggerTime === 'string' ? Date.parse(triggerTime) : triggerTime;
+            if (String(triggerTimestamp).length === 10) triggerTimestamp = triggerTimestamp * 1000;
+            let diffMs = now - triggerTimestamp;
+            let maxMs = 0;
+            if (timeFilter === '24h') maxMs = 24 * 3600 * 1000;
+            else if (timeFilter === '7d') maxMs = 7 * 24 * 3600 * 1000;
+            else if (timeFilter === '1m') maxMs = 30 * 24 * 3600 * 1000;
+            else if (timeFilter === '3m') maxMs = 90 * 24 * 3600 * 1000;
+            triggeredRecently = diffMs <= maxMs;
+        }
+        if (status === 'triggered') matchStatus = isTriggered && triggeredRecently;
+        else if (status === 'not_triggered') matchStatus = !isTriggered || (isTriggered && !triggeredRecently);
+        else if (status === 'error') matchStatus = rule.status === 'error';
+        return matchConnector && matchStatus;
+    });
+    console.log('[DEBUG] filteredRules:', filteredRules);
+    // Pour chaque règle, exécuter le payload associé si présent
+    let executions = [];
+    for (const rule of filteredRules) {
+        const ruleId = rule.id || rule.monitor_id || rule.trigger_name || '-';
+        const payloadId = rulePayloadMap && rulePayloadMap[ruleId];
+        if (payloadId) {
+            const payload = PAYLOADS.find(p => p.id == payloadId);
+            if (payload) {
+                executions.push({ rule, payload });
+            }
+        }
+    }
+    console.log('[DEBUG] executions à lancer:', executions);
+    if (executions.length === 0) {
+        showToast('No payloads to execute for the displayed rules.', 'error');
+        return;
+    }
+    // Afficher un loading global
+    const modal = document.getElementById('generic-modal');
+    const modalTitle = document.getElementById('generic-modal-title');
+    const modalBody = document.getElementById('generic-modal-body');
+    if (modal && modalTitle && modalBody) {
+        modalTitle.textContent = 'Batch Payload Execution';
+        modalBody.innerHTML = '<div class="loading-container"><div class="loading-spinner"></div><p>Executing all payloads...</p></div>';
+        modal.style.display = 'block';
+    }
+    // Exécution séquentielle (pour éviter surcharge)
+    let results = [];
+    function executeNext(index) {
+        if (index >= executions.length) {
+            // Afficher le récapitulatif
+            let html = '<h4>Execution Results</h4>';
+            html += '<table class="rules-table"><thead><tr><th>Rule</th><th>Payload</th><th>Status</th><th>Output/Error</th></tr></thead><tbody>';
+            for (const res of results) {
+                html += `<tr><td>${res.ruleName}</td><td>${res.payloadName}</td><td>${res.status}</td><td><pre class="result-block">${res.output}</pre></td></tr>`;
+            }
+            html += '</tbody></table>';
+            if (modalBody) modalBody.innerHTML = html;
+            return;
+        }
+        const { rule, payload } = executions[index];
+        // Appel API pour exécuter le payload
+        const formData = new FormData();
+        formData.append('action', 'execute_payload');
+        formData.append('content', payload.code);
+        fetch('scripts/php/connector_api.php', {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => response.json())
+        .then(result => {
+            results.push({
+                ruleName: rule.name || rule.trigger_name || rule.monitor_name || '-',
+                payloadName: payload.name,
+                status: result.status === 'success' ? 'Success' : 'Error',
+                output: result.status === 'success' ? result.output : (result.error || result.message || 'Unknown error')
+            });
+            executeNext(index + 1);
+        })
+        .catch(error => {
+            results.push({
+                ruleName: rule.name || rule.trigger_name || rule.monitor_name || '-',
+                payloadName: payload.name,
+                status: 'Error',
+                output: error.message || 'Network error'
+            });
+            executeNext(index + 1);
+        });
+    }
+    executeNext(0);
+}
 </script>
+
+<style>
+/* Style spécifique pour le bouton de fermeture de la modale */
+.modal-close-btn:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+/* Style pour les titres des modales */
+.modal-header h2 {
+    font-weight: 600;
+    text-shadow: 0 1px 2px rgba(0,0,0,0.3);
+}
+
+/* Style pour améliorer l'apparence de la modale */
+#generic-modal .modal-content {
+    border-radius: 8px;
+    box-shadow: 0 5px 20px rgba(0,0,0,0.5);
+    border: 1px solid rgba(255,255,255,0.1);
+}
+</style>
 
 </body>
 </html> 
+ 
