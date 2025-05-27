@@ -541,12 +541,12 @@ def get_all_saved_searches():
         for search in service.saved_searches:
             search_info = {
                 "name": search.name,
-                "is_scheduled": bool(search.get("is_scheduled", False)),
-                "search": search.get("search", ""),
-                "description": search.get("description", ""),
-                "cron_schedule": search.get("cron_schedule", ""),
-                "alert_type": search.get("alert_type", ""),
-                "alert_threshold": search.get("alert_threshold", "")
+                "is_scheduled": bool(search.content.get("is_scheduled", False)),
+                "search": search.content.get("search", ""),
+                "description": search.content.get("description", ""),
+                "cron_schedule": search.content.get("cron_schedule", ""),
+                "alert_type": search.content.get("alert_type", ""),
+                "alert_threshold": search.content.get("alert_threshold", "")
             }
             
             # Add all properties that start with 'action.' or 'alert.'
