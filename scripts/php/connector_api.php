@@ -267,7 +267,7 @@ switch ($action) {
                     
                     // Add debug information
                     file_put_contents($tempEnvFile, "echo \"Debug: Running splunk script with environment variables\"\n", FILE_APPEND);
-                    file_put_contents($tempEnvFile, "python3 $splunkScript --list-saved-searches-json 2>&1\n", FILE_APPEND);
+                    file_put_contents($tempEnvFile, "python3 $splunkScript list_searches --list-saved-searches-json 2>&1\n", FILE_APPEND);
                     chmod($tempEnvFile, 0755);
                     
                     $output = shell_exec("bash $tempEnvFile 2>&1");
@@ -735,3 +735,4 @@ function save_rule_payload($rule_id, $payload_id) {
     
     return json_encode(['success' => true]);
 } 
+ 
