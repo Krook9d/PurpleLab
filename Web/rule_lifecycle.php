@@ -279,7 +279,7 @@ function renderRulesTable() {
     
     // Préparer les en-têtes
     const tableHeaders = ['Name', 'Rule ID', 'Type', 'Severity', 'Actions'];
-    const payloadHeaders = ['Name', 'Rule ID', 'Type', 'Severity', 'Assigned Payload', 'Actions'];
+    const payloadHeaders = ['Name', 'Rule ID', 'Type', 'Severity', 'Assigned Payload', 'Last Triggered', 'Actions'];
     
     // Créer le tableau
     let html = '<div class="rules-payloads-header">';
@@ -307,6 +307,50 @@ function renderRulesTable() {
         const ruleName = rule.name || rule.trigger_name || rule.monitor_name || ruleId;
         const ruleType = rule.rule_type || rule.type || (rule.monitor_type ? 'Monitor' : 'Trigger') || '-';
         
+        // Formater la date de dernier déclenchement
+        let lastTriggeredCell = '<span class="never-triggered">Never</span>';
+        let triggerTime = rule.last_notification_time || rule.start_time || rule.trigger_time || null;
+        
+        if (triggerTime && rule.is_active) {
+            try {
+                let triggerTimestamp = typeof triggerTime === 'string' ? Date.parse(triggerTime) : triggerTime;
+                // Si le timestamp est en secondes (10 chiffres), le convertir en millisecondes
+                if (String(triggerTimestamp).length === 10) {
+                    triggerTimestamp = triggerTimestamp * 1000;
+                }
+                
+                const triggerDate = new Date(triggerTimestamp);
+                if (!isNaN(triggerDate.getTime())) {
+                    const now = new Date();
+                    const diffMs = now - triggerDate;
+                    const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
+                    const diffDays = Math.floor(diffHours / 24);
+                    
+                    let timeAgo = '';
+                    if (diffDays > 0) {
+                        timeAgo = `${diffDays} day${diffDays > 1 ? 's' : ''} ago`;
+                    } else if (diffHours > 0) {
+                        timeAgo = `${diffHours} hour${diffHours > 1 ? 's' : ''} ago`;
+                    } else {
+                        const diffMinutes = Math.floor(diffMs / (1000 * 60));
+                        timeAgo = diffMinutes > 0 ? `${diffMinutes} minute${diffMinutes > 1 ? 's' : ''} ago` : 'Just now';
+                    }
+                    
+                    const formattedDate = triggerDate.toLocaleString('en-US', {
+                        year: 'numeric',
+                        month: 'short',
+                        day: 'numeric',
+                        hour: '2-digit',
+                        minute: '2-digit'
+                    });
+                    
+                    lastTriggeredCell = `<span class="last-triggered" title="${formattedDate}">${timeAgo}</span>`;
+                }
+            } catch (error) {
+                console.warn('Error parsing trigger time:', triggerTime, error);
+            }
+        }
+        
         html += '<tr class="rule-row">';
         html += `<td class="rule-name">${ruleName}</td>`;
         html += `<td class="rule-id">${ruleId}</td>`;
@@ -323,6 +367,9 @@ function renderRulesTable() {
         }
         html += '</select>';
         html += '</td>';
+        
+        // Cellule Last Triggered
+        html += `<td class="rule-last-triggered">${lastTriggeredCell}</td>`;
         
         // Actions
         html += '<td class="rule-actions">';
@@ -1797,7 +1844,7 @@ function renderExecutionRulesTable() {
         let matchStatus = true;
         // Gestion du filtre de temps pour les règles triggered
         let isTriggered = !!rule.is_active;
-        let triggerTime = rule.start_time || rule.trigger_time || null;
+        let triggerTime = rule.start_time || rule.trigger_time || rule.last_notification_time || null;
         let now = Date.now();
         let triggeredRecently = true;
         if (isTriggered && triggerTime && timeFilter && timeFilter !== 'all') {
@@ -1824,7 +1871,7 @@ function renderExecutionRulesTable() {
         return;
     }
     let html = '<table class="rules-table"><thead><tr>';
-    html += '<th>Name</th><th>Rule ID</th><th>Type</th><th>Severity</th><th>Payload</th><th>Status</th></tr></thead><tbody>';
+    html += '<th>Name</th><th>Rule ID</th><th>Type</th><th>Severity</th><th>Payload</th><th>Status</th><th>Last Triggered</th></tr></thead><tbody>';
     for (const rule of filteredRules) {
         const ruleId = rule.id || rule.monitor_id || rule.trigger_name || '-';
         let payloadCell = '<span class="no-payload">None</span>';
@@ -1837,12 +1884,58 @@ function renderExecutionRulesTable() {
                 payloadCell = '<span class=\"no-payload\">Unknown</span>';
             }
         }
+        
+        // Formater la date de dernier déclenchement
+        let lastTriggeredCell = '<span class="never-triggered">Never</span>';
+        let triggerTime = rule.last_notification_time || rule.start_time || rule.trigger_time || null;
+        
+        if (triggerTime && rule.is_active) {
+            try {
+                let triggerTimestamp = typeof triggerTime === 'string' ? Date.parse(triggerTime) : triggerTime;
+                // Si le timestamp est en secondes (10 chiffres), le convertir en millisecondes
+                if (String(triggerTimestamp).length === 10) {
+                    triggerTimestamp = triggerTimestamp * 1000;
+                }
+                
+                const triggerDate = new Date(triggerTimestamp);
+                if (!isNaN(triggerDate.getTime())) {
+                    const now = new Date();
+                    const diffMs = now - triggerDate;
+                    const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
+                    const diffDays = Math.floor(diffHours / 24);
+                    
+                    let timeAgo = '';
+                    if (diffDays > 0) {
+                        timeAgo = `${diffDays} day${diffDays > 1 ? 's' : ''} ago`;
+                    } else if (diffHours > 0) {
+                        timeAgo = `${diffHours} hour${diffHours > 1 ? 's' : ''} ago`;
+                    } else {
+                        const diffMinutes = Math.floor(diffMs / (1000 * 60));
+                        timeAgo = diffMinutes > 0 ? `${diffMinutes} minute${diffMinutes > 1 ? 's' : ''} ago` : 'Just now';
+                    }
+                    
+                    const formattedDate = triggerDate.toLocaleString('en-US', {
+                        year: 'numeric',
+                        month: 'short',
+                        day: 'numeric',
+                        hour: '2-digit',
+                        minute: '2-digit'
+                    });
+                    
+                    lastTriggeredCell = `<span class="last-triggered" title="${formattedDate}">${timeAgo}</span>`;
+                }
+            } catch (error) {
+                console.warn('Error parsing trigger time:', triggerTime, error);
+            }
+        }
+        
         html += `<tr><td>${rule.name || rule.trigger_name || rule.monitor_name || '-'}</td>`;
         html += `<td>${ruleId}</td>`;
         html += `<td>${rule.rule_type || rule.type || '-'}</td>`;
         html += `<td>${rule.severity || '-'}</td>`;
         html += `<td>${payloadCell}</td>`;
-        html += `<td>${rule.is_active ? '<span class=\"status-triggered\">Triggered</span>' : '<span class=\"status-not-triggered\">Not triggered</span>'}</td></tr>`;
+        html += `<td>${rule.is_active ? '<span class=\"status-triggered\">Triggered</span>' : '<span class=\"status-not-triggered\">Not triggered</span>'}</td>`;
+        html += `<td>${lastTriggeredCell}</td></tr>`;
     }
     html += '</tbody></table>';
     container.innerHTML = html;
@@ -2021,4 +2114,3 @@ function executeAllPayloadsForDisplayedRules() {
 
 </body>
 </html> 
- 
