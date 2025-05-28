@@ -1381,5 +1381,91 @@
         max-width: 100%;
         min-width: 0;
     }
-} 
+}
+
+/* Styles pour la colonne Last Triggered */
+.never-triggered {
+    color: #6c757d;
+    font-style: italic;
+    font-size: 0.9em;
+}
+
+.last-triggered {
+    color: #28a745;
+    font-weight: 500;
+    cursor: help;
+}
+
+.last-triggered:hover {
+    color: #20c997;
+    text-decoration: underline;
+}
+
+/* Amélioration du tableau d'exécution */
+.execution-results-table th:last-child,
+.execution-results-table td:last-child {
+    text-align: center;
+    min-width: 120px;
+}
+
+.execution-results-table .last-triggered {
+    display: inline-block;
+    padding: 2px 6px;
+    border-radius: 3px;
+    background-color: rgba(40, 167, 69, 0.1);
+    border: 1px solid rgba(40, 167, 69, 0.3);
+}
+
+.execution-results-table .never-triggered {
+    display: inline-block;
+    padding: 2px 6px;
+    border-radius: 3px;
+    background-color: rgba(108, 117, 125, 0.1);
+    border: 1px solid rgba(108, 117, 125, 0.3);
+}
+
+/* Styles pour la colonne Last Triggered dans l'onglet Rules & Payloads */
+.rules-table .rule-last-triggered {
+    text-align: center;
+    min-width: 120px;
+}
+
+.rules-table .rule-last-triggered .last-triggered {
+    display: inline-block;
+    padding: 2px 6px;
+    border-radius: 3px;
+    background-color: rgba(40, 167, 69, 0.1);
+    border: 1px solid rgba(40, 167, 69, 0.3);
+    font-size: 0.9em;
+}
+
+.rules-table .rule-last-triggered .never-triggered {
+    display: inline-block;
+    padding: 2px 6px;
+    border-radius: 3px;
+    background-color: rgba(108, 117, 125, 0.1);
+    border: 1px solid rgba(108, 117, 125, 0.3);
+    font-size: 0.9em;
+}
+
+/* Ajustement de la largeur des colonnes pour accommoder la nouvelle colonne */
+.rules-table th:nth-child(1), .rules-table td:nth-child(1) { width: 18%; } /* Name */
+.rules-table th:nth-child(2), .rules-table td:nth-child(2) { width: 12%; } /* Rule ID */
+.rules-table th:nth-child(3), .rules-table td:nth-child(3) { width: 8%; }  /* Type */
+.rules-table th:nth-child(4), .rules-table td:nth-child(4) { width: 6%; }  /* Severity */
+.rules-table th:nth-child(5), .rules-table td:nth-child(5) { width: 14%; } /* Assigned Payload */
+.rules-table th:nth-child(6), .rules-table td:nth-child(6) { width: 10%; } /* Last Triggered */
+.rules-table th:nth-child(7), .rules-table td:nth-child(7) { width: 32%; } /* Actions */
+
+/* Assurer que les boutons d'actions ne débordent pas */
+.rules-table .rule-actions {
+    white-space: nowrap;
+    overflow: hidden;
+}
+
+.rules-table .rule-actions .btn {
+    margin-right: 4px;
+    font-size: 0.85em;
+    padding: 4px 8px;
+}
  
