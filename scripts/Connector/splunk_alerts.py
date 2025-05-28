@@ -624,15 +624,119 @@ def list_saved_searches(json_output=False):
             if actions:
                 print(f"  - Actions: {', '.join(actions)}")
 
+def get_saved_searches_with_trigger_info(json_output=False):
+    """Get saved searches with trigger information from fired alerts"""
+    try:
+        service = connect_to_splunk(SPLUNK_HOST, SPLUNK_PORT, SPLUNK_USERNAME, SPLUNK_PASSWORD)
+        
+        # Get all saved searches
+        saved_searches = []
+        for search in service.saved_searches:
+            search_info = {
+                "name": search.name,
+                "id": search.name,  # Use name as ID for consistency
+                "is_scheduled": bool(search.content.get("is_scheduled", False)),
+                "search": search.content.get("search", ""),
+                "description": search.content.get("description", ""),
+                "cron_schedule": search.content.get("cron_schedule", ""),
+                "alert_type": search.content.get("alert_type", ""),
+                "alert_threshold": search.content.get("alert_threshold", ""),
+                "severity": search.content.get("alert.severity", ""),
+                "rule_type": "saved_search",
+                "type": "alert" if search.content.get("alert_type") else "search",
+                "is_active": False,
+                "start_time": None,
+                "last_notification_time": None,
+                "trigger_time": None,
+                "actions": []
+            }
+            
+            # Extract actions
+            for key, value in search.content.items():
+                if key.startswith("action.") and value == "1":
+                    action_name = key.split(".")[1]
+                    search_info["actions"].append(action_name)
+                elif key.startswith('action.') or key.startswith('alert.'):
+                    search_info[key] = value
+            
+            saved_searches.append(search_info)
+        
+        # Get fired alerts information
+        try:
+            response = service.get('/services/alerts/fired_alerts', output_mode='json', count=0)
+            api_data = json.loads(response.body.read().decode('utf-8'))
+            
+            # Create a map of alert names to their trigger information
+            alert_trigger_map = {}
+            
+            for entry in api_data.get('entry', []):
+                alert_name = entry.get('name', '')
+                if not alert_name or alert_name == '-':
+                    continue
+                
+                # Get the most recent trigger time for this alert
+                try:
+                    alert_response = service.get(
+                        f'/services/alerts/fired_alerts/{alert_name}',
+                        output_mode='json',
+                        count=1,  # Only get the most recent
+                        sort_dir='desc',
+                        sort_key='trigger_time'
+                    )
+                    alert_data = json.loads(alert_response.body.read().decode('utf-8'))
+                    
+                    entries = alert_data.get('entry', [])
+                    if entries:
+                        latest_entry = entries[0]
+                        content = latest_entry.get('content', {})
+                        trigger_time_unix = content.get('trigger_time', '')
+                        
+                        if trigger_time_unix:
+                            alert_trigger_map[alert_name] = {
+                                'trigger_time': float(trigger_time_unix),
+                                'is_active': True
+                            }
+                except Exception as e:
+                    print(f"Error getting trigger info for {alert_name}: {e}")
+                    continue
+        
+        except Exception as e:
+            print(f"Error retrieving fired alerts: {e}")
+        
+        # Merge trigger information with saved searches
+        for search in saved_searches:
+            search_name = search['name']
+            if search_name in alert_trigger_map:
+                trigger_info = alert_trigger_map[search_name]
+                search['is_active'] = trigger_info['is_active']
+                search['trigger_time'] = trigger_info['trigger_time']
+                search['start_time'] = trigger_info['trigger_time']
+                search['last_notification_time'] = trigger_info['trigger_time']
+        
+        if json_output:
+            return {"saved_searches": saved_searches}
+        else:
+            return saved_searches
+            
+    except Exception as e:
+        error_msg = f"Error retrieving saved searches with trigger info: {str(e)}"
+        if json_output:
+            return {"error": error_msg}
+        else:
+            print(error_msg)
+            return []
+
 def main():
     parser = argparse.ArgumentParser(description="Splunk alert management tool")
-    parser.add_argument("action", choices=["list_alerts", "triggered_alerts", "list_searches"], 
+    parser.add_argument("action", choices=["list_alerts", "triggered_alerts", "list_searches", "list_searches_with_triggers"], 
                         help="Action to perform")
     parser.add_argument("--sid", help="Specific SID to get details for")
     parser.add_argument("--verbose", "-v", action="store_true", 
                         help="Display all details of alerts")
     parser.add_argument("--list-saved-searches-json", action="store_true", 
                         help="List all saved searches in JSON format")
+    parser.add_argument("--list-saved-searches-with-triggers-json", action="store_true", 
+                        help="List all saved searches with trigger information in JSON format")
     
     args = parser.parse_args()
     
@@ -641,8 +745,27 @@ def main():
         print(json.dumps(result))
         return
     
+    if args.list_saved_searches_with_triggers_json:
+        result = get_saved_searches_with_trigger_info(json_output=True)
+        print(json.dumps(result))
+        return
+    
     if args.action == "list_searches":
         list_saved_searches()
+        return
+    
+    if args.action == "list_searches_with_triggers":
+        searches = get_saved_searches_with_trigger_info(json_output=False)
+        print(f"\nFound {len(searches)} saved searches with trigger information:")
+        for search in searches:
+            print(f"\n- {search['name']}")
+            print(f"  Type: {search['type']}")
+            print(f"  Scheduled: {search['is_scheduled']}")
+            print(f"  Active: {search['is_active']}")
+            if search['trigger_time']:
+                from datetime import datetime
+                trigger_date = datetime.fromtimestamp(search['trigger_time'])
+                print(f"  Last triggered: {trigger_date.strftime('%Y-%m-%d %H:%M:%S')}")
         return
     
     service = connect_to_splunk(SPLUNK_HOST, SPLUNK_PORT, SPLUNK_USERNAME, SPLUNK_PASSWORD)
@@ -652,7 +775,7 @@ def main():
     elif args.action == "triggered_alerts":
         list_triggered_alerts(service, args.sid, args.verbose)
     else:
-        print("Unknown action. Use: list_alerts, triggered_alerts, or list_searches")
+        print("Unknown action. Use: list_alerts, triggered_alerts, list_searches, or list_searches_with_triggers")
 
 if __name__ == "__main__":
     main()
