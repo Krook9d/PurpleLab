@@ -1,164 +1,206 @@
-<html lang="fr">
+<html lang="en">
 <head>
     <link rel="icon" href="MD_image/logowhite.png" type="image/png">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PurpleLab</title>
-    <link rel="stylesheet" href="css/main.css?v=4.1">
+    <title>PurpleLab - Login</title>
+    <link rel="stylesheet" href="css/main.css?v=5.2">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 </head>
 <body class="blank">
     <div id="logo-container">
        <img src="/MD_image/logo.png" alt="PurpleLab Logo" />
     </div>
+    
     <div class="body-container">
-        <div class="background-image-section">
-            
-        </div>
+        <div class="background-image-section"></div>
         
         <div class="form-section">
             <div id="form-container">
                 <form action="authenticate.php" method="post">
-                    <br><br><br><br><br><br>
                     <h1>Hello,</h1> 
                     <p>Sign in to start your session</p>
+                    
                     <div class="input-container">
+                        <input type="email" id="email" name="email" placeholder="Email" required>
                         <svg class="input-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
                             <path d="M12,2A10,10,0,1,0,22,12,10,10,0,0,0,12,2Zm0,3a3,3,0,1,1-3,3A3,3,0,0,1,12,5Zm0,14.2a7.2,7.2,0,0,1-6-3.1,5.61,5.61,0,0,1,12,0A7.2,7.2,0,0,1,12,19.2Z"/>
                         </svg>
-                        <input type="email" id="email" name="email" placeholder="Email">
                     </div>
+                    
                     <div class="input-container"> 
+                        <input type="password" id="password" name="password" placeholder="Password" required>
                         <svg class="input-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
-                            <path d="M12 2C8.13 2 5 5.13 5 9v3h2V9c0-2.76 2.24-5 5-5s5 2.24 5 5v3h2V9c0-3.87-3.13-7-7-7zm-1 9H6v9h12v-9h-5v-2c0-1.65-1.35-3-3-3s-3 1.35-3 3v2zm1 0h4v-2c0-.55.45-1 1-1s1 .45 1 1v2h-6v-2z"/>
+                            <path d="M18,8h-1V6A5,5,0,0,0,7,6V8H6a2,2,0,0,0-2,2V20a2,2,0,0,0,2,2H18a2,2,0,0,0,2-2V10A2,2,0,0,0,18,8ZM9,6a3,3,0,0,1,6,0V8H9Z"/>
                         </svg>
-                        <input type="password" id="password" name="password" placeholder="Password">
-                    </div>  
-                    <input type="submit" class="login-button" value="Login" style="margin-right: 5px;">
-                    <input type="submit" id="create-account-button" class="register-button" value="Register">
+                    </div>
+                    
+                    <div class="button-container">
+                        <input type="submit" class="login-button" value="Login">
+                        <button type="button" id="create-account-button" class="register-button">Register</button>
+                    </div>
                 </form>
             </div>
         </div>
-        
     </div>
+
+    <div id="credit-container">
+        <a href="https://github.com/Krook9d" target="_blank" id="credit-link">
+            <img src="https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png" alt="GitHub Icon"/> 
+            Made by Krook9d
+        </a>
+    </div>
+
     <script>
         document.addEventListener('DOMContentLoaded', (event) => {
             const createAccountButton = document.getElementById('create-account-button');
             const logoContainer = document.getElementById('logo-container');
             const formContainer = document.getElementById('form-container');
     
-            createAccountButton.addEventListener('click', () => {
-                // Hide logo
+            createAccountButton.addEventListener('click', (e) => {
+                e.preventDefault();
+                
+                // Hide logo immediately
                 logoContainer.style.display = 'none';
-    
-                // Change the contents of formContainer to display the registration form
+                
+                // Change form content immediately
                 formContainer.innerHTML = `
-<div id="form-container" class="register-container">
-    <form action="register.php" method="post" enctype="multipart/form-data">
-        <h1 class="register-form-title">📝 Registration</h1>
-        <div class="register-input-container">
-            <label for="firstName"><b>FirstName:</b></label>
-            <input type="text" id="firstName" name="firstName" class="register-input" required>
-        </div>
-        <div class="register-input-container">
-            <label for="lastName"><b>LastName:</b></label>
-            <input type="text" id="lastName" name="lastName" class="register-input" required>
-        </div>
-        <div class="register-input-container">
-            <label for="email"><b>Email:</b></label>
-            <input type="email" id="email" name="email" class="register-input" required>
-        </div>
-        <div class="register-input-container">
-            <label for="analystLevel"><b>Analyst level:</b></label>
-            <select id="analystLevel" name="analystLevel" class="register-select" required>
-                <option value="N1">N1</option>
-                <option value="N2">N2</option>
-                <option value="N3">N3</option>
-            </select>
-        </div>
-        <div class="register-file-input">
-            <label for="avatar"><b>Avatar:</b></label>
-            <div class="input-file-container">
-                <span class="register-file-trigger">Select a file...</span>
-                <input type="file" id="avatar" name="avatar" class="input-file" accept="image/png, image/jpeg, image/jpg" required>
-                <span id="file-name" class="file-name"></span>
-                <span id="selected-file-name" style="display: block;"></span>
-            </div>
-        </div>
-        <div class="register-input-container">
-            <label for="password"><b>Password:</b></label>
-            <input type="password" id="password" name="password" class="register-input" required>
-            <button type="button" id="show-password-button" class="password-icon">
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 30 30" width="30" height="30">
-                    <path fill="none" d="M0 0h30v30H0z"/>
-                    <path d="M15 7c-4.97 0-9 4.03-9 9s4.03 9 9 9 9-4.03 9-9-4.03-9-9-9zm0 15.5a6.5 6.5 0 1 1 0-13 6.5 6.5 0 0 1 0 13zm0-11a5 5 0 1 0 0 10 5 5 0 0 0 0-10zm0 2.5a2.5 2.5 0 1 1 0 5 2.5 2.5 0 0 1 0-5z"/>
-                </svg>
-            </button>
-            <span id="password-message" class="register-password-message"></span>
-        </div>
-        <input type="submit" value="Register" class="register-button">
-        <button type="button" onclick="location.href='connexion.html';" class="login-button">Go back</button>
-    </form>
-</div>
+                    <div class="register-container">
+                        <form action="register.php" method="post" enctype="multipart/form-data">
+                            <h1 class="register-form-title">📝 Registration</h1>
+                            
+                            <div class="register-input-container">
+                                <label for="firstName"><b>First Name:</b></label>
+                                <input type="text" id="firstName" name="firstName" class="register-input" required>
+                            </div>
+                            
+                            <div class="register-input-container">
+                                <label for="lastName"><b>Last Name:</b></label>
+                                <input type="text" id="lastName" name="lastName" class="register-input" required>
+                            </div>
+                            
+                            <div class="register-input-container">
+                                <label for="email"><b>Email:</b></label>
+                                <input type="email" id="email" name="email" class="register-input" required>
+                            </div>
+                            
+                            <div class="register-input-container">
+                                <label for="analystLevel"><b>Analyst Level:</b></label>
+                                <select id="analystLevel" name="analystLevel" class="register-select" required>
+                                    <option value="">Select your level</option>
+                                    <option value="N1">N1 - Beginner</option>
+                                    <option value="N2">N2 - Intermediate</option>
+                                    <option value="N3">N3 - Expert</option>
+                                </select>
+                            </div>
+                            
+                            <div class="register-file-input">
+                                <label for="avatar"><b>Avatar:</b></label>
+                                <div class="input-file-container">
+                                    <span class="register-file-trigger">Select a file...</span>
+                                    <input type="file" id="avatar" name="avatar" class="input-file" accept="image/png, image/jpeg, image/jpg" required>
+                                </div>
+                            </div>
+                            
+                            <div class="register-input-container">
+                                <label for="password"><b>Password:</b></label>
+                                <input type="password" id="password" name="password" class="register-input" required>
+                                <button type="button" id="show-password-button" class="password-icon">
+                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+                                        <path d="M12,9A3,3,0,0,0,9,12a3,3,0,0,0,3,3,3,3,0,0,0,3-3A3,3,0,0,0,12,9ZM12,17a5,5,0,0,1-5-5,5,5,0,0,1,5-5,5,5,0,0,1,5,5A5,5,0,0,1,12,17ZM12,5c-7,0-10,7-10,7s3,7,10,7,10-7,10-7S19,5,12,5Z"/>
+                                    </svg>
+                                </button>
+                                <span id="password-message" class="register-password-message"></span>
+                            </div>
+                            
+                            <div class="button-container">
+                                <input type="submit" value="Register" class="register-button">
+                                <button type="button" onclick="location.href='connexion.html';" class="login-button">Go back</button>
+                            </div>
+                        </form>
+                    </div>
                 `;
-    
-                // Code for displaying the name of the selected file
+                
+                // Reinitialize event handlers
+                setupFileInput();
+                setupPasswordToggle();
+                setupPasswordValidation();
+            });
+            
+            // Function to setup file input
+            function setupFileInput() {
                 const fileInput = document.getElementById('avatar');
                 const fileTrigger = document.querySelector('.register-file-trigger');
-                const fileNameContainer = document.getElementById('file-name');
                 
-                fileInput.addEventListener('change', function(e) {
-                    const fileName = e.target.files[0].name;
-                    fileTrigger.textContent = fileName; 
-                });
-    
-                // Code to manage the password field
+                if (fileInput && fileTrigger) {
+                    fileInput.addEventListener('change', function(e) {
+                        if (e.target.files.length > 0) {
+                            let fileName = e.target.files[0].name;
+                            if (fileName.length > 25) {
+                                fileName = fileName.substring(0, 25) + '...';
+                            }
+                            fileTrigger.textContent = fileName;
+                            fileTrigger.style.background = 'var(--primary-gradient)';
+                        }
+                    });
+                }
+            }
+            
+            // Function to setup password toggle
+            function setupPasswordToggle() {
+                const passwordInput = document.getElementById('password');
+                const showPasswordButton = document.getElementById('show-password-button');
+                
+                if (passwordInput && showPasswordButton) {
+                    showPasswordButton.addEventListener('click', () => {
+                        if (passwordInput.type === 'password') {
+                            passwordInput.type = 'text';
+                            showPasswordButton.innerHTML = `
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+                                    <path d="M12,7A5,5,0,0,1,17,12a5,5,0,0,1-5,5A5,5,0,0,1,7,12,5,5,0,0,1,12,7ZM12,9a3,3,0,0,0-3,3,3,3,0,0,0,3,3,3,3,0,0,0,3-3A3,3,0,0,0,12,9ZM2,12s3-7,10-7,10,7,10,7-3,7-10,7S2,12,2,12ZM12,5C7,5,3.73,9.11,2.46,12,3.73,14.89,7,19,12,19s8.27-4.11,9.54-7C20.27,9.11,17,5,12,5Z"/>
+                                    <line x1="1" y1="1" x2="23" y2="23" stroke="currentColor" stroke-width="2"/>
+                                </svg>
+                            `;
+                        } else {
+                            passwordInput.type = 'password';
+                            showPasswordButton.innerHTML = `
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+                                    <path d="M12,9A3,3,0,0,0,9,12a3,3,0,0,0,3,3,3,3,0,0,0,3-3A3,3,0,0,0,12,9ZM12,17a5,5,0,0,1-5-5,5,5,0,0,1,5-5,5,5,0,0,1,5,5A5,5,0,0,1,12,17ZM12,5c-7,0-10,7-10,7s3,7,10,7,10-7,10-7S19,5,12,5Z"/>
+                                </svg>
+                            `;
+                        }
+                    });
+                }
+            }
+            
+            // Function to setup password validation
+            function setupPasswordValidation() {
                 const passwordInput = document.getElementById('password');
                 const passwordMessage = document.getElementById('password-message');
-                const showPasswordButton = document.getElementById('show-password-button');
-                showPasswordButton.addEventListener('mouseover', () => {
-                    showPasswordButton.title = 'Show password';
-                });
-                showPasswordButton.addEventListener('click', () => {
-                    if (passwordInput.type === 'password') {
-                        passwordInput.type = 'text';
-                    } else {
-                        passwordInput.type = 'password';
-                    }
-                });
-                passwordInput.addEventListener('input', () => {
-                    const password = passwordInput.value;
-                    const regex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
-                    if (regex.test(password)) {
-                        passwordMessage.textContent = 'Password is valid';
-                        passwordMessage.style.color = 'green';
-                    } else {
-                        passwordMessage.textContent = 'The password must contain at least 8 characters, including at least one uppercase letter, one lowercase letter, one number and one special character';
-                        passwordMessage.style.color = 'red';
-                    }
-                });
-            });
+                
+                if (passwordInput && passwordMessage) {
+                    passwordInput.addEventListener('input', () => {
+                        const password = passwordInput.value;
+                        const regex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+                        
+                        if (password.length === 0) {
+                            passwordMessage.textContent = '';
+                            passwordMessage.style.background = 'transparent';
+                        } else if (regex.test(password)) {
+                            passwordMessage.textContent = '✓ Password is valid';
+                            passwordMessage.style.color = '#10b981';
+                            passwordMessage.style.background = 'rgba(16, 185, 129, 0.1)';
+                        } else {
+                            passwordMessage.textContent = 'Password must contain at least 8 characters, including at least one uppercase letter, one lowercase letter, one number and one special character';
+                            passwordMessage.style.color = '#ef4444';
+                            passwordMessage.style.background = 'rgba(239, 68, 68, 0.1)';
+                        }
+                    });
+                }
+            }
         });
     </script>
-    
-
-<script>
-    document.getElementById('avatar').addEventListener('change', function(e) {
-        var fileNameContainer = document.getElementById('file-name');
-        var fileName = e.target.files[0].name; 
-        if (fileName.length > 20) {
-            
-            fileName = fileName.substring(0, 20) + '...';
-        }
-        fileNameContainer.textContent = fileName; 
-    });
-</script>
-
-<div id="credit-container" style="position: fixed; bottom: 20px; right: 20px; text-align: right;">
-    <a href="https://github.com/Krook9d" target="_blank" id="credit-link" style="color: #4a4a4a; text-decoration: none; font-size: 16px;">
-        <img src="https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png" alt="GitHub Icon" style="height: 25px; vertical-align: middle; margin-right: 5px;"/> 
-        Made by Krook9d
-    </a>
-</div>
-
 </body>
 </html>
