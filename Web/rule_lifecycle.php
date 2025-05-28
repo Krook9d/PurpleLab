@@ -171,6 +171,7 @@ pg_close($conn);
                     <label for="execution-time-filter">Time:</label>
                     <select id="execution-time-filter" class="select-execution">
                         <option value="all">All time</option>
+                        <option value="1h">Last 1 hour</option>
                         <option value="24h">Last 24h</option>
                         <option value="7d">Last 7 days</option>
                         <option value="1m">Last month</option>
@@ -803,29 +804,56 @@ document.addEventListener('DOMContentLoaded', function() {
         // Afficher un indicateur de chargement
         const container = document.getElementById('rules-table-container');
         if (container) {
-            container.innerHTML = '<div class="loading-container"><div class="loading-spinner"></div><p>Loading rules...</p></div>';
+            container.innerHTML = '<div class="loading-container"><div class="loading-spinner"></div><p>Loading fresh rules data...</p></div>';
         }
 
-        console.log('Fetching rules for connector:', SELECTED_CONNECTOR);
+        console.log('Fetching fresh rules for connector:', SELECTED_CONNECTOR);
         
-        // Chargeons directement les règles sans dépendre de get_rule_payload_map
+        // Récupérer les données fraîches directement depuis l'API du connecteur
+        // pour avoir les informations de déclenchement à jour
         fetch('scripts/php/connector_api.php', {
             method: 'POST',
             body: new URLSearchParams({ 
-                action: 'get_rules',
-                connector: SELECTED_CONNECTOR
+                action: 'retrieve_rules',
+                connector_type: SELECTED_CONNECTOR
             })
         })
         .then(r => r.json())
         .then(data => {
-            console.log('API response get_rules:', data);
+            console.log('API response retrieve_rules (fresh data):', data);
             
-            if (data.rules) {
-                RULES = data.rules;
-                LAST_SYNC = data.last_sync;
-                console.log(`${RULES.length} rules retrieved, last sync: ${LAST_SYNC}`);
+            let rules = [];
+            if (data.triggers) {
+                rules = data.triggers;
+                console.log(`Retrieved ${rules.length} fresh OpenSearch rules`);
+            } else if (data.saved_searches) {
+                rules = data.saved_searches;
+                console.log(`Retrieved ${rules.length} fresh Splunk rules`);
+            }
+            
+            if (rules.length > 0) {
+                RULES = rules;
+                console.log(`${RULES.length} fresh rules retrieved with trigger information`);
                 
-                // Ensuite, essayons de charger les associations règle-payload si disponibles
+                // Récupérer la date de dernière synchronisation depuis la base de données
+                fetch('scripts/php/connector_api.php', {
+                    method: 'POST',
+                    body: new URLSearchParams({ 
+                        action: 'get_rules',
+                        connector: SELECTED_CONNECTOR
+                    })
+                })
+                .then(r => r.json())
+                .then(dbData => {
+                    LAST_SYNC = dbData.last_sync || 'Never';
+                    console.log('Last sync from database:', LAST_SYNC);
+                })
+                .catch(error => {
+                    console.warn('Failed to get last sync info:', error);
+                    LAST_SYNC = 'Unknown';
+                });
+                
+                // Charger les associations règle-payload
                 fetch('scripts/php/connector_api.php', {
                     method: 'POST',
                     body: new URLSearchParams({ action: 'get_rule_payload_map' })
@@ -838,22 +866,23 @@ document.addEventListener('DOMContentLoaded', function() {
                         console.log('Rule-payload associations loaded:', rulePayloadMap);
                     } else {
                         console.warn('No rule-payload associations found or invalid response');
-                        rulePayloadMap = {}; // En cas d'échec, on initialise avec un objet vide
+                        rulePayloadMap = {};
                     }
                 })
                 .catch(error => {
                     console.warn('Failed to load rule-payload associations:', error);
-                    rulePayloadMap = {}; // En cas d'erreur, on initialise avec un objet vide
+                    rulePayloadMap = {};
                 })
                 .finally(() => {
-                    // On affiche les règles dans tous les cas, avec ou sans associations
+                    // Afficher les règles avec les données fraîches
                     renderRulesTable();
                     document.getElementById('last-sync-info').textContent = 'Last synchronization: ' + (LAST_SYNC ? LAST_SYNC : '--');
                 });
             } else {
-                console.warn('No rules found in API response');
+                console.warn('No fresh rules found in API response');
                 RULES = [];
                 rulePayloadMap = {};
+                LAST_SYNC = 'Never';
                 document.getElementById('last-sync-info').textContent = 'Last synchronization: --';
                 renderRulesTable();
             }
@@ -861,7 +890,7 @@ document.addEventListener('DOMContentLoaded', function() {
         .catch(error => {
             console.error('Fetch error:', error);
             if (container) {
-                container.innerHTML = '<div class="alert alert-error">Error retrieving rules</div>';
+                container.innerHTML = '<div class="alert alert-error">Error retrieving fresh rules data</div>';
             }
         });
     }
@@ -1852,7 +1881,8 @@ function renderExecutionRulesTable() {
             if (String(triggerTimestamp).length === 10) triggerTimestamp = triggerTimestamp * 1000; // Si timestamp en secondes
             let diffMs = now - triggerTimestamp;
             let maxMs = 0;
-            if (timeFilter === '24h') maxMs = 24 * 3600 * 1000;
+            if (timeFilter === '1h') maxMs = 1 * 3600 * 1000;
+            else if (timeFilter === '24h') maxMs = 24 * 3600 * 1000;
             else if (timeFilter === '7d') maxMs = 7 * 24 * 3600 * 1000;
             else if (timeFilter === '1m') maxMs = 30 * 24 * 3600 * 1000;
             else if (timeFilter === '3m') maxMs = 90 * 24 * 3600 * 1000;
@@ -1949,10 +1979,11 @@ function synchronizeRulesForExecutionTab() {
     // Afficher un indicateur de chargement
     const container = document.getElementById('execution-results-table');
     if (container) {
-        container.innerHTML = '<div class="loading-container"><div class="loading-spinner"></div><p>Synchronizing ' + selectedConnector + ' rules...</p></div>';
+        container.innerHTML = '<div class="loading-container"><div class="loading-spinner"></div><p>Retrieving fresh ' + selectedConnector + ' rules data...</p></div>';
     }
     
-    // Appel API pour synchroniser les règles du connecteur sélectionné
+    // Appel API pour récupérer les règles fraîches directement depuis le connecteur
+    // (pas depuis la base de données pour avoir les informations de déclenchement à jour)
     fetch('scripts/php/connector_api.php', {
         method: 'POST',
         body: new URLSearchParams({ action: 'retrieve_rules', connector_type: selectedConnector })
@@ -1972,8 +2003,10 @@ function synchronizeRulesForExecutionTab() {
             connector: selectedConnector
         }));
         
-        // Mettre à jour RULES
+        // Mettre à jour RULES avec les données fraîches
         RULES = rules;
+        
+        console.log(`[DEBUG] Retrieved ${rules.length} fresh rules from ${selectedConnector} connector`);
         
         // Charger les payloads puis afficher le message
         fetchPayloads(function() {
@@ -1981,8 +2014,8 @@ function synchronizeRulesForExecutionTab() {
         });
     })
     .catch(error => {
-        console.error('Error synchronizing rules:', error);
-        if (container) container.innerHTML = '<div class="no-results">Error synchronizing rules.</div>';
+        console.error('Error retrieving fresh rules:', error);
+        if (container) container.innerHTML = '<div class="no-results">Error retrieving fresh rules data.</div>';
     });
 }
 
@@ -2007,7 +2040,8 @@ function executeAllPayloadsForDisplayedRules() {
             if (String(triggerTimestamp).length === 10) triggerTimestamp = triggerTimestamp * 1000;
             let diffMs = now - triggerTimestamp;
             let maxMs = 0;
-            if (timeFilter === '24h') maxMs = 24 * 3600 * 1000;
+            if (timeFilter === '1h') maxMs = 1 * 3600 * 1000;
+            else if (timeFilter === '24h') maxMs = 24 * 3600 * 1000;
             else if (timeFilter === '7d') maxMs = 7 * 24 * 3600 * 1000;
             else if (timeFilter === '1m') maxMs = 30 * 24 * 3600 * 1000;
             else if (timeFilter === '3m') maxMs = 90 * 24 * 3600 * 1000;
@@ -2114,3 +2148,4 @@ function executeAllPayloadsForDisplayedRules() {
 
 </body>
 </html> 
+ 
