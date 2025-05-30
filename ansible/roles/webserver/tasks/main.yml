@@ -28,6 +28,55 @@
     state: present
     update_cache: true
 
+- name: Détecter la version de PHP installée
+  shell: php -r "echo PHP_MAJOR_VERSION.'.'.PHP_MINOR_VERSION;"
+  register: php_version
+  changed_when: false
+
+- name: Afficher la version PHP détectée
+  debug:
+    msg: "Version PHP détectée: {{ php_version.stdout }}"
+
+- name: Vérifier l'existence du fichier php.ini Apache
+  stat:
+    path: "/etc/php/{{ php_version.stdout }}/apache2/php.ini"
+  register: php_ini_apache
+
+- name: Vérifier l'existence du fichier php.ini CLI (fallback)
+  stat:
+    path: "/etc/php/{{ php_version.stdout }}/cli/php.ini"
+  register: php_ini_cli
+  when: not php_ini_apache.stat.exists
+
+- name: Définir le chemin du fichier php.ini à utiliser
+  set_fact:
+    php_ini_path: >-
+      {%- if php_ini_apache.stat.exists -%}
+      /etc/php/{{ php_version.stdout }}/apache2/php.ini
+      {%- elif php_ini_cli.stat.exists -%}
+      /etc/php/{{ php_version.stdout }}/cli/php.ini
+      {%- else -%}
+      /etc/php/{{ php_version.stdout }}/apache2/php.ini
+      {%- endif -%}
+
+- name: Afficher le chemin php.ini utilisé
+  debug:
+    msg: "Fichier php.ini utilisé: {{ php_ini_path }}"
+
+- name: Configurer les limites PHP pour l'upload de fichiers
+  lineinfile:
+    path: "{{ php_ini_path }}"
+    regexp: "{{ item.regexp }}"
+    line: "{{ item.line }}"
+    backup: yes
+    create: yes
+  with_items:
+    - { regexp: '^upload_max_filesize\s*=', line: 'upload_max_filesize = 50M' }
+    - { regexp: '^post_max_size\s*=', line: 'post_max_size = 60M' }
+    - { regexp: '^max_execution_time\s*=', line: 'max_execution_time = 300' }
+    - { regexp: '^max_input_time\s*=', line: 'max_input_time = 300' }
+  notify: Redémarrer Apache
+
 - name: Activer les modules Apache
   apache2_module:
     name: "{{ item }}"
