@@ -1,6 +1,7 @@
 import subprocess
 import sys
 import time
+import os
 
 def poweroff_vm():
     # Command to shut down the virtual machine
@@ -28,25 +29,52 @@ def get_vm_ip():
     subprocess.run(command, shell=True)
 
 def upload_to_vm():
-    # Command to copy files to the virtual machine
-    command = (
-        'sudo VBoxManage guestcontrol "sandbox" copyto '
-        '--username oem --password oem --target-directory '
-        '"C:\\Users\\oem\\Documents\\malware_upload" --recursive '
-        '"/var/www/html/Downloaded/malware_upload"'
-    )
-    subprocess.run(command, shell=True)
+    # Upload files individually from malware_upload folder
+    source_directory = "/var/www/html/Downloaded/malware_upload"
+    destination_directory = "C:\\Users\\oem\\Documents\\samples"
+    
+    if not os.path.exists(source_directory):
+        print(f"Source directory {source_directory} does not exist")
+        return
+    
+    # List all files in the source folder
+    for file in os.listdir(source_directory):
+        full_file_path = os.path.join(source_directory, file)
+        if os.path.isfile(full_file_path):
+            # Build the VBoxManage command for each file
+            destination_file = f"{destination_directory}\\{file}"
+            command = f'sudo VBoxManage guestcontrol "sandbox" copyto --username oem --password oem "{full_file_path}" "{destination_file}"'
+            
+            print(f"Uploading {file} to VM...")
+            result = subprocess.run(command, shell=True)
+            if result.returncode == 0:
+                print(f"Successfully uploaded {file}")
+            else:
+                print(f"Failed to upload {file}")
 
 def api_upload_to_vm():
-    # Command to copy files to the virtual machine for API uploads
-    command = (
-        'sudo VBoxManage guestcontrol "sandbox" copyto '
-        '--username oem --password oem --target-directory '
-        '"C:\\Users\\oem\\Documents\\malware_upload" --recursive '
-        '"/var/www/html/Downloaded/upload"'  
-    )
-    subprocess.run(command, shell=True)
-
+    # Upload files individually from upload folder for API uploads
+    source_directory = "/var/www/html/Downloaded/upload"
+    destination_directory = "C:\\Users\\oem\\Documents\\samples"
+    
+    if not os.path.exists(source_directory):
+        print(f"Source directory {source_directory} does not exist")
+        return
+    
+    # List all files in the source folder
+    for file in os.listdir(source_directory):
+        full_file_path = os.path.join(source_directory, file)
+        if os.path.isfile(full_file_path):
+            # Build the VBoxManage command for each file
+            destination_file = f"{destination_directory}\\{file}"
+            command = f'sudo VBoxManage guestcontrol "sandbox" copyto --username oem --password oem "{full_file_path}" "{destination_file}"'
+            
+            print(f"Uploading {file} to VM...")
+            result = subprocess.run(command, shell=True)
+            if result.returncode == 0:
+                print(f"Successfully uploaded {file}")
+            else:
+                print(f"Failed to upload {file}")
 
 def disable_antivirus():
 # Command to disable Windows Defender real-time monitoring
