@@ -12,7 +12,9 @@ body {
 
 .content {
     margin-left: 210px;
-    padding: 10px;
+    padding: 10px 20px;
+    max-width: calc(100vw - 250px);
+    overflow-x: auto;
 }
 
 
