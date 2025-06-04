@@ -93,6 +93,7 @@ function displayItems($path, $relativePath = '') {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Purplelab</title>
     <link rel="stylesheet" href="css/main.css?v=<?= filemtime('css/main.css') ?>">
+    <link rel="stylesheet" href="css/pages/sigma.css?v=<?= filemtime('css/pages/sigma.css') ?>">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
@@ -152,138 +153,285 @@ function displayItems($path, $relativePath = '') {
     </div>
 
 <div class="content">
+    <div class="sigma-container">
+        <!-- Header Section -->
+        <div class="sigma-header-section">
+            <h1><i class="fas fa-shield-alt"></i> Sigma Rules Navigator</h1>
+            <p class="subtitle">Browse detection rules by category or search for specific MITRE techniques</p>
+            <button id="updateDatabaseBtn" class="update-btn" onclick="updateDatabaseSigma()">
+                <i id="updateIcon" class="fas fa-sync"></i> Update Sigma Database
+            </button>
+        </div>
 
-<h1 class="title">Sigma Rules Navigator</h1>
-<br>
+        <!-- Search Section -->
+        <div class="sigma-search-section">
+            <form action="sigma.php" method="get" class="search-form">
+                <input type="text" name="search" placeholder="Enter MITRE technique or keyword..." class="search-input" value="<?= htmlspecialchars($_GET['search'] ?? '') ?>"/>
+                <button type="submit" class="search-btn">
+                    <i class="fas fa-search"></i> Search
+                </button>
+            </form>
+        </div>
 
+        <?php
+        // Define categories with their descriptions and icons
+        $categories = [
+            'application' => ['icon' => 'fas fa-desktop', 'desc' => 'Application-specific detection rules'],
+            'category' => ['icon' => 'fas fa-tags', 'desc' => 'Categorized detection patterns'],
+            'cloud' => ['icon' => 'fas fa-cloud', 'desc' => 'Cloud platform security rules'],
+            'compliance' => ['icon' => 'fas fa-check-circle', 'desc' => 'Compliance and audit rules'],
+            'linux' => ['icon' => 'fab fa-linux', 'desc' => 'Linux system detection rules'],
+            'macos' => ['icon' => 'fab fa-apple', 'desc' => 'macOS security detection rules'],
+            'network' => ['icon' => 'fas fa-network-wired', 'desc' => 'Network traffic analysis rules'],
+            'web' => ['icon' => 'fas fa-globe', 'desc' => 'Web application security rules'],
+            'windows' => ['icon' => 'fab fa-windows', 'desc' => 'Windows system detection rules']
+        ];
 
-
-<button id="updateDatabaseBtn" class="update-btn" onclick="updateDatabaseSigma()">
-            <i id="updateIcon" class="fas fa-sync"></i> Sigma rules update database
-        </button> 
-
-
-<div class="sigma-search-container">
-<br> 
-<form action="sigma.php" method="get">
-        <input type="text" name="search" placeholder="Search..." class="sigma-search-box"/>
-        <button type="submit" class="sigma-search-btn">Submit</button>
-    </form>
-</div>
-
-<?php
-
-if (isset($_GET['search']) && $_GET['search'] !== '') {
-    $searchTerm = $_GET['search'];
-    $searchResults = searchFiles($rulesPath, $searchTerm);
-    
-    if (count($searchResults) === 0) {
-        echo "<p>No results found for <strong>" . htmlspecialchars($searchTerm) . "</strong>.</p>";
-    } else {
-        echo "<p>Results found for <strong>" . htmlspecialchars($searchTerm) . "</strong>:</p>";
-    foreach ($searchResults as $result) {
-    
-        $relativeFilePath = str_replace($rulesPath . '/', '', $result);
-        $filename = basename($result);
-        echo "<div><a href='?file=" . urlencode($relativeFilePath) . "' class='sigma-link'>$filename</a></div>";
-    }
-
-
-    }
-}
-
-if (isset($_GET['file']) && file_exists($rulesPath.'/'.$_GET['file'])) {
-    $filePath = $rulesPath.'/'.$_GET['file'];
-    $content = file_get_contents($filePath);
-
-    $relativeFilePath = str_replace($rulesPath . '/', '', $filePath);
-
-    echo "<div class='sigma-file-content'><h2>Content of file: " . htmlspecialchars($_GET['file']) . " <span class='sigma-copy-icon' <i class='fas fa-copy'></i></span>";
-
-
-    echo "<span class='sigma-convert-icon' onclick='showOptions()'><i class='fas fa-exchange-alt'></i></span></h2><pre id='fileContent'>" . htmlspecialchars($content) . "</pre>";
-
-    echo "<div id='conversionOptions' style='display:none;'>
-            <p>Which language would you like to convert the Sigma rule to?</p>
-            <button class='sigma-convert-btn' onclick=\"convertRule('splunk', '" . htmlspecialchars($relativeFilePath) . "')\">Splunk</button>
-            <button class='sigma-convert-btn' onclick=\"convertRule('lucene', '" . htmlspecialchars($relativeFilePath) . "')\">Lucene</button>
-            <button class='sigma-convert-btn' onclick=\"convertRule('qradar', '" . htmlspecialchars($relativeFilePath) . "')\">QRadar</button>
-        </div>";
-    echo "</div>"; 
-}
-
-
-
-
-elseif (isset($_GET['folder']) && is_dir($rulesPath.'/'.$_GET['folder'])) {
-    $folderPath = $rulesPath.'/'.$_GET['folder'];
-    echo "<div class='sigma-folder-content'><h2>Folder content: " . htmlspecialchars($_GET['folder']) . "</h2>";
-    displayItems($folderPath, $_GET['folder']);
-    echo "</div>";
-}
-
-else {
-    displayItems($rulesPath);
-}
-
-
-echo "<div class='sigma-back-container'><a href='sigma.php' class='sigma-back-link'>Back to Root</a></div>";
-?>
-
+        if (isset($_GET['search']) && $_GET['search'] !== '') {
+            $searchTerm = $_GET['search'];
+            $searchResults = searchFiles($rulesPath, $searchTerm);
+            
+            echo "<div class='sigma-content-section'>";
+            echo "<div class='content-header'>";
+            echo "<h2 class='content-title'>Search Results</h2>";
+            echo "<div class='content-actions'>";
+            echo "<a href='sigma.php' class='action-btn back-btn'><i class='fas fa-arrow-left'></i> Back</a>";
+            echo "</div>";
+            echo "</div>";
+            
+            if (count($searchResults) === 0) {
+                echo "<div class='no-results'>";
+                echo "<i class='fas fa-search'></i>";
+                echo "<h3>No results found</h3>";
+                echo "<p>No rules found for <strong>" . htmlspecialchars($searchTerm) . "</strong></p>";
+                echo "</div>";
+            } else {
+                echo "<div class='results-header'>";
+                echo "<i class='fas fa-check-circle'></i> Found " . count($searchResults) . " rules for \"" . htmlspecialchars($searchTerm) . "\"";
+                echo "</div>";
+                
+                echo "<div class='sigma-items-grid'>";
+                foreach ($searchResults as $result) {
+                    $relativeFilePath = str_replace($rulesPath . '/', '', $result);
+                    $filename = basename($result);
+                    
+                    echo "<a href='?file=" . urlencode($relativeFilePath) . "' class='sigma-item'>";
+                    echo "<div class='item-icon file-icon'><i class='fas fa-file-code'></i></div>";
+                    echo "<div class='item-details'>";
+                    echo "<div class='item-name'>" . htmlspecialchars($filename) . "</div>";
+                    echo "<div class='item-type'>Sigma Rule</div>";
+                    echo "</div>";
+                    echo "</a>";
+                }
+                echo "</div>";
+            }
+            echo "</div>";
+        }
+        elseif (isset($_GET['file']) && file_exists($rulesPath.'/'.$_GET['file'])) {
+            $filePath = $rulesPath.'/'.$_GET['file'];
+            $content = file_get_contents($filePath);
+            $relativeFilePath = str_replace($rulesPath . '/', '', $filePath);
+            
+            echo "<div class='sigma-content-section'>";
+            echo "<div class='content-header'>";
+            echo "<h2 class='content-title'>" . htmlspecialchars($_GET['file']) . "</h2>";
+            echo "<div class='content-actions'>";
+            echo "<a href='sigma.php' class='action-btn back-btn'><i class='fas fa-arrow-left'></i> Back</a>";
+            echo "</div>";
+            echo "</div>";
+            
+            echo "<div class='file-content-container'>";
+            echo "<div class='file-content-header'>";
+            echo "<h3 class='file-content-title'>Rule Content</h3>";
+            echo "<div class='file-content-actions'>";
+            echo "<button class='copy-btn' onclick='copyFileContent()'><i class='fas fa-copy'></i> Copy</button>";
+            echo "<button class='convert-btn' onclick='showConversionOptions()'><i class='fas fa-exchange-alt'></i> Convert</button>";
+            echo "</div>";
+            echo "</div>";
+            echo "<div class='file-content-body'>";
+            echo "<pre class='file-content-pre' id='fileContent'>" . htmlspecialchars($content) . "</pre>";
+            echo "</div>";
+            echo "</div>";
+            
+            echo "<div class='conversion-options' id='conversionOptions' style='display:none;'>";
+            echo "<div class='conversion-header'><i class='fas fa-exchange-alt'></i> Convert to Platform</div>";
+            echo "<p style='color: rgba(255, 255, 255, 0.7); margin-bottom: 15px;'>Choose the target platform for rule conversion:</p>";
+            echo "<div class='conversion-buttons'>";
+            echo "<button class='conversion-btn' onclick=\"convertRule('splunk', '" . htmlspecialchars($relativeFilePath) . "')\">Splunk</button>";
+            echo "<button class='conversion-btn' onclick=\"convertRule('lucene', '" . htmlspecialchars($relativeFilePath) . "')\">Lucene</button>";
+            echo "<button class='conversion-btn' onclick=\"convertRule('qradar', '" . htmlspecialchars($relativeFilePath) . "')\">QRadar</button>";
+            echo "</div>";
+            echo "</div>";
+            echo "</div>";
+        }
+        elseif (isset($_GET['folder']) && is_dir($rulesPath.'/'.$_GET['folder'])) {
+            $folderPath = $rulesPath.'/'.$_GET['folder'];
+            $folderName = $_GET['folder'];
+            
+            echo "<div class='sigma-content-section'>";
+            echo "<div class='content-header'>";
+            echo "<h2 class='content-title'>" . htmlspecialchars($folderName) . "</h2>";
+            echo "<div class='content-actions'>";
+            echo "<a href='sigma.php' class='action-btn back-btn'><i class='fas fa-arrow-left'></i> Back</a>";
+            echo "</div>";
+            echo "</div>";
+            
+            echo "<div class='sigma-items-grid'>";
+            $items = scandir($folderPath);
+            foreach ($items as $item) {
+                if ($item === '.' || $item === '..') continue;
+                
+                $fullPath = $folderPath . '/' . $item;
+                $linkPath = $folderName . $item;
+                
+                if (is_dir($fullPath)) {
+                    echo "<a href='?folder=$linkPath/' class='sigma-item'>";
+                    echo "<div class='item-icon folder-icon'><i class='fas fa-folder'></i></div>";
+                    echo "<div class='item-details'>";
+                    echo "<div class='item-name'>" . htmlspecialchars($item) . "</div>";
+                    echo "<div class='item-type'>Folder</div>";
+                    echo "</div>";
+                    echo "</a>";
+                } elseif (pathinfo($fullPath, PATHINFO_EXTENSION) === 'yml') {
+                    echo "<a href='?file=$linkPath' class='sigma-item'>";
+                    echo "<div class='item-icon file-icon'><i class='fas fa-file-code'></i></div>";
+                    echo "<div class='item-details'>";
+                    echo "<div class='item-name'>" . htmlspecialchars($item) . "</div>";
+                    echo "<div class='item-type'>Sigma Rule</div>";
+                    echo "</div>";
+                    echo "</a>";
+                }
+            }
+            echo "</div>";
+            echo "</div>";
+        }
+        else {
+            // Show categories
+            echo "<div class='sigma-categories-section'>";
+            echo "<div class='categories-header'>";
+            echo "<h2><i class='fas fa-layer-group'></i> Browse Categories</h2>";
+            echo "</div>";
+            echo "<div class='categories-grid'>";
+            
+            $items = scandir($rulesPath);
+            foreach ($items as $item) {
+                if ($item === '.' || $item === '..' || !is_dir($rulesPath . '/' . $item)) continue;
+                
+                $categoryInfo = $categories[$item] ?? ['icon' => 'fas fa-folder', 'desc' => 'Detection rules collection'];
+                
+                echo "<a href='?folder=$item/' class='category-card'>";
+                echo "<div class='category-icon'><i class='" . $categoryInfo['icon'] . "'></i></div>";
+                echo "<div class='category-name'>" . htmlspecialchars($item) . "</div>";
+                echo "<div class='category-description'>" . $categoryInfo['desc'] . "</div>";
+                echo "</a>";
+            }
+            echo "</div>";
+            echo "</div>";
+        }
+        ?>
+    </div>
 </div>
 
 <script>
 document.addEventListener('DOMContentLoaded', () => {
-    const modalCopyBtn = document.getElementById("sigma-modal-copy");
-    if (modalCopyBtn) {
-        modalCopyBtn.addEventListener('click', copyModalContent);
-    }
-
-    const closeBtn = document.getElementsByClassName("sigma-close")[0];
-    if (closeBtn) {
-        closeBtn.addEventListener('click', () => {
-            document.getElementById("sigma-modal").style.display = "none";
-        });
-    }
-
-    window.addEventListener('click', (event) => {
-        const modal = document.getElementById("sigma-modal");
-        if (event.target === modal) {
-            modal.style.display = "none";
+    // Copy functionality for file content
+    window.copyFileContent = function() {
+        const content = document.getElementById('fileContent').textContent;
+        
+        if (navigator.clipboard && window.isSecureContext) {
+            navigator.clipboard.writeText(content).then(() => {
+                showCopyFeedback('File content copied!', 'success');
+            }).catch(err => {
+                console.error('Failed to copy:', err);
+                fallbackCopy(content);
+            });
+        } else {
+            fallbackCopy(content);
         }
-    });
+    }
+    
+    function fallbackCopy(text) {
+        const textarea = document.createElement('textarea');
+        textarea.value = text;
+        textarea.style.position = 'fixed';
+        textarea.style.left = '-999999px';
+        textarea.style.top = '-999999px';
+        document.body.appendChild(textarea);
+        textarea.focus();
+        textarea.select();
+        
+        try {
+            const successful = document.execCommand('copy');
+            if (successful) {
+                showCopyFeedback('File content copied!', 'success');
+            } else {
+                showCopyFeedback('Copy failed', 'error');
+            }
+        } catch (err) {
+            console.error('Fallback copy failed:', err);
+            showCopyFeedback('Copy failed', 'error');
+        }
+        
+        document.body.removeChild(textarea);
+    }
+    
+    function showCopyFeedback(message, type) {
+        // Simple feedback - could be enhanced with toast notifications
+        const btn = document.querySelector('.copy-btn');
+        const originalContent = btn.innerHTML;
+        
+        if (type === 'success') {
+            btn.innerHTML = '<i class="fas fa-check"></i> Copied!';
+            btn.style.background = 'rgba(16, 185, 129, 0.3)';
+        } else {
+            btn.innerHTML = '<i class="fas fa-times"></i> Failed';
+            btn.style.background = 'rgba(239, 68, 68, 0.3)';
+        }
+        
+        setTimeout(() => {
+            btn.innerHTML = originalContent;
+            btn.style.background = '';
+        }, 2000);
+    }
+    
+    // Show conversion options
+    window.showConversionOptions = function() {
+        const options = document.getElementById('conversionOptions');
+        if (options.style.display === 'none') {
+            options.style.display = 'block';
+            options.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        } else {
+            options.style.display = 'none';
+        }
+    }
 });
 
-
-
 function copyModalContent() {
-    var content = document.getElementById("sigma-modal-text").innerText || document.getElementById("sigma-modal-text").textContent;
-
-  
-    if (navigator.clipboard) {
-        navigator.clipboard.writeText(content).then(function() {
-            console.log('Text copied to clipboard');
-         
-            document.getElementById("sigma-modal-copy").innerText = 'Copied!';
-            setTimeout(function() {
-                document.getElementById("sigma-modal-copy").innerText = 'Copy';
+    const content = document.getElementById("sigma-modal-text").textContent;
+    
+    if (navigator.clipboard && window.isSecureContext) {
+        navigator.clipboard.writeText(content).then(() => {
+            const btn = document.getElementById("sigma-modal-copy");
+            const originalContent = btn.innerHTML;
+            btn.innerHTML = '<i class="fas fa-check"></i> Copied!';
+            setTimeout(() => {
+                btn.innerHTML = originalContent;
             }, 2000);
-        }, function(err) {
+        }).catch(err => {
             console.error('Could not copy text: ', err);
         });
     } else {
-        
-        var textArea = document.createElement("textarea");
+        const textArea = document.createElement("textarea");
         document.body.appendChild(textArea);
         textArea.value = content;
         textArea.select();
         try {
-            var successful = document.execCommand('copy');
-            var msg = successful ? 'Copied !' : 'Failed to copy';
-            console.log(msg);
-            document.getElementById("sigma-modal-copy").innerText = msg;
-            setTimeout(function() {
-                document.getElementById("sigma-modal-copy").innerText = 'Copy';
+            const successful = document.execCommand('copy');
+            const btn = document.getElementById("sigma-modal-copy");
+            const originalContent = btn.innerHTML;
+            btn.innerHTML = successful ? '<i class="fas fa-check"></i> Copied!' : '<i class="fas fa-times"></i> Failed';
+            setTimeout(() => {
+                btn.innerHTML = originalContent;
             }, 2000);
         } catch (err) {
             console.error('Fallback: Oops, unable to copy', err);
@@ -292,15 +440,7 @@ function copyModalContent() {
     }
 }
 
-
-function showOptions() {
-    document.getElementById('conversionOptions').style.display = 'block';
-}
-
 function convertRule(plugin, rulePath) {
-    console.log("Plugin:", plugin);
-    console.log("Rule Path:", rulePath);
-    
     fetch('http://' + window.location.hostname + ':5000/convert_sigma', {
         method: 'POST',
         headers: {
@@ -319,41 +459,44 @@ function convertRule(plugin, rulePath) {
     })
     .then(data => {
         if(data.status === "success") {
-            showModal(data.output);
+            showModal(data.output, plugin);
         } else {
             console.error('Error in conversion:', data.error);
-            showModal('Error in conversion: ' + data.error);
+            showModal('Error in conversion: ' + data.error, 'Error');
         }
     })
     .catch((error) => {
         console.error('Fetch Error:', error);
-        showModal('Fetch Error: ' + error.message);
+        showModal('Fetch Error: ' + error.message, 'Error');
     });
 }
 
-function showModal(content) {
+function showModal(content, platform) {
     const modal = document.getElementById("sigma-modal");
+    const modalTitle = document.getElementById("sigma-modal-title");
     const modalText = document.getElementById("sigma-modal-text");
-    modalText.innerHTML = content.replace(/\n/g, "<br>");
-    modal.style.display = "block";
-
-    const closeBtn = document.getElementsByClassName("sigma-close")[0];
-    closeBtn.onclick = function() {
-        modal.style.display = "none";
-    };
-
-    window.onclick = function(event) {
+    
+    modalTitle.textContent = platform ? `Converted to ${platform}` : 'Conversion Result';
+    modalText.textContent = content;
+    modal.style.display = "flex";
+    
+    // Close modal functionality
+    const closeBtn = modal.querySelector(".modal-close");
+    closeBtn.onclick = () => modal.style.display = "none";
+    
+    modal.onclick = (event) => {
         if (event.target === modal) {
             modal.style.display = "none";
         }
     };
 }
 
-
 function updateDatabaseSigma() {
     const updateBtn = document.getElementById("updateDatabaseBtn");
     const updateIcon = document.getElementById("updateIcon");
+    
     updateIcon.classList.add("fa-spin");
+    updateBtn.disabled = true;
 
     fetch('http://' + window.location.hostname + ':5000/update_sigma_rules', {
         method: 'POST',
@@ -376,26 +519,28 @@ function updateDatabaseSigma() {
     })
     .finally(() => {
         updateIcon.classList.remove("fa-spin");
+        updateBtn.disabled = false;
     });
 }
-
-
-
-
 </script>
 
-
-
-<!-- Modal Start -->
+<!-- Modal -->
 <div id="sigma-modal" class="sigma-modal">
-  <div class="sigma-modal-content">
-    <span class="sigma-close">&times;</span>
-    <pre id="sigma-modal-text"></pre>
-    <button id="sigma-modal-copy" class="sigma-copy-btn">Copy</button>
-  </div>
+    <div class="sigma-modal-content">
+        <div class="modal-header">
+            <h3 class="modal-title" id="sigma-modal-title">Conversion Result</h3>
+            <button class="modal-close">&times;</button>
+        </div>
+        <div class="modal-body">
+            <pre class="modal-content-text" id="sigma-modal-text"></pre>
+        </div>
+        <div class="modal-footer">
+            <button id="sigma-modal-copy" class="modal-copy-btn" onclick="copyModalContent()">
+                <i class="fas fa-copy"></i> Copy Result
+            </button>
+        </div>
+    </div>
 </div>
-
-<!-- Modal End -->
        
 </body>
 </html>
