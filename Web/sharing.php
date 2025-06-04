@@ -62,7 +62,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['delete']) && isset($_
         $sql = "DELETE FROM contents WHERE id = $1";
         $result = pg_query_params($conn, $sql, array($id));
         
-        if (!$result) {
+        if ($result) {
+            header('Location: sharing.php?deleted=success');
+            exit;
+        } else {
             echo "Error when deleting content: " . pg_last_error($conn);
         }
     }
@@ -96,13 +99,6 @@ pg_close($conn);
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-core.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/autoloader/prism-autoloader.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-javascript.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-python.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-bash.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-powershell.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-sql.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-json.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-yaml.min.js"></script>
 
     <script>
     document.addEventListener('DOMContentLoaded', function() {
@@ -417,6 +413,82 @@ pg_close($conn);
         if (postsContainer) {
             observer.observe(postsContainer, { childList: true, subtree: true });
         }
+
+        // Gestion de la modale de suppression
+        let currentPostId = null;
+        const deleteModal = document.getElementById('deleteConfirmModal');
+        
+        // Ouvrir la modale de confirmation
+        document.addEventListener('click', function(e) {
+            if (e.target.closest('.delete-post-btn')) {
+                e.preventDefault();
+                const btn = e.target.closest('.delete-post-btn');
+                currentPostId = btn.getAttribute('data-post-id');
+                deleteModal.classList.add('modal-show');
+                document.body.style.overflow = 'hidden';
+            }
+        });
+        
+        // Annuler la suppression
+        document.getElementById('cancelDelete').addEventListener('click', function() {
+            closeDeleteModal();
+        });
+        
+        // Confirmer la suppression
+        document.getElementById('confirmDelete').addEventListener('click', function() {
+            if (currentPostId) {
+                deletePost(currentPostId);
+            }
+        });
+        
+        // Fermer la modale en cliquant à l'extérieur
+        deleteModal.addEventListener('click', function(e) {
+            if (e.target === deleteModal) {
+                closeDeleteModal();
+            }
+        });
+        
+        // Échapper pour fermer la modale
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape' && deleteModal.classList.contains('modal-show')) {
+                closeDeleteModal();
+            }
+        });
+        
+        function closeDeleteModal() {
+            deleteModal.classList.remove('modal-show');
+            document.body.style.overflow = '';
+            currentPostId = null;
+        }
+        
+        function deletePost(postId) {
+            // Créer et soumettre le formulaire de suppression
+            const form = document.createElement('form');
+            form.method = 'POST';
+            form.action = 'sharing.php';
+            form.style.display = 'none';
+            
+            const idInput = document.createElement('input');
+            idInput.type = 'hidden';
+            idInput.name = 'id';
+            idInput.value = postId;
+            
+            const deleteInput = document.createElement('input');
+            deleteInput.type = 'hidden';
+            deleteInput.name = 'delete';
+            deleteInput.value = '1';
+            
+            form.appendChild(idInput);
+            form.appendChild(deleteInput);
+            document.body.appendChild(form);
+            
+            // Fermer la modale
+            closeDeleteModal();
+            
+            // Soumettre le formulaire
+            form.submit();
+        }
+
     });
     </script>
 </head>
@@ -622,17 +694,6 @@ pg_close($conn);
                         echo '</span>';
                         echo '</div>';
                         echo '</div>';
-        
-            if (isset($content['author_id']) && $user_id == $content['author_id']) {
-                            echo '<div class="post-actions">';
-                            echo '<form method="POST" action="sharing.php" style="display: inline;">';
-                echo '<input type="hidden" name="id" value="' . $content['id'] . '">';
-                            echo '<button type="submit" name="delete" class="action-btn delete-btn" onclick="return confirm(\'Delete this post?\')">';
-                            echo '<i class="fas fa-trash"></i>';
-                            echo '</button>';
-                echo '</form>';
-                            echo '</div>';
-                        }
                         echo '</div>';
                         
                         echo '<div class="post-content">';
@@ -649,6 +710,18 @@ pg_close($conn);
                         echo '<div class="post-meta">';
                         echo '<time>Just now</time>';
                         echo '</div>';
+                        
+            if (isset($content['author_id']) && $user_id == $content['author_id']) {
+                            echo '<div class="post-actions">';
+                            echo '<form method="POST" action="sharing.php" style="display: inline;" class="delete-form">';
+                echo '<input type="hidden" name="id" value="' . $content['id'] . '">';
+                            echo '<button type="button" name="delete" class="action-btn delete-btn delete-post-btn" data-post-id="' . $content['id'] . '">';
+                            echo '<i class="fas fa-trash"></i>';
+                            echo '</button>';
+                echo '</form>';
+                            echo '</div>';
+                        }
+                        
                         echo '</div>';
                         echo '</article>';
         }
@@ -740,5 +813,28 @@ pg_close($conn);
         </div>
     </div>
 </div>
+
+<!-- Modale de confirmation de suppression -->
+<div id="deleteConfirmModal" class="delete-modal">
+    <div class="delete-modal-content">
+        <div class="delete-modal-header">
+            <i class="fas fa-exclamation-triangle delete-warning-icon"></i>
+            <h3>Confirm Deletion</h3>
+        </div>
+        <div class="delete-modal-body">
+            <p>Are you sure you want to delete this post?</p>
+            <p class="delete-warning-text">This action cannot be undone.</p>
+        </div>
+        <div class="delete-modal-actions">
+            <button type="button" class="btn btn-cancel" id="cancelDelete">
+                <i class="fas fa-times"></i> Cancel
+            </button>
+            <button type="button" class="btn btn-danger" id="confirmDelete">
+                <i class="fas fa-trash"></i> Delete
+            </button>
+        </div>
+    </div>
+</div>
+
 </body>
 </html>
