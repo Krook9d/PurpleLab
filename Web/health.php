@@ -44,7 +44,7 @@ pg_close($conn);
 
 function isServiceRunning($serviceName) {
     $result = shell_exec("systemctl is-active " . escapeshellarg($serviceName));
-    return (strpos($result, "active") !== false);
+    return (trim($result) === "active");
 }
 
 function getServerMemoryUsage() {
@@ -120,9 +120,9 @@ $memory = getServerMemoryUsage();
 $disk = getServerDiskUsage();
 $cpuUsagePercent = getServerCpuUsage();
 
-$kibanaRunning = isServiceRunning("kibana");
-$logstashRunning = isServiceRunning("logstash");
-$elasticRunning = isServiceRunning("elasticsearch");
+$opensearchDashboardRunning = isServiceRunning("dashboards");
+$postgresRunning = isServiceRunning("postgresql@14-main");
+$opensearchRunning = isServiceRunning("opensearch");
 $virtualboxRunning = isServiceRunning("virtualbox");
 
 function isFlaskRunning() {
@@ -134,6 +134,8 @@ function isFlaskRunning() {
         return false;
     }
 }
+
+
 
 $flaskStatus = isFlaskRunning() ? 'running' : 'stopped';
 
@@ -248,27 +250,27 @@ $vmInfo['IP'] = $vmIP;
             <h2 class="health-section-title"><i class="fas fa-heartbeat"></i> Service Status</h2>
             
             <div class="health-dashboard">
-                <!-- Service Kibana -->
+                <!-- OpenSearch Dashboard -->
                 <div class="health-card">
-                    <h2><i class="fas fa-search"></i> Kibana</h2>
-                    <div class="health-status <?= $kibanaRunning ? 'running' : 'stopped' ?>">
-                        <?= $kibanaRunning ? 'Running' : 'Stopped' ?>
+                    <h2><i class="fas fa-chart-line"></i> OpenSearch Dashboard</h2>
+                    <div class="health-status <?= $opensearchDashboardRunning ? 'running' : 'stopped' ?>">
+                        <?= $opensearchDashboardRunning ? 'Running' : 'Stopped' ?>
                     </div>
                 </div>
 
-                <!-- Service Logstash -->
+                <!-- PostgreSQL -->
                 <div class="health-card">
-                    <h2><i class="fas fa-stream"></i> Logstash</h2>
-                    <div class="health-status <?= $logstashRunning ? 'running' : 'stopped' ?>">
-                        <?= $logstashRunning ? 'Running' : 'Stopped' ?>
+                    <h2><i class="fas fa-database"></i> PostgreSQL</h2>
+                    <div class="health-status <?= $postgresRunning ? 'running' : 'stopped' ?>">
+                        <?= $postgresRunning ? 'Running' : 'Stopped' ?>
                     </div>
                 </div>
 
-                <!-- Service Elastic -->
+                <!-- OpenSearch -->
                 <div class="health-card">
-                    <h2><i class="fas fa-chart-bar"></i> Elastic</h2>
-                    <div class="health-status <?= $elasticRunning ? 'running' : 'stopped' ?>">
-                        <?= $elasticRunning ? 'Running' : 'Stopped' ?>
+                    <h2><i class="fas fa-search"></i> OpenSearch</h2>
+                    <div class="health-status <?= $opensearchRunning ? 'running' : 'stopped' ?>">
+                        <?= $opensearchRunning ? 'Running' : 'Stopped' ?>
                     </div>
                 </div>
 
