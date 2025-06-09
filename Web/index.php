@@ -176,7 +176,7 @@ countYmlFiles($sigmaDirectory);
 
     <ul>
         <li><a href="index.php"><i class="fas fa-home"></i> Home</a></li>
-        <li><a href="https://<?= $_SERVER['SERVER_ADDR'] ?>:5601" target="_blank"><i class="fas fa-crosshairs"></i> Hunting</a></li>
+        <li><a href="http://<?= $_SERVER['SERVER_ADDR'] ?>:5601" target="_blank"><i class="fas fa-crosshairs"></i> Hunting</a></li>
         <li><a href="mittre.php"><i class="fas fa-book"></i> Mitre Att&ck</a></li>
         <li><a href="custom_payloads.php"><i class="fas fa-code"></i> Custom Payloads</a></li>
         <li><a href="malware.php"><i class="fas fa-virus"></i> Malware</a></li>
@@ -475,7 +475,7 @@ function animateValue(element, finalValue) {
 <script>
 async function loadDashboardData() {
     try {
-        // Ajout d'un timestamp pour éviter le cache du navigateur
+        // Add timestamp to avoid browser cache
         const timestamp = new Date().getTime();
         const response = await fetch(`alienvault/dashboard_data.json?t=${timestamp}`);
         if (!response.ok) {
@@ -680,7 +680,7 @@ function createThreatItem(container, pulse) {
     ).join('');
     
     const date = new Date(pulse.created);
-    const formattedDate = date.toLocaleString('fr-FR', { 
+    const formattedDate = date.toLocaleString('en-US', { 
         year: 'numeric', 
         month: 'long', 
         day: 'numeric',
@@ -745,13 +745,13 @@ function createWorldMap(geoData) {
 
     const root = am5.Root.new("world-map");
     
-    // Définir thèmes
+    // Set themes
     root.setThemes([
         am5themes_Animated.new(root),
         am5themes_Animated.new(root)
     ]);
     
-    // Créer la carte
+    // Create map
     const chart = root.container.children.push(
         am5map.MapChart.new(root, {
             panX: "rotateX",
@@ -763,7 +763,7 @@ function createWorldMap(geoData) {
         })
     );
     
-    // Créer polygones de pays
+    // Create country polygons
     const polygonSeries = chart.series.push(
         am5map.MapPolygonSeries.new(root, {
             geoJSON: am5geodata_worldLow,
@@ -792,7 +792,7 @@ function createWorldMap(geoData) {
         fill: am5.color(0x5865F2)
     });
     
-    // Coloration des polygones basée sur la valeur
+    // Color polygons based on value
     polygonSeries.set("heatRules", [{
         target: polygonSeries.mapPolygons.template,
         dataField: "value",
@@ -801,10 +801,10 @@ function createWorldMap(geoData) {
         key: "fill"
     }]);
     
-    // Ajouter les données
+    // Add data
     polygonSeries.data.setAll(processedData);
     
-    // Contrôles de zoom
+    // Zoom controls
     chart.set("zoomControl", am5map.ZoomControl.new(root, {
         x: 10,
         y: 10,
@@ -812,13 +812,13 @@ function createWorldMap(geoData) {
         homeZoomLevel: 1
     }));
     
-    // Animation de rotation
+    // Rotation animation
     chart.appear(1000, 100);
 }
 
-// Fonction pour afficher un tooltip de confirmation de copie
+// Function to display a copy confirmation tooltip
 function showCopyTooltip(event, text) {
-    // Créer le tooltip s'il n'existe pas
+    // Create tooltip if it doesn't exist
     let tooltip = document.getElementById('copy-tooltip');
     if (!tooltip) {
         tooltip = document.createElement('div');
@@ -827,15 +827,15 @@ function showCopyTooltip(event, text) {
         document.body.appendChild(tooltip);
     }
     
-    // Positionnement du tooltip
+    // Position tooltip
     tooltip.style.left = `${event.clientX + 10}px`;
     tooltip.style.top = `${event.clientY + 10}px`;
     tooltip.textContent = `${text} copied!`;
     
-    // Afficher le tooltip
+    // Show tooltip
     tooltip.classList.add('show');
     
-    // Cacher le tooltip après un délai
+    // Hide tooltip after delay
     setTimeout(() => {
         tooltip.classList.remove('show');
     }, 2000);
