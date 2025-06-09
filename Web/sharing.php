@@ -87,7 +87,7 @@ pg_close($conn);
 
 
 <!DOCTYPE html>
-<html lang="fr">
+<html lang="en">
 <head>
     <link rel="icon" href="MD_image/logowhite.png" type="image/png">
     <meta charset="UTF-8">
@@ -414,7 +414,7 @@ pg_close($conn);
             observer.observe(postsContainer, { childList: true, subtree: true });
         }
 
-        // Gestion de la modale de suppression
+       
         let currentPostId = null;
         const deleteModal = document.getElementById('deleteConfirmModal');
         
@@ -429,26 +429,26 @@ pg_close($conn);
             }
         });
         
-        // Annuler la suppression
+    
         document.getElementById('cancelDelete').addEventListener('click', function() {
             closeDeleteModal();
         });
         
-        // Confirmer la suppression
+        
         document.getElementById('confirmDelete').addEventListener('click', function() {
             if (currentPostId) {
                 deletePost(currentPostId);
             }
         });
         
-        // Fermer la modale en cliquant à l'extérieur
+      
         deleteModal.addEventListener('click', function(e) {
             if (e.target === deleteModal) {
                 closeDeleteModal();
             }
         });
         
-        // Échapper pour fermer la modale
+      
         document.addEventListener('keydown', function(e) {
             if (e.key === 'Escape' && deleteModal.classList.contains('modal-show')) {
                 closeDeleteModal();
@@ -462,7 +462,7 @@ pg_close($conn);
         }
         
         function deletePost(postId) {
-            // Créer et soumettre le formulaire de suppression
+            
             const form = document.createElement('form');
             form.method = 'POST';
             form.action = 'sharing.php';
@@ -482,10 +482,10 @@ pg_close($conn);
             form.appendChild(deleteInput);
             document.body.appendChild(form);
             
-            // Fermer la modale
+         
             closeDeleteModal();
             
-            // Soumettre le formulaire
+   
             form.submit();
         }
 
@@ -497,7 +497,7 @@ pg_close($conn);
 <div class="nav-bar">
     <!-- Add logo to top of nav-bar -->
     <div class="nav-logo">
-        <img src="MD_image/logowhite.png" alt="Logo" /> 
+        <img src="MD_image/logowhiteV3.png" alt="Logo" /> 
     </div>
 
     <!-- Display software version -->
@@ -512,8 +512,6 @@ pg_close($conn);
         <li><a href="mittre.php"><i class="fas fa-book"></i> Mitre Att&ck</a></li>
         <li><a href="custom_payloads.php"><i class="fas fa-code"></i> Custom Payloads</a></li>
         <li><a href="malware.php"><i class="fas fa-virus"></i> Malware</a></li>
-        <li><a href="simulation.php"><i class="fas fa-project-diagram"></i> Log Simulation</a></li>
-        <li><a href="usecase.php"><i class="fas fa-lightbulb"></i> UseCase</a></li>
         <li><a href="sharing.php"><i class="fas fa-pencil-alt"></i> Sharing</a></li>
         <li><a href="sigma.php"><i class="fas fa-shield-alt"></i> Sigma Rules</a></li>
         <li><a href="rule_lifecycle.php" class="active"><i class="fas fa-cogs"></i> Rule Lifecycle</a></li>
@@ -657,7 +655,7 @@ pg_close($conn);
     if (!empty($contents)) {
         foreach ($contents as $content) {
                         $contentText = htmlspecialchars($content['content']);
-                        // Amélioration de la détection de code
+                        
                         $codePatterns = [
                             '/```/',                                    // Markdown code blocks
                             '/(?:echo|printf|cat|grep|awk|sed)\s/',    // Shell commands
@@ -710,7 +708,7 @@ pg_close($conn);
                         echo '<div class="post-meta">';
                         echo '<time>Just now</time>';
                         echo '</div>';
-                        
+        
             if (isset($content['author_id']) && $user_id == $content['author_id']) {
                             echo '<div class="post-actions">';
                             echo '<form method="POST" action="sharing.php" style="display: inline;" class="delete-form">';
@@ -720,9 +718,9 @@ pg_close($conn);
                             echo '</button>';
                 echo '</form>';
                             echo '</div>';
-                        }
+            }
                         
-                        echo '</div>';
+            echo '</div>';
                         echo '</article>';
         }
     } else {
@@ -736,7 +734,7 @@ pg_close($conn);
                 }
 
                 function processCodeBlocks($content) {
-                    // Détecter le langage automatiquement
+                    
                     function detectLanguage($code) {
                         $code = trim($code);
                         
@@ -783,7 +781,7 @@ pg_close($conn);
                         return 'text';
                     }
                     
-                    // Traitement des blocs markdown
+                    
                     $patterns = [
                         '/```(\w+)?\n(.*?)\n```/s' => function($matches) {
                             $lang = !empty($matches[1]) ? $matches[1] : detectLanguage($matches[2]);
@@ -800,21 +798,21 @@ pg_close($conn);
                         }
                     }
                     
-                    // Si pas de blocs markdown, on considère tout comme du code
+                   
                     if (strpos($content, '<div class="code-block">') === false && strpos($content, '<code class="inline-code">') === false) {
                         $detectedLang = detectLanguage($content);
                         $content = '<div class="code-block"><div class="code-header"><span class="language">' . strtoupper($detectedLang) . '</span><button class="copy-code"><i class="fas fa-copy"></i> Copy</button></div><pre><code class="language-' . $detectedLang . '">' . $content . '</code></pre></div>';
                     }
                     
                     return '<div class="processed-content">' . $content . '</div>';
-                }
-                ?>
-            </div>
+    }
+    ?>
+</div>
         </div>
     </div>
 </div>
 
-<!-- Modale de confirmation de suppression -->
+
 <div id="deleteConfirmModal" class="delete-modal">
     <div class="delete-modal-content">
         <div class="delete-modal-header">
