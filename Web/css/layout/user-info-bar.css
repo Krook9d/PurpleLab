@@ -1,80 +1,279 @@
-/* layout/user-info-bar.css */
+/* layout/user-info-bar.css - Modern User Info Bar */
 .user-info-bar {
     position: absolute;
     right: 0;
     top: 0;
-    background-color: #13254d;
-    width: 15%;
-    height: 60px;
+    background: linear-gradient(135deg, #151934 0%, #13254d 50%, #151934 100%);
+    width: auto;
+    min-width: 280px;
+    height: 70px;
     display: flex;
     align-items: center;
     justify-content: flex-end;
-    padding: 10px 80px 10px 10px;
+    padding: 0 25px;
     border-radius: 0 0 0 20px;
-  }
-  
-  .user-info-bar img {
-    height: 60px;
-    width: 60px;
-    border-radius: 50%;
-    object-fit: cover;
-    margin-right: 30px; 
-    border: 3px solid #172d5e;
-    box-shadow: 0px 0px 10px #888;
-  }
-  
-  .user-info-bar h2 {
-    color: white;
-    margin: 0;
-  }
-  
-  .avatar-info {
+    box-shadow: 
+        -2px 2px 15px rgba(0, 0, 0, 0.2),
+        inset 1px -1px 0 rgba(102, 126, 234, 0.1);
+    backdrop-filter: blur(10px);
+    border-left: 1px solid rgba(102, 126, 234, 0.15);
+    border-bottom: 1px solid rgba(102, 126, 234, 0.15);
+    z-index: 999;
+}
+
+.user-info-bar::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(255, 255, 255, 0.02);
+    border-radius: 0 0 0 20px;
+    pointer-events: none;
+}
+
+.avatar-info {
     display: flex;
     align-items: center;
     justify-content: center;
-  }
-  
-  .user-info-bar .user-button {
-    background-color: rgba(255, 255, 255, 0.2);
-    color: #fff;
-    padding: 10px 20px; 
-    font-size: 18px; 
-    border-radius: 5px;
-    border: none;
+    gap: 15px;
+    position: relative;
+}
+
+.user-info-bar img {
+    height: 45px;
+    width: 45px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid rgba(102, 126, 234, 0.3);
+    box-shadow: 
+        0 4px 12px rgba(0, 0, 0, 0.3),
+        0 0 0 3px rgba(102, 126, 234, 0.1);
+    transition: all 0.3s ease;
+    filter: brightness(1.1);
+}
+
+.user-info-bar img:hover {
+    border-color: rgba(102, 126, 234, 0.5);
+    box-shadow: 
+        0 6px 20px rgba(0, 0, 0, 0.4),
+        0 0 0 3px rgba(102, 126, 234, 0.2);
+    transform: scale(1.05);
+}
+
+.user-button {
+    background: rgba(255, 255, 255, 0.05);
+    color: rgba(255, 255, 255, 0.9);
+    padding: 12px 18px;
+    font-size: 14px;
+    font-weight: 500;
+    border-radius: 12px;
+    border: 1px solid rgba(102, 126, 234, 0.2);
     cursor: pointer;
     position: relative;
-    display: inline-block;
-    transition: background-color 0.3s;
-  }
-  
-  .dropdown-content {
+    display: inline-flex;
+    align-items: center;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    backdrop-filter: blur(5px);
+    min-width: 120px;
+    justify-content: center;
+    z-index: 1001;
+}
+
+.user-button::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(102, 126, 234, 0.1), transparent);
+    transition: left 0.5s ease;
+    border-radius: 12px;
+}
+
+.user-button:hover::before {
+    left: 100%;
+}
+
+.user-button:hover {
+    background: linear-gradient(135deg, rgba(102, 126, 234, 0.15) 0%, rgba(118, 75, 162, 0.15) 100%);
+    color: #ffffff;
+    border-color: rgba(102, 126, 234, 0.4);
+    box-shadow: 
+        0 4px 15px rgba(102, 126, 234, 0.2),
+        inset 0 1px 0 rgba(255, 255, 255, 0.1);
+    transform: translateY(-2px);
+}
+
+.user-button span {
+    position: relative;
+    z-index: 2;
+    letter-spacing: 0.3px;
+}
+
+/* Dropdown Menu */
+.dropdown-content {
     display: none;
     position: absolute;
-    background-color: #f9f9f9;
-    min-width: 160px;
-    box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
-    z-index: 1;
+    top: calc(100% + 2px);
+    right: 0;
+    background: linear-gradient(135deg, #151934 0%, #13254d 50%, #151934 100%);
+    min-width: 180px;
+    border-radius: 12px;
+    box-shadow: 
+        0 8px 32px rgba(0, 0, 0, 0.3),
+        0 0 0 1px rgba(102, 126, 234, 0.2);
+    backdrop-filter: blur(15px);
+    z-index: 1000;
+    opacity: 0;
+    transform: translateY(-10px);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    overflow: hidden;
+    pointer-events: none;
+}
+
+.dropdown-content::before {
+    content: '';
+    position: absolute;
+    top: -6px;
+    right: 20px;
+    width: 12px;
+    height: 12px;
+    background: #151934;
+    transform: rotate(45deg);
+    border-top: 1px solid rgba(102, 126, 234, 0.2);
+    border-left: 1px solid rgba(102, 126, 234, 0.2);
+}
+
+.user-button:hover .dropdown-content,
+.dropdown-content:hover {
+    display: block;
+    opacity: 1;
+    transform: translateY(0);
+    pointer-events: auto;
+}
+
+.user-button::after {
+    content: '';
+    position: absolute;
     top: 100%;
-    left: 0;
-  }
-  
-  .dropdown-content a {
-    color: black;
-    padding: 12px 16px;
+    left: -20px;
+    right: -20px;
+    height: 10px;
+    background: transparent;
+    z-index: 999;
+}
+
+.dropdown-content a {
+    color: rgba(255, 255, 255, 0.8);
+    padding: 14px 18px;
     text-decoration: none;
-    display: block;
-  }
-  
-  .user-button:hover .dropdown-content {
-    display: block;
-  }
-  
-  .user-button:hover {
-    background-color: rgba(255, 255, 255, 0.4);
-  }
-  
-  .dropdown-content a:hover {
-    background-color: #003461;
-    color: white;
-  }
+    display: flex;
+    align-items: center;
+    font-size: 14px;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    border-bottom: 1px solid rgba(102, 126, 234, 0.1);
+    position: relative;
+    overflow: hidden;
+}
+
+.dropdown-content a:last-child {
+    border-bottom: none;
+}
+
+.dropdown-content a::before {
+    content: '';
+    position: absolute;
+    left: -100%;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(102, 126, 234, 0.1), transparent);
+    transition: left 0.4s ease;
+}
+
+.dropdown-content a:hover::before {
+    left: 100%;
+}
+
+.dropdown-content a:hover {
+    background: linear-gradient(135deg, rgba(102, 126, 234, 0.2) 0%, rgba(118, 75, 162, 0.2) 100%);
+    color: #ffffff;
+    transform: translateX(5px);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.1);
+}
+
+.dropdown-content a i {
+    margin-right: 10px;
+    width: 16px;
+    text-align: center;
+    opacity: 0.8;
+}
+
+.dropdown-content a:hover i {
+    opacity: 1;
+}
+
+/* Enhanced hover effects for the entire user info bar */
+.user-info-bar:hover {
+    box-shadow: 
+        -4px 4px 20px rgba(0, 0, 0, 0.3),
+        inset 1px -1px 0 rgba(102, 126, 234, 0.2);
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+    .user-info-bar {
+        min-width: 200px;
+        padding: 0 15px;
+        height: 60px;
+    }
+    
+    .user-info-bar img {
+        height: 35px;
+        width: 35px;
+    }
+    
+    .user-button {
+        padding: 8px 12px;
+        font-size: 12px;
+        min-width: 80px;
+    }
+    
+    .dropdown-content {
+        min-width: 160px;
+        right: -10px;
+    }
+}
+
+/* Animation for smooth appearance */
+@keyframes slideInFromTop {
+    from {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.user-info-bar {
+    animation: slideInFromTop 0.6s ease-out;
+}
+
+/* Focus states for accessibility */
+.user-button:focus {
+    outline: 2px solid #667eea;
+    outline-offset: 2px;
+}
+
+.dropdown-content a:focus {
+    background: linear-gradient(135deg, rgba(102, 126, 234, 0.2) 0%, rgba(118, 75, 162, 0.2) 100%);
+    color: #ffffff;
+    outline: none;
+}
   
