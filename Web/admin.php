@@ -56,7 +56,7 @@ pg_close($conn);
 
 <div class="nav-bar">
     <div class="nav-logo">
-        <img src="MD_image/logowhite.png" alt="Logo" /> 
+        <img src="MD_image/logowhiteV3.png" alt="Logo" /> 
     </div>
 
     <?php include $_SERVER['DOCUMENT_ROOT'].'/scripts/php/version.php'; ?>
@@ -70,8 +70,6 @@ pg_close($conn);
         <li><a href="mittre.php"><i class="fas fa-book"></i> Mitre Att&ck</a></li>
         <li><a href="custom_payloads.php"><i class="fas fa-code"></i> Custom Payloads</a></li>
         <li><a href="malware.php"><i class="fas fa-virus"></i> Malware</a></li>
-        <li><a href="simulation.php"><i class="fas fa-project-diagram"></i> Log Simulation</a></li>
-        <li><a href="usecase.php"><i class="fas fa-lightbulb"></i> UseCase</a></li>
         <li><a href="sharing.php"><i class="fas fa-pencil-alt"></i> Sharing</a></li>
         <li><a href="sigma.php"><i class="fas fa-shield-alt"></i> Sigma Rules</a></li>
         <li><a href="rule_lifecycle.php"><i class="fas fa-cogs"></i> Rule Lifecycle</a></li>
@@ -339,12 +337,12 @@ $(document).ready(function() {
         }
     });
     
-    // Gestion du bouton de rafraîchissement des KPI AlienVault
+   
     $('#refreshAlienvaultBtn').click(function() {
         var refreshBtn = $(this);
         var statusDiv = $('#refreshStatus');
         
-        // Désactiver le bouton et afficher le statut de chargement
+    
         refreshBtn.prop('disabled', true);
         refreshBtn.html('<i class="fas fa-spinner fa-spin"></i> Updating...');
         statusDiv.removeClass('success error').addClass('loading').html('<i class="fas fa-spinner fa-spin"></i> Refreshing AlienVault data...').show();
@@ -360,7 +358,7 @@ $(document).ready(function() {
                 statusDiv.removeClass('loading error').addClass('success')
                        .html('<i class="fas fa-check-circle"></i> KPI data successfully updated. The changes will be reflected on the dashboard.');
                 
-                // Mise à jour de l'heure de dernière mise à jour
+        
                 var now = new Date();
                 var formattedDate = now.getFullYear() + '-' + 
                                   ('0' + (now.getMonth() + 1)).slice(-2) + '-' + 
@@ -371,7 +369,7 @@ $(document).ready(function() {
                 $('.api-last-updated').text('Last updated: ' + formattedDate);
             },
             error: function(xhr, status, error) {
-                // Afficher l'erreur
+  
                 var errorMessage = xhr.responseJSON && xhr.responseJSON.message 
                     ? xhr.responseJSON.message 
                     : 'An error occurred while refreshing the data.';
@@ -380,7 +378,7 @@ $(document).ready(function() {
                        .html('<i class="fas fa-exclamation-circle"></i> Error: ' + errorMessage);
             },
             complete: function() {
-                // Réactiver le bouton
+       
                 refreshBtn.prop('disabled', false);
                 refreshBtn.html('<i class="fas fa-sync-alt"></i> Update KPI');
             }
