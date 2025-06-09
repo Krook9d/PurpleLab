@@ -1,5 +1,5 @@
 <?php
-// start Connection
+// Start Connection
 session_start();
 
 if (!isset($_SESSION['email'])) {
@@ -59,7 +59,7 @@ pg_close($conn);
 <div class="nav-bar">
     <!-- Add logo to top of nav-bar -->
     <div class="nav-logo">
-        <img src="MD_image/logowhite.png" alt="Logo" /> 
+        <img src="MD_image/logowhiteV3.png" alt="Logo" /> 
     </div>
 
     <!-- Display software version -->
@@ -70,12 +70,10 @@ pg_close($conn);
 
     <ul>
         <li><a href="index.php"><i class="fas fa-home"></i> Home</a></li>
-        <li><a href="http://<?= $_SERVER['SERVER_ADDR'] ?>:5601" target="_blank"><i class="fas fa-crosshairs"></i> Hunting</a></li>
+        <li><a href="https://<?= $_SERVER['SERVER_ADDR'] ?>:5601" target="_blank"><i class="fas fa-crosshairs"></i> Hunting</a></li>
         <li><a href="mittre.php"><i class="fas fa-book"></i> Mitre Att&ck</a></li>
         <li><a href="custom_payloads.php"><i class="fas fa-code"></i> Custom Payloads</a></li>
         <li><a href="malware.php"><i class="fas fa-virus"></i> Malware</a></li>
-        <li><a href="simulation.php"><i class="fas fa-project-diagram"></i> Log Simulation</a></li>
-        <li><a href="usecase.php"><i class="fas fa-lightbulb"></i> UseCase</a></li>
         <li><a href="sharing.php"><i class="fas fa-pencil-alt"></i> Sharing</a></li>
         <li><a href="sigma.php"><i class="fas fa-shield-alt"></i> Sigma Rules</a></li>
         <li><a href="rule_lifecycle.php" class="active"><i class="fas fa-cogs"></i> Rule Lifecycle</a></li>
@@ -111,14 +109,12 @@ pg_close($conn);
 <!-- Main Content -->
 <div class="content">
     <div class="rule-lifecycle-wrapper">
-        <!-- Onglets navigation -->
         <div class="rlc-tabs">
             <button class="rlc-tab active" data-tab="tab-connectors">Connectors</button>
             <button class="rlc-tab" data-tab="tab-rules">Rules & Payloads</button>
             <button class="rlc-tab" data-tab="tab-execution">Execution & Results</button>
         </div>
 
-        <!-- Contenu des onglets -->
         <div class="rlc-tab-content" id="tab-connectors" style="display: block;">
             <div class="connector-section">
                 <h1>Rule Lifecycle Management</h1>
@@ -153,7 +149,7 @@ pg_close($conn);
             </div>
         </div>
         <div class="rlc-tab-content" id="tab-execution" style="display: none;">
-            <!-- Section Exécution & Résultats -->
+            <!-- Execution & Results Section -->
             <div class="execution-section">
                 <div class="execution-controls">
                     <label for="execution-connector-select">Connector:</label>
@@ -185,7 +181,7 @@ pg_close($conn);
         </div>
     </div>
 
-    <!-- Modals existants (inchangés) -->
+    <!-- Existing modals (unchanged) -->
     <div id="connection-modal" class="modal">
         <div class="modal-content">
             <span class="close">&times;</span>
@@ -206,7 +202,7 @@ pg_close($conn);
             <div id="rulesContent" class="rules-container"></div>
         </div>
     </div>
-    <!-- Ajout de la modale pour création/édition de payload -->
+    <!-- Payload creation/editing modal -->
     <div id="payload-modal" class="modal">
         <div class="modal-content" style="max-width: 700px; width: 90%;">
             <span class="close" id="close-payload-modal">&times;</span>
@@ -235,7 +231,7 @@ pg_close($conn);
     <div id="toast" class="toast"></div>
 </div>
 
-<!-- Side panel pour la configuration du connecteur -->
+<!-- Side panel for connector configuration -->
 <div id="connector-sidepanel" class="sidepanel">
     <div class="sidepanel-content">
         <span class="sidepanel-close" id="close-sidepanel">&times;</span>
@@ -244,7 +240,7 @@ pg_close($conn);
     </div>
 </div>
 
-<!-- Modale générique pour l'affichage des résultats d'exécution -->
+<!-- Generic modal for displaying execution results -->
 <div id="generic-modal" class="modal">
     <div class="modal-content modal-content-large">
         <div class="modal-header" style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;border-bottom:1px solid rgba(255,255,255,0.1);padding-bottom:10px;">
@@ -255,34 +251,34 @@ pg_close($conn);
     </div>
 </div>
 
-<!-- JS pour la navigation par onglets -->
+<!-- JS for tab navigation -->
 <script>
-// --- Déclaration des variables globales en tout début de script ---
+// --- Global variables declaration at the beginning of script ---
 let RULES = [];
 let PAYLOADS = [];
 let LAST_SYNC = null;
 let SELECTED_CONNECTOR = 'opensearch';
 let rulePayloadMap = {};
 
-// --- Déclaration des fonctions globales ---
-// Fonction de rendu du tableau des règles (déplacée au niveau global)
+// --- Global functions declaration ---
+// Rules table rendering function (moved to global level)
 function renderRulesTable() {
     const tableContainer = document.getElementById('rules-table-container');
     
     console.log('Rendering rules table with', RULES.length, 'rules and', PAYLOADS.length, 'payloads');
     console.log('Current rule-payload associations:', rulePayloadMap);
     
-    // Si aucune règle, montrer message
+    // If no rules, show message
     if (!RULES || RULES.length === 0) {
         tableContainer.innerHTML = '<div class="alert alert-info">No rules synchronized for this connector.</div>';
         return;
     }
     
-    // Préparer les en-têtes
+    // Prepare headers
     const tableHeaders = ['Name', 'Rule ID', 'Type', 'Severity', 'Actions'];
     const payloadHeaders = ['Name', 'Rule ID', 'Type', 'Severity', 'Assigned Payload', 'Last Triggered', 'Actions'];
     
-    // Créer le tableau
+    // Create table
     let html = '<div class="rules-payloads-header">';
     html += '<button id="refresh-payloads-btn" class="btn btn-secondary">Refresh Payloads</button>';
     html += '<select id="payload-filter" class="payload-filter">';
@@ -293,14 +289,14 @@ function renderRulesTable() {
     html += '</div>';
     html += '<table class="rules-table">';
     
-    // En-têtes
+    // Headers
     html += '<thead><tr>';
     for (const header of payloadHeaders) {
         html += `<th>${header}</th>`;
     }
     html += '</tr></thead>';
     
-    // Corps
+    // Body
     html += '<tbody>';
     
     for (const rule of RULES) {
@@ -308,7 +304,7 @@ function renderRulesTable() {
         const ruleName = rule.name || rule.trigger_name || rule.monitor_name || ruleId;
         const ruleType = rule.rule_type || rule.type || (rule.monitor_type ? 'Monitor' : 'Trigger') || '-';
         
-        // Formater la date de dernier déclenchement
+        // Format last trigger date
         let lastTriggeredCell = '<span class="never-triggered">Never</span>';
         let triggerTime = rule.last_notification_time || rule.start_time || rule.trigger_time || null;
         
@@ -358,7 +354,7 @@ function renderRulesTable() {
         html += `<td class="rule-type">${ruleType}</td>`;
         html += `<td class="rule-severity">${rule.severity || '-'}</td>`;
         
-        // Cellule pour payload associé
+        // Cell for associated payload
         html += '<td class="rule-payload">';
         html += '<select class="payload-select" data-rule-id="' + ruleId + '">';
         html += '<option value="">-- Select Payload --</option>';
@@ -369,7 +365,7 @@ function renderRulesTable() {
         html += '</select>';
         html += '</td>';
         
-        // Cellule Last Triggered
+        // Last Triggered cell
         html += `<td class="rule-last-triggered">${lastTriggeredCell}</td>`;
         
         // Actions
@@ -384,7 +380,7 @@ function renderRulesTable() {
     
     html += '</tbody></table>';
     
-    // Afficher le tableau
+    // Display table
     tableContainer.innerHTML = html;
     
     // Attach event handlers after rendering the table
@@ -398,21 +394,21 @@ function renderRulesTable() {
         });
     });
     
-    // Attacher des gestionnaires d'événements pour les sélecteurs de payload
+    // Attach event handlers for payload selectors
     document.querySelectorAll('.payload-select').forEach(select => {
         select.addEventListener('change', function() {
             const ruleId = this.getAttribute('data-rule-id');
             const payloadId = this.value;
             console.log(`Associating rule ${ruleId} with payload ${payloadId}`);
             
-            // Mettre à jour la map locale
+            // Update local map
             if (payloadId) {
                 rulePayloadMap[ruleId] = payloadId;
             } else {
                 delete rulePayloadMap[ruleId];
             }
             
-            // Sauvegarder l'association dans la base de données
+            // Save association in database
             saveRulePayloadAssociation(ruleId, payloadId);
         });
     });
@@ -428,15 +424,15 @@ function renderRulesTable() {
                 return;
             }
 
-            // --- Ajout de l'état de chargement sur le bouton ---
+            // --- Add loading state to button ---
             const originalText = this.innerHTML;
             this.innerHTML = '<span class="loading-spinner"></span> Loading...';
             this.disabled = true;
             const btn = this;
 
-            // Exécution du payload sur cette règle
+            // Execute payload on this rule
             executePayload(payloadId, ruleId, function() {
-                // Callback pour restaurer le bouton
+                // Callback to restore button
                 btn.innerHTML = 'Execute Payload';
                 btn.disabled = false;
             });
@@ -450,7 +446,7 @@ function renderRulesTable() {
         });
     });
     
-    // Gérer rafraîchissement des payloads
+    // Handle payload refresh
     const refreshPayloadsBtn = document.getElementById('refresh-payloads-btn');
     if (refreshPayloadsBtn) {
         refreshPayloadsBtn.addEventListener('click', function() {
@@ -460,9 +456,9 @@ function renderRulesTable() {
     }
 }
 
-// Fonction pour sauvegarder l'association règle-payload dans la base de données
+// Function to save rule-payload association in database
 function saveRulePayloadAssociation(ruleId, payloadId) {
-    console.log(`Sauvegarde de l'association: règle ${ruleId} avec payload ${payloadId}`);
+    console.log(`Saving association: rule ${ruleId} with payload ${payloadId}`);
     
     fetch('scripts/php/connector_api.php', {
         method: 'POST',
@@ -474,7 +470,7 @@ function saveRulePayloadAssociation(ruleId, payloadId) {
     })
     .then(r => r.json())
     .then(data => {
-        console.log('Réponse de save_rule_payload:', data);
+        console.log('save_rule_payload response:', data);
         if (data.success) {
             showToast('Payload association saved');
         } else {
@@ -488,10 +484,10 @@ function saveRulePayloadAssociation(ruleId, payloadId) {
     });
 }
 
-// Fonction pour exécuter un payload sur une règle
+// Function to execute a payload on a rule
 function executePayload(payloadId, ruleId, onComplete) {
-    console.log(`Exécution du payload ${payloadId} sur la règle ${ruleId}`);
-    // Récupérer le payload
+    console.log(`Executing payload ${payloadId} on rule ${ruleId}`);
+    // Get the payload
     fetch('scripts/php/connector_api.php', {
         method: 'POST',
         body: new URLSearchParams({
@@ -511,14 +507,14 @@ function executePayload(payloadId, ruleId, onComplete) {
             if (onComplete) onComplete();
             return;
         }
-        // Récupérer les données de la règle
+        // Get rule data
         const rule = RULES.find(r => (r.id === ruleId || r.name === ruleId || r.monitor_id === ruleId || r.trigger_name === ruleId));
         if (!rule) {
             showToast('Rule not found', 'error');
             if (onComplete) onComplete();
             return;
         }
-        // Exécution réelle du code PowerShell via PHP (comme custom_payloads.php)
+        // Actual execution of PowerShell code via PHP (like custom_payloads.php)
         const formData = new FormData();
         formData.append('action', 'execute_payload');
         formData.append('content', data.payload.code);
@@ -528,7 +524,7 @@ function executePayload(payloadId, ruleId, onComplete) {
         })
         .then(response => response.json())
         .then(result => {
-            // Afficher le résultat dans la modale
+            // Display result in modal
             const modalContent = document.createElement('div');
             modalContent.innerHTML = `
                 <div class="payload-execution-details">
@@ -565,13 +561,13 @@ function executePayload(payloadId, ruleId, onComplete) {
     });
 }
 
-// Fonction pour afficher les résultats d'exécution dans l'onglet Execution & Results
+// Function to display execution results in Execution & Results tab
 function renderExecutionResults() {
     console.log('Rendering execution results');
     const container = document.getElementById('execution-results-table');
     if (!container) return;
     container.innerHTML = '<div class="no-results">No rules match your criteria.</div>';
-    // Ajout d'un gestionnaire pour le bouton d'exécution de tous les payloads
+    // Add handler for execute all payloads button
     const executeAllBtn = document.getElementById('execute-all-payloads');
     if (executeAllBtn) {
         executeAllBtn.onclick = function() {
@@ -591,7 +587,7 @@ function showToast(msg, type = 'success') {
 }
 
 document.addEventListener('DOMContentLoaded', function() {
-    // Navigation onglets
+    // Tab navigation
     document.querySelectorAll('.rlc-tab').forEach(function(tabBtn) {
         tabBtn.addEventListener('click', function() {
             document.querySelectorAll('.rlc-tab').forEach(btn => btn.classList.remove('active'));
@@ -599,18 +595,18 @@ document.addEventListener('DOMContentLoaded', function() {
             tabBtn.classList.add('active');
             document.getElementById(tabBtn.dataset.tab).style.display = 'block';
             
-            // Charger les données appropriées selon l'onglet actif
+            // Load appropriate data according to active tab
             if (tabBtn.dataset.tab === 'tab-rules') {
                 fetchPayloads();
                 fetchRulesAndPayloads();
             } else if (tabBtn.dataset.tab === 'tab-execution') {
-                // Synchroniser automatiquement les règles à chaque accès à l'onglet Execution & Results
+                // Automatically synchronize rules on each access to Execution & Results tab
                 synchronizeRulesForExecutionTab();
             }
         });
     });
 
-    // Gestionnaire d'événements pour la modale générique
+    
     const genericModal = document.getElementById('generic-modal');
     const closeGenericModalBtn = document.getElementById('close-generic-modal-btn');
     if (closeGenericModalBtn) {
@@ -663,13 +659,12 @@ document.addEventListener('DOMContentLoaded', function() {
     });
     // Check if connections are already established
     loadConnectorConfigs();
-    // Écouteurs pour les boutons Retrieve Rules
+    
     const retrieveOpenSearchBtn = document.getElementById('retrieve-opensearch-rules');
     if (retrieveOpenSearchBtn) retrieveOpenSearchBtn.addEventListener('click', function() { retrieveRules('opensearch'); });
     const retrieveSplunkBtn = document.getElementById('retrieve-splunk-rules');
     if (retrieveSplunkBtn) retrieveSplunkBtn.addEventListener('click', function() { retrieveRules('splunk'); });
 
-    // --- Gestion du panneau latéral de configuration connecteur ---
     function openConnectorSidePanel(type) {
         const panel = document.getElementById('connector-sidepanel');
         const form = document.getElementById('sidepanel-form');
@@ -681,13 +676,12 @@ document.addEventListener('DOMContentLoaded', function() {
         
         console.log("Ouverture du panneau pour", type);
         
-        // Configuration du titre
+ 
         const titleEl = document.getElementById('sidepanel-title');
         if (titleEl) {
             titleEl.textContent = type === 'opensearch' ? 'Configuration OpenSearch' : 'Configuration Splunk';
         }
         
-        // Construction du formulaire
         let html = '';
         if (type === 'opensearch') {
             html += `<div class='form-group'><label>Host</label><input type='text' id='opensearch-host' placeholder='https://localhost:9200'></div>`;
@@ -703,10 +697,8 @@ document.addEventListener('DOMContentLoaded', function() {
         }
         form.innerHTML = html;
         
-        // Ouvrir le panneau
         panel.classList.add('open');
         
-        // Gestionnaires d'événements pour les boutons
         if (type === 'opensearch') {
             const testBtn = document.getElementById('test-opensearch-connection');
             if (testBtn) testBtn.onclick = function(e) { 
@@ -731,7 +723,6 @@ document.addEventListener('DOMContentLoaded', function() {
             };
         }
         
-        // Charger les configurations existantes
         loadConnectorConfigInPanel(type);
     }
 
@@ -777,13 +768,13 @@ document.addEventListener('DOMContentLoaded', function() {
         document.getElementById('connector-sidepanel').classList.remove('open');
     };
 
-    // Gestionnaire de clic pour fermer le panneau quand on clique en dehors
+
     document.addEventListener('click', function(event) {
         const sidepanel = document.getElementById('connector-sidepanel');
         const splunkConnector = document.getElementById('splunk-connector');
         const opensearchConnector = document.getElementById('opensearch-connector');
         
-        // Fermer le panneau si le clic est en dehors du panneau et des connecteurs
+
         if (sidepanel && sidepanel.classList.contains('open') && 
             !sidepanel.contains(event.target) && 
             event.target !== splunkConnector &&
@@ -799,9 +790,9 @@ document.addEventListener('DOMContentLoaded', function() {
     const opensearchConnector2 = document.getElementById('opensearch-connector');
     if (opensearchConnector2) opensearchConnector2.onclick = function() { openConnectorSidePanel('opensearch'); };
 
-    // --- Gestion des règles & payloads ---
+
     function fetchRulesAndPayloads() {
-        // Afficher un indicateur de chargement
+
         const container = document.getElementById('rules-table-container');
         if (container) {
             container.innerHTML = '<div class="loading-container"><div class="loading-spinner"></div><p>Loading fresh rules data...</p></div>';
@@ -809,8 +800,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
         console.log('Fetching fresh rules for connector:', SELECTED_CONNECTOR);
         
-        // Récupérer les données fraîches directement depuis l'API du connecteur
-        // pour avoir les informations de déclenchement à jour
+
         fetch('scripts/php/connector_api.php', {
             method: 'POST',
             body: new URLSearchParams({ 
@@ -835,7 +825,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 RULES = rules;
                 console.log(`${RULES.length} fresh rules retrieved with trigger information`);
                 
-                // Récupérer la date de dernière synchronisation depuis la base de données
                 fetch('scripts/php/connector_api.php', {
                     method: 'POST',
                     body: new URLSearchParams({ 
@@ -852,8 +841,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     console.warn('Failed to get last sync info:', error);
                     LAST_SYNC = 'Unknown';
                 });
-                
-                // Charger les associations règle-payload
+            
                 fetch('scripts/php/connector_api.php', {
                     method: 'POST',
                     body: new URLSearchParams({ action: 'get_rule_payload_map' })
@@ -874,7 +862,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     rulePayloadMap = {};
                 })
                 .finally(() => {
-                    // Afficher les règles avec les données fraîches
+                
                     renderRulesTable();
                     document.getElementById('last-sync-info').textContent = 'Last synchronization: ' + (LAST_SYNC ? LAST_SYNC : '--');
                 });
@@ -901,7 +889,7 @@ document.addEventListener('DOMContentLoaded', function() {
     };
 
     document.getElementById('sync-rules-btn').onclick = function() {
-        // Afficher un indicateur de chargement
+        
         const syncBtn = document.getElementById('sync-rules-btn');
         const origText = syncBtn.textContent;
         syncBtn.innerHTML = '<span class="loading-spinner"></span> Synchronizing...';
@@ -998,14 +986,13 @@ document.addEventListener('DOMContentLoaded', function() {
         const content = document.getElementById('rulesContent');
         
         if (!modal || !title || !content) return;
-        
-        // Récupérer l'identifiant de la règle
+
         const ruleId = rule.id || rule.name || rule.monitor_id || rule.trigger_name || 'Unknown';
         
-        // Définir le titre
+
         title.textContent = rule.name || rule.trigger_name || rule.monitor_name || 'Rule Details';
         
-        // Rechercher le payload associé à cette règle
+
         const payloadId = rulePayloadMap[ruleId];
         let payloadPromise = Promise.resolve(null);
         
@@ -1022,18 +1009,18 @@ document.addEventListener('DOMContentLoaded', function() {
             });
         }
         
-        // Afficher un chargeur
+ 
         content.innerHTML = '<div class="loading-container"><div class="loading-spinner"></div><p>Loading rule details...</p></div>';
         
-        // Afficher la modale pendant le chargement
+
         modal.style.display = 'block';
         
-        // Attendre que le payload soit chargé si nécessaire
+
         payloadPromise.then(payload => {
-            // Formater le contenu de la règle
+        
             let html = '<div class="rule-details">';
             
-            // Section d'informations générales
+        
             html += '<div class="rule-primary-details">';
             const primaryFields = ['name', 'id', 'monitor_id', 'trigger_name', 'severity', 'type', 'rule_type', 'monitor_type'];
             for (const field of primaryFields) {
@@ -1043,24 +1030,24 @@ document.addEventListener('DOMContentLoaded', function() {
             }
             html += '</div>';
             
-            // Section pour la requête de la règle
+     
             html += '<div class="rule-query">';
             html += '<h3>Query</h3>';
             
-            // Extraire la requête selon le type de règle
+           
             let query = '';
             if (rule.search) {
-                query = rule.search; // Pour Splunk
+                query = rule.search; 
             } else if (rule.query) {
-                query = rule.query; // Pour certains types d'OpenSearch
+                query = rule.query; 
             } else if (rule.triggers && rule.triggers[0] && rule.triggers[0].query) {
-                query = rule.triggers[0].query; // Pour d'autres types d'OpenSearch
+                query = rule.triggers[0].query; 
             }
             
             html += `<pre class="code-block">${query || 'No query available for this rule'}</pre>`;
             html += '</div>';
             
-            // Section pour le payload associé
+          
             html += '<div class="rule-payload-section">';
             html += '<h3>Associated Payload</h3>';
             
@@ -1088,23 +1075,23 @@ document.addEventListener('DOMContentLoaded', function() {
             html += '</div>';
             content.innerHTML = html;
             
-            // Gérer le bouton d'édition du payload
+     
             const editPayloadBtn = content.querySelector('.edit-payload-btn');
             if (editPayloadBtn) {
                 editPayloadBtn.addEventListener('click', function() {
                     const payloadId = this.getAttribute('data-payload-id');
                     showPayloadModal(payloadId);
-                    modal.style.display = 'none'; // Fermer la modale des règles
+                    modal.style.display = 'none'; 
                 });
             }
             
-            // Gérer le bouton de création de payload
+          
             const createPayloadBtn = content.querySelector('.create-payload-modal-btn');
             if (createPayloadBtn) {
                 createPayloadBtn.addEventListener('click', function() {
                     const ruleId = this.getAttribute('data-rule-id');
                     showPayloadModal(null, ruleId);
-                    modal.style.display = 'none'; // Fermer la modale des règles
+                    modal.style.display = 'none';
                 });
             }
         });
@@ -1117,7 +1104,7 @@ document.addEventListener('DOMContentLoaded', function() {
             };
         }
         
-        // Fermer en cliquant à l'extérieur
+       
         window.addEventListener('click', function(event) {
             if (event.target == modal) {
                 modal.style.display = 'none';
@@ -1125,10 +1112,10 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     };
 
-    // Charger les connecteurs, mais pas les payloads ni les règles initialement
+
     loadConnectorConfigs();
 
-    // Améliorer la modale de création/édition de payload
+   
     const payloadModal = document.getElementById('payload-modal');
     if (payloadModal) {
         const modalContent = payloadModal.querySelector('.modal-content');
@@ -1138,7 +1125,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
     
-    // Améliorer le style du formulaire de payload
+
     const payloadForm = document.getElementById('payload-form');
     if (payloadForm) {
         const codeField = document.getElementById('payload-code');
@@ -1154,7 +1141,7 @@ document.addEventListener('DOMContentLoaded', function() {
             codeField.rows = 12;
         }
         
-        // Ajouter une info-bulle sur les PowerShell payloads
+      
         const infoElement = document.createElement('div');
         infoElement.className = 'payload-info-tooltip';
         infoElement.innerHTML = `
@@ -1175,16 +1162,16 @@ document.addEventListener('DOMContentLoaded', function() {
         };
     }
 
-    // Gestionnaire pour la synchronisation automatique lors du changement de connecteur dans l'onglet Execution & Results
+ 
     const executionConnectorSelect = document.getElementById('execution-connector-select');
     if (executionConnectorSelect) {
         executionConnectorSelect.addEventListener('change', function() {
-            // Synchroniser automatiquement les règles du nouveau connecteur sélectionné
+    
             synchronizeRulesForExecutionTab();
         });
     }
 
-    // Ajout d'un gestionnaire pour le bouton d'exécution de tous les payloads
+
     function attachExecuteAllPayloadsHandler() {
         const executeAllBtn = document.getElementById('execute-all-payloads');
         if (executeAllBtn) {
@@ -1195,10 +1182,10 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
     attachExecuteAllPayloadsHandler();
-    // Réattacher à chaque changement d'onglet
+   
     document.querySelectorAll('.rlc-tab').forEach(function(tabBtn) {
         tabBtn.addEventListener('click', function() {
-            setTimeout(attachExecuteAllPayloadsHandler, 100); // Pour s'assurer que le DOM est prêt
+            setTimeout(attachExecuteAllPayloadsHandler, 100); 
         });
     });
 });
@@ -1229,11 +1216,11 @@ function testConnection(connectorType) {
         button.innerHTML = buttonText;
         button.disabled = false;
         
-        // Afficher le résultat dans le panneau latéral
+      
         let resultElement = document.createElement('div');
         resultElement.id = `${connectorType}-connection-result`;
         
-        // Remplacer l'ancien résultat s'il existe
+    
         let oldResult = document.getElementById(`${connectorType}-connection-result`);
         if (oldResult) {
             oldResult.remove();
@@ -1253,7 +1240,7 @@ function testConnection(connectorType) {
             updateConnectorStatus(connectorType, 'inactive');
         }
         
-        // Ajouter le résultat au panneau
+       
         document.getElementById('sidepanel-form').appendChild(resultElement);
     })
     .catch(error => {
@@ -1261,11 +1248,11 @@ function testConnection(connectorType) {
         button.innerHTML = buttonText;
         button.disabled = false;
         
-        // Afficher l'erreur dans le panneau
+    
         let resultElement = document.createElement('div');
         resultElement.id = `${connectorType}-connection-result`;
         
-        // Remplacer l'ancien résultat s'il existe
+
         let oldResult = document.getElementById(`${connectorType}-connection-result`);
         if (oldResult) {
             oldResult.remove();
@@ -1312,12 +1299,12 @@ function saveConnection(connectorType) {
     }
     
     if (!valid) {
-        // Afficher un message d'erreur dans le panneau
+      
         let resultElement = document.createElement('div');
         resultElement.id = `${connectorType}-save-result`;
         resultElement.innerHTML = '<div class="alert alert-error">Veuillez remplir tous les champs requis.</div>';
         
-        // Remplacer l'ancien résultat s'il existe
+      
         let oldResult = document.getElementById(`${connectorType}-save-result`);
         if (oldResult) {
             oldResult.remove();
@@ -1328,7 +1315,7 @@ function saveConnection(connectorType) {
         return;
     }
     
-    // Afficher un message de chargement
+  
     let saveButton = document.getElementById(`save-${connectorType}-connection`);
     let saveButtonText = '';
     if (saveButton) {
@@ -1349,17 +1336,17 @@ function saveConnection(connectorType) {
     })
     .then(response => response.json())
     .then(data => {
-        // Restaurer le bouton
+   
         if (saveButton) {
             saveButton.innerHTML = saveButtonText;
             saveButton.disabled = false;
         }
         
-        // Créer un élément pour afficher le résultat
+      
         let resultElement = document.createElement('div');
         resultElement.id = `${connectorType}-save-result`;
         
-        // Remplacer l'ancien résultat s'il existe
+   
         let oldResult = document.getElementById(`${connectorType}-save-result`);
         if (oldResult) {
             oldResult.remove();
@@ -1370,39 +1357,39 @@ function saveConnection(connectorType) {
             const statusElement = document.getElementById(`${connectorType}-status`);
             if (statusElement) statusElement.classList.add('connected');
             
-            // Afficher le message de succès
+           
             resultElement.innerHTML = '<div class="alert alert-success">Configuration enregistrée avec succès !</div>';
             showToast('Configuration enregistrée !');
             
-            // Mettre à jour le statut
+        
             updateConnectorStatus(connectorType, 'active', params);
             
-            // Fermer le panneau après un court délai
+          
             setTimeout(() => {
                 const sidepanel = document.getElementById('connector-sidepanel');
                 if (sidepanel) sidepanel.classList.remove('open');
             }, 1500);
         } else {
-            // Afficher l'erreur
+         
             resultElement.innerHTML = `<div class="alert alert-error">Échec de l'enregistrement : ${data.message || 'Erreur inconnue'}</div>`;
         }
         
-        // Ajouter le résultat au panneau
+
         const sidepanelForm = document.getElementById('sidepanel-form');
         if (sidepanelForm) sidepanelForm.appendChild(resultElement);
     })
     .catch(error => {
-        // Restaurer le bouton
+     
         if (saveButton) {
             saveButton.innerHTML = saveButtonText;
             saveButton.disabled = false;
         }
         
-        // Afficher l'erreur
+       
         let resultElement = document.createElement('div');
         resultElement.id = `${connectorType}-save-result`;
         
-        // Remplacer l'ancien résultat s'il existe
+  
         let oldResult = document.getElementById(`${connectorType}-save-result`);
         if (oldResult) {
             oldResult.remove();
@@ -1410,7 +1397,7 @@ function saveConnection(connectorType) {
         
         resultElement.innerHTML = `<div class="alert alert-error">Erreur API : ${error.message}</div>`;
         
-        // Ajouter le résultat au panneau
+    
         const sidepanelForm = document.getElementById('sidepanel-form');
         if (sidepanelForm) sidepanelForm.appendChild(resultElement);
     });
@@ -1446,7 +1433,7 @@ function loadConnectorConfigs() {
             if (splunkStatus) splunkStatus.classList.add('connected');
             updateConnectorStatus('splunk', 'active', data);
             
-            // Afficher le bouton Retrieve Rules
+            
             if (retrieveSplunkRules) retrieveSplunkRules.style.display = 'inline-block';
         }
     })
@@ -1481,7 +1468,7 @@ function loadConnectorConfigs() {
             if (opensearchStatus) opensearchStatus.classList.add('connected');
             updateConnectorStatus('opensearch', 'active', data);
             
-            // Afficher le bouton Retrieve Rules
+           
             if (retrieveOpensearchRules) retrieveOpensearchRules.style.display = 'inline-block';
         }
     })
@@ -1501,12 +1488,12 @@ function updateConnectorStatus(type, status, data) {
             connector.dataset.connectorData = JSON.stringify(data);
         }
         
-        // Ne plus ajouter de bouton sur la carte du connecteur
+     
     }
 }
 
 function retrieveRules(connectorType, connectorData) {
-    // Afficher l'état de chargement dans la section
+ 
     const rulesSection = document.getElementById('rules-section');
     const rulesContent = document.getElementById('rules-content');
     const rulesSectionTitle = document.getElementById('rules-section-title');
@@ -1515,10 +1502,10 @@ function retrieveRules(connectorType, connectorData) {
     rulesSectionTitle.textContent = `${connectorType.charAt(0).toUpperCase() + connectorType.slice(1)} Rules`;
     rulesContent.innerHTML = '<div class="loading-spinner"></div><p>Loading rules...</p>';
     
-    // Faire défiler jusqu'à la section des règles
+ 
     rulesSection.scrollIntoView({ behavior: 'smooth' });
     
-    // Appel AJAX pour récupérer les règles en fonction du type de connecteur
+   
     const formData = new FormData();
     formData.append('action', 'retrieve_rules');
     formData.append('connector_type', connectorType);
@@ -1538,11 +1525,11 @@ function retrieveRules(connectorType, connectorData) {
             return;
         }
         
-        // Pour OpenSearch, afficher les moniteurs et déclencheurs
+      
         if (connectorType === 'opensearch') {
             displayOpenSearchRules(data, rulesContent);
         } 
-        // Pour Splunk, afficher les recherches sauvegardées et les alertes
+       
         else if (connectorType === 'splunk') {
             displaySplunkRules(data, rulesContent);
         }
@@ -1737,7 +1724,7 @@ function showPayloadModal(payloadId = null, ruleId = null) {
                 codeField.value = data.payload.code;
                 ruleField.value = data.payload.rule_id ? data.payload.rule_id : '';
                 
-                // Mise en évidence de la syntaxe (simulation basique)
+       
                 highlightPowerShellSyntax();
             } else if (data.error) {
                 showToast(data.error);
@@ -1755,10 +1742,10 @@ function showPayloadModal(payloadId = null, ruleId = null) {
         idField.value = '';
         ruleField.value = ruleId ? ruleId : '';
         
-        // Exemple de code PowerShell pour aider l'utilisateur
+ 
         codeField.value = '# PowerShell payload template\n$OutputEncoding = [System.Text.Encoding]::UTF8\n\n# Add your code to simulate the security event here\nWrite-Host "Executing rule simulation payload"\n\n# Example: Create a suspicious process\n# Start-Process -FilePath "cmd.exe" -ArgumentList "/c echo Test > C:\\Windows\\Temp\\test.txt"';
         
-        // Mise en évidence de la syntaxe
+ 
         highlightPowerShellSyntax();
     }
     
@@ -1815,7 +1802,7 @@ function showPayloadModal(payloadId = null, ruleId = null) {
         })
         .then(r => r.json())
         .then(data => {
-            // Réactiver le bouton
+         
             if (saveBtn) {
                 saveBtn.disabled = false;
                 saveBtn.innerHTML = 'Save';
@@ -1825,19 +1812,19 @@ function showPayloadModal(payloadId = null, ruleId = null) {
                 modal.style.display = 'none';
                 showToast(action === 'payload_create' ? 'Payload created' : 'Payload updated');
                 
-                // Mettre à jour l'association règle-payload si c'est une création
+              
                 if (action === 'payload_create' && ruleField.value && data.payload_id) {
                     rulePayloadMap[ruleField.value] = data.payload_id;
                 }
                 
-                // Rafraîchir la liste des payloads
+      
                 fetchPayloads();
             } else if (data.error) {
                 showToast(data.error, 'error');
             }
         })
         .catch(error => {
-            // Réactiver le bouton
+          
             if (saveBtn) {
                 saveBtn.disabled = false;
                 saveBtn.innerHTML = 'Save';
@@ -1848,14 +1835,13 @@ function showPayloadModal(payloadId = null, ruleId = null) {
         });
     };
     
-    // Ajouter un événement pour mettre à jour la coloration syntaxique lors de la saisie
+ 
     codeField.addEventListener('input', highlightPowerShellSyntax);
 }
 
-// Fonction basique pour simuler une coloration syntaxique PowerShell
+
 function highlightPowerShellSyntax() {
-    // Dans une implémentation réelle, vous pourriez utiliser une bibliothèque comme highlight.js
-    // Cette fonction est juste un placeholder
+
     console.log('Syntax highlighting for PowerShell would be applied here');
 }
 
@@ -1864,21 +1850,21 @@ function renderExecutionRulesTable() {
     const connector = document.getElementById('execution-connector-select').value;
     const status = document.getElementById('execution-status-filter').value;
     const timeFilter = document.getElementById('execution-time-filter').value;
-    // Filtrer les règles selon le connecteur et le statut
+
     let filteredRules = RULES.filter(rule => {
         let matchConnector = true;
         if (connector && connector !== 'all') {
             matchConnector = (rule.connector || SELECTED_CONNECTOR) === connector;
         }
         let matchStatus = true;
-        // Gestion du filtre de temps pour les règles triggered
+     
         let isTriggered = !!rule.is_active;
         let triggerTime = rule.start_time || rule.trigger_time || rule.last_notification_time || null;
         let now = Date.now();
         let triggeredRecently = true;
         if (isTriggered && triggerTime && timeFilter && timeFilter !== 'all') {
             let triggerTimestamp = typeof triggerTime === 'string' ? Date.parse(triggerTime) : triggerTime;
-            if (String(triggerTimestamp).length === 10) triggerTimestamp = triggerTimestamp * 1000; // Si timestamp en secondes
+            if (String(triggerTimestamp).length === 10) triggerTimestamp = triggerTimestamp * 1000; 
             let diffMs = now - triggerTimestamp;
             let maxMs = 0;
             if (timeFilter === '1h') maxMs = 1 * 3600 * 1000;
@@ -1893,7 +1879,7 @@ function renderExecutionRulesTable() {
         else if (status === 'error') matchStatus = rule.status === 'error';
         return matchConnector && matchStatus;
     });
-    // Afficher les règles filtrées
+   
     const container = document.getElementById('execution-results-table');
     if (!container) return;
     if (filteredRules.length === 0) {
@@ -1915,14 +1901,14 @@ function renderExecutionRulesTable() {
             }
         }
         
-        // Formater la date de dernier déclenchement
+       
         let lastTriggeredCell = '<span class="never-triggered">Never</span>';
         let triggerTime = rule.last_notification_time || rule.start_time || rule.trigger_time || null;
         
         if (triggerTime && rule.is_active) {
             try {
                 let triggerTimestamp = typeof triggerTime === 'string' ? Date.parse(triggerTime) : triggerTime;
-                // Si le timestamp est en secondes (10 chiffres), le convertir en millisecondes
+                
                 if (String(triggerTimestamp).length === 10) {
                     triggerTimestamp = triggerTimestamp * 1000;
                 }
@@ -1972,18 +1958,17 @@ function renderExecutionRulesTable() {
 }
 
 function synchronizeRulesForExecutionTab() {
-    // Récupérer le connecteur sélectionné dans l'onglet Execution & Results
+
     const executionConnectorSelect = document.getElementById('execution-connector-select');
     const selectedConnector = executionConnectorSelect ? executionConnectorSelect.value : 'opensearch';
     
-    // Afficher un indicateur de chargement
+
     const container = document.getElementById('execution-results-table');
     if (container) {
         container.innerHTML = '<div class="loading-container"><div class="loading-spinner"></div><p>Retrieving fresh ' + selectedConnector + ' rules data...</p></div>';
     }
     
-    // Appel API pour récupérer les règles fraîches directement depuis le connecteur
-    // (pas depuis la base de données pour avoir les informations de déclenchement à jour)
+
     fetch('scripts/php/connector_api.php', {
         method: 'POST',
         body: new URLSearchParams({ action: 'retrieve_rules', connector_type: selectedConnector })
@@ -1997,18 +1982,18 @@ function synchronizeRulesForExecutionTab() {
             rules = data.saved_searches;
         }
         
-        // Ajouter le type de connecteur à chaque règle pour le filtrage
+        
         rules = rules.map(rule => ({
             ...rule,
             connector: selectedConnector
         }));
         
-        // Mettre à jour RULES avec les données fraîches
+
         RULES = rules;
         
         console.log(`[DEBUG] Retrieved ${rules.length} fresh rules from ${selectedConnector} connector`);
         
-        // Charger les payloads puis afficher le message
+    
         fetchPayloads(function() {
             if (container) container.innerHTML = '<div class="no-results">Select filters and display rules.</div>';
         });
@@ -2021,7 +2006,7 @@ function synchronizeRulesForExecutionTab() {
 
 function executeAllPayloadsForDisplayedRules() {
     console.log('[DEBUG] Début executeAllPayloadsForDisplayedRules');
-    // Récupérer les règles actuellement affichées (après filtrage)
+    
     const connector = document.getElementById('execution-connector-select').value;
     const status = document.getElementById('execution-status-filter').value;
     const timeFilter = document.getElementById('execution-time-filter').value;
@@ -2053,7 +2038,7 @@ function executeAllPayloadsForDisplayedRules() {
         return matchConnector && matchStatus;
     });
     console.log('[DEBUG] filteredRules:', filteredRules);
-    // Pour chaque règle, exécuter le payload associé si présent
+ 
     let executions = [];
     for (const rule of filteredRules) {
         const ruleId = rule.id || rule.monitor_id || rule.trigger_name || '-';
@@ -2079,11 +2064,11 @@ function executeAllPayloadsForDisplayedRules() {
         modalBody.innerHTML = '<div class="loading-container"><div class="loading-spinner"></div><p>Executing all payloads...</p></div>';
         modal.style.display = 'block';
     }
-    // Exécution séquentielle (pour éviter surcharge)
+    
     let results = [];
     function executeNext(index) {
         if (index >= executions.length) {
-            // Afficher le récapitulatif
+         
             let html = '<h4>Execution Results</h4>';
             html += '<table class="rules-table"><thead><tr><th>Rule</th><th>Payload</th><th>Status</th><th>Output/Error</th></tr></thead><tbody>';
             for (const res of results) {
@@ -2094,7 +2079,7 @@ function executeAllPayloadsForDisplayedRules() {
             return;
         }
         const { rule, payload } = executions[index];
-        // Appel API pour exécuter le payload
+       
         const formData = new FormData();
         formData.append('action', 'execute_payload');
         formData.append('content', payload.code);
@@ -2127,18 +2112,18 @@ function executeAllPayloadsForDisplayedRules() {
 </script>
 
 <style>
-/* Style spécifique pour le bouton de fermeture de la modale */
+
 .modal-close-btn:hover {
     background-color: rgba(255, 255, 255, 0.1);
 }
 
-/* Style pour les titres des modales */
+
 .modal-header h2 {
     font-weight: 600;
     text-shadow: 0 1px 2px rgba(0,0,0,0.3);
 }
 
-/* Style pour améliorer l'apparence de la modale */
+
 #generic-modal .modal-content {
     border-radius: 8px;
     box-shadow: 0 5px 20px rgba(0,0,0,0.5);
