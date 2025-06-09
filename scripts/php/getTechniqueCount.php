@@ -1,51 +1,52 @@
 <?php
 
-require '/var/www/html/vendor/autoload.php'; 
+error_reporting(0);
 
-use PhpOffice\PhpSpreadsheet\Reader\Xlsx;
+$conn_string = sprintf(
+    "host=%s port=5432 dbname=%s user=%s password=%s",
+    getenv('DB_HOST'),
+    getenv('DB_NAME'),
+    getenv('DB_USER'),
+    getenv('DB_PASS')
+);
 
+$conn = pg_connect($conn_string);
 
-function countExcelRows($filePath) {
-    $reader = new Xlsx();
-    try {
-        $spreadsheet = $reader->load($filePath);
-        $worksheet = $spreadsheet->getActiveSheet();
-
-        // Read only the first column of the first sheet
-        $columnValues = $worksheet->rangeToArray('A1:A' . $worksheet->getHighestRow(), null, true, true, false);
-
-        // Count non-empty lines
-        $rowCount = 0;
-        foreach ($columnValues as $cell) {
-            if (!empty($cell[0])) {
-                $rowCount++;
-            }
-        }
-
-        return $rowCount - 1; 
-    } catch (\PhpOffice\PhpSpreadsheet\Reader\Exception $e) {
-        die('Error loading file: ' . $e->getMessage());
-    }
+if (!$conn) {
+    echo "0";
+    exit();
 }
 
-function getCachedCount($cacheFile, $excelFile, $cacheLifetime = 86400) {
+function getCachedCount($cacheFile, $cacheLifetime = 86400) {
+    global $conn;
     
     if (file_exists($cacheFile) && (time() - filemtime($cacheFile)) < $cacheLifetime) {
-        
         return file_get_contents($cacheFile);
     } else {
+        $query = "SELECT COUNT(DISTINCT technique_id) AS count FROM atomic_tests";
+        $result = pg_query($conn, $query);
         
-        $count = countExcelRows($excelFile);
-        file_put_contents($cacheFile, $count);
-        return $count;
+        if ($result && $row = pg_fetch_assoc($result)) {
+            $count = $row['count'];
+            
+            $cacheDir = dirname($cacheFile);
+            if (!is_dir($cacheDir)) {
+                mkdir($cacheDir, 0755, true);
+            }
+            
+            file_put_contents($cacheFile, $count);
+            pg_free_result($result);
+            return $count;
+        } else {
+            return 0;
+        }
     }
 }
 
-// File paths
-$filePath = '/var/www/html/enterprise-attack/enterprise-attack-techniques.xlsx';
 $cacheFile = '/var/www/html/cache/technique_count.cache';
+$numberOfTechniques = getCachedCount($cacheFile);
 
-$numberOfTechniques = getCachedCount($cacheFile, $filePath);
+pg_close($conn);
 
 echo $numberOfTechniques;
 
