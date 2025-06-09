@@ -86,7 +86,7 @@ function displayItems($path, $relativePath = '') {
 <!-- End Connexion -->
 
 <!DOCTYPE html>
-<html lang="fr">
+<html lang="en">
 <head>
     <link rel="icon" href="MD_image/logo.png" type="image/png">
     <meta charset="UTF-8">
