@@ -277,22 +277,40 @@ document.addEventListener("DOMContentLoaded", function() {
 <div class="index-dashboard">
 
 <div class="index-card">
+    <div id="sigma-chart-header" style="margin-bottom: 10px; display: none;">
+        <button id="sigma-back-btn" style="padding: 5px 10px; background: rgba(102, 126, 234, 0.2); border: 1px solid rgba(102, 126, 234, 0.3); border-radius: 5px; color: #ffffff; cursor: pointer;">
+            <i class="fas fa-arrow-left"></i> Back to Overview
+        </button>
+    </div>
     <div style="width: 100%; height: 350px;"><canvas id="sigmaRulesChart"></canvas></div>
     
 </div>
 
 <script>
+    let sigmaChartLevel = 0; // 0 = overview, 1 = subcategories
+    let sigmaOverviewData = null;
+
     async function fetchSigmaData(sigmaPath = '') {
         const response = await fetch(`scripts/php/getSigmaData.php?sigmaPath=${sigmaPath}`);
         const sigmaData = await response.json();
         return sigmaData;
     }
 
-    function createSigmaChart(labels, data) {
+    function createSigmaChart(labels, data, isSubLevel = false) {
         const ctx = document.getElementById('sigmaRulesChart').getContext('2d');
         if (window.sigmaChart) {
             window.sigmaChart.destroy();
         }
+        
+        const chartHeader = document.getElementById('sigma-chart-header');
+        if (isSubLevel) {
+            chartHeader.style.display = 'block';
+            sigmaChartLevel = 1;
+        } else {
+            chartHeader.style.display = 'none';
+            sigmaChartLevel = 0;
+        }
+        
         window.sigmaChart = new Chart(ctx, {
             type: 'bar',
             data: {
@@ -306,17 +324,21 @@ document.addEventListener("DOMContentLoaded", function() {
                 }]
             },
             options: {
+                responsive: true,
+                maintainAspectRatio: false,
                 onClick: (e, elements) => {
-                    if (elements.length > 0) {
+                    if (elements.length > 0 && sigmaChartLevel === 0) {
                         const index = elements[0].index;
                         const label = labels[index];
-                        fetchSigmaData(`/var/www/html/Downloaded/Sigma/rules/${label}`).then(updateSigmaChart);
+                        fetchSigmaData(`/var/www/html/Downloaded/Sigma/rules/${label}`).then(subData => {
+                            updateSigmaChart(subData, true);
+                        });
                     }
                 },
 
                 animation: {
                     duration: 1500 
-                    },
+                },
 
                 scales: {
                     y: {
@@ -337,18 +359,46 @@ document.addEventListener("DOMContentLoaded", function() {
                             color: '#ffffff'
                         }
                     }
+                },
+                layout: {
+                    padding: {
+                        left: 10,
+                        right: 10,
+                        top: 10,
+                        bottom: 10
+                    }
                 }
             }
         });
     }
 
-    function updateSigmaChart(sigmaData) {
+    function updateSigmaChart(sigmaData, isSubLevel = false) {
         const labels = Object.keys(sigmaData);
         const counts = Object.values(sigmaData);
-        createSigmaChart(labels, counts);
+        
+        if (!isSubLevel) {
+            sigmaOverviewData = sigmaData; // Store overview data for back navigation
+        }
+        
+        createSigmaChart(labels, counts, isSubLevel);
     }
 
+    function goBackToSigmaOverview() {
+        if (sigmaOverviewData) {
+            updateSigmaChart(sigmaOverviewData, false);
+        }
+    }
+
+    // Initialize chart
     fetchSigmaData().then(updateSigmaChart);
+    
+    // Back button event listener
+    document.addEventListener('DOMContentLoaded', () => {
+        const backBtn = document.getElementById('sigma-back-btn');
+        if (backBtn) {
+            backBtn.addEventListener('click', goBackToSigmaOverview);
+        }
+    });
 </script>
 
 <div class="index-card">
@@ -370,6 +420,8 @@ document.addEventListener("DOMContentLoaded", function() {
             }]
         },
         options: {
+            responsive: true,
+            maintainAspectRatio: false,
             animation: {
                 duration: 1500 
             },
@@ -391,6 +443,14 @@ document.addEventListener("DOMContentLoaded", function() {
                     labels: {
                         color: '#ffffff' 
                     }
+                }
+            },
+            layout: {
+                padding: {
+                    left: 10,
+                    right: 10,
+                    top: 10,
+                    bottom: 10
                 }
             }
         }
