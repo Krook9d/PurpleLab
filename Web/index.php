@@ -176,7 +176,7 @@ countYmlFiles($sigmaDirectory);
 
     <ul>
         <li><a href="index.php"><i class="fas fa-home"></i> Home</a></li>
-        <li><a href="http://<?= $_SERVER['SERVER_ADDR'] ?>:5601" target="_blank"><i class="fas fa-crosshairs"></i> Hunting</a></li>
+        <li><a href="https://<?= $_SERVER['SERVER_ADDR'] ?>:5601" target="_blank"><i class="fas fa-crosshairs"></i> Hunting</a></li>
         <li><a href="mittre.php"><i class="fas fa-book"></i> Mitre Att&ck</a></li>
         <li><a href="custom_payloads.php"><i class="fas fa-code"></i> Custom Payloads</a></li>
         <li><a href="malware.php"><i class="fas fa-virus"></i> Malware</a></li>
