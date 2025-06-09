@@ -11,9 +11,9 @@ body {
 }
 
 .content {
-    margin-left: 210px;
+    margin-left: 260px;
     padding: 10px 20px;
-    max-width: calc(100vw - 250px);
+    max-width: calc(100vw - 300px);
 }
 
 
