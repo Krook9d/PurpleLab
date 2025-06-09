@@ -2,9 +2,9 @@
 
 /* Main Container */
 .sharing-container {
-    max-width: 1200px;
-    margin: 30px auto;
-    padding: 0 20px;
+    max-width: 100%;
+    margin: 100px 20px 30px 20px;
+    padding: 0;
     display: grid;
     grid-template-columns: 1fr;
     gap: 30px;
