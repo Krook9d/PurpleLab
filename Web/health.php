@@ -135,8 +135,6 @@ function isFlaskRunning() {
     }
 }
 
-
-
 $flaskStatus = isFlaskRunning() ? 'running' : 'stopped';
 
 $flask_vm_state_url = 'http://127.0.0.1:5000/vm_state';
@@ -183,7 +181,7 @@ $vmInfo['IP'] = $vmIP;
 ?>
 
 <!DOCTYPE html>
-<html lang="fr">
+<html lang="en">
 <head>
     <link rel="icon" href="MD_image/logowhite.png" type="image/png">
     <meta charset="UTF-8">
@@ -197,7 +195,7 @@ $vmInfo['IP'] = $vmIP;
 
 <div class="nav-bar">
     <div class="nav-logo">
-        <img src="MD_image/logowhite.png" alt="Logo" /> 
+        <img src="MD_image/logowhiteV3.png" alt="Logo" /> 
     </div>
 
     <?php include $_SERVER['DOCUMENT_ROOT'].'/scripts/php/version.php'; ?>
@@ -207,12 +205,10 @@ $vmInfo['IP'] = $vmIP;
 
     <ul>
         <li><a href="index.php"><i class="fas fa-home"></i> Home</a></li>
-        <li><a href="http://<?= $_SERVER['SERVER_ADDR'] ?>:5601" target="_blank"><i class="fas fa-crosshairs"></i> Hunting</a></li>
+        <li><a href="https://<?= $_SERVER['SERVER_ADDR'] ?>:5601" target="_blank"><i class="fas fa-crosshairs"></i> Hunting</a></li>
         <li><a href="mittre.php"><i class="fas fa-book"></i> Mitre Att&ck</a></li>
         <li><a href="custom_payloads.php"><i class="fas fa-code"></i> Custom Payloads</a></li>
         <li><a href="malware.php"><i class="fas fa-virus"></i> Malware</a></li>
-        <li><a href="simulation.php"><i class="fas fa-project-diagram"></i> Log Simulation</a></li>
-        <li><a href="usecase.php"><i class="fas fa-lightbulb"></i> UseCase</a></li>
         <li><a href="sharing.php"><i class="fas fa-pencil-alt"></i> Sharing</a></li>
         <li><a href="sigma.php"><i class="fas fa-shield-alt"></i> Sigma Rules</a></li>
         <li><a href="rule_lifecycle.php" class="active"><i class="fas fa-cogs"></i> Rule Lifecycle</a></li>
