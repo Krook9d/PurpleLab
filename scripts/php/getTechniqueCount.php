@@ -23,7 +23,7 @@ function getCachedCount($cacheFile, $cacheLifetime = 86400) {
     if (file_exists($cacheFile) && (time() - filemtime($cacheFile)) < $cacheLifetime) {
         return file_get_contents($cacheFile);
     } else {
-        $query = "SELECT COUNT(DISTINCT technique_id) AS count FROM atomic_tests";
+        $query = "SELECT COUNT(*) AS count FROM custom_payloads";
         $result = pg_query($conn, $query);
         
         if ($result && $row = pg_fetch_assoc($result)) {
@@ -43,11 +43,11 @@ function getCachedCount($cacheFile, $cacheLifetime = 86400) {
     }
 }
 
-$cacheFile = '/var/www/html/cache/technique_count.cache';
-$numberOfTechniques = getCachedCount($cacheFile);
+$cacheFile = '/var/www/html/cache/payload_count.cache';
+$numberOfPayloads = getCachedCount($cacheFile);
 
 pg_close($conn);
 
-echo $numberOfTechniques;
+echo $numberOfPayloads;
 
 ?>
