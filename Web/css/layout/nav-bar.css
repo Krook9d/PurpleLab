@@ -1,95 +1,291 @@
-/* layout/nav-bar.css */
+/* layout/nav-bar.css - Modern Navigation Bar */
 .nav-bar {
-    width: 200px;
+    width: 250px;
     height: 100vh;
     position: fixed;
     left: 0;
     top: 0;
-    background-color: #13254d;
+    background: linear-gradient(180deg, #151934 0%, #13254d 30%, #151934 100%);
     display: flex;
     flex-direction: column;
     justify-content: flex-start;
     align-items: stretch;
-    padding-top: 20px;
-  }
-  
-  .nav-bar ul {
-      list-style-type: none;
-      padding: 0;
-      margin: 0;
-      margin-top: 20px; 
-  }
-  
-  .nav-bar li {
-    margin: 0; 
-    padding: 0; 
-    align-items: center; 
-  }
-  
-  .nav-bar a {
-    text-decoration: none;
-    color: #ffffff;
-    background-color: rgba(255, 255, 255, 0.2);
-    padding: 10px 20px; 
-    border-radius: 5px;
-    transition: background-color 0.3s;
+    padding: 0;
+    box-shadow: 
+        2px 0 15px rgba(0, 0, 0, 0.2),
+        inset -1px 0 0 rgba(102, 126, 234, 0.1);
+    backdrop-filter: blur(10px);
+    z-index: 1000;
+    border-right: 1px solid rgba(102, 126, 234, 0.15);
+}
+
+/* Logo Section */
+.nav-logo {
+    margin: 0;
+    padding: 25px 20px 15px 20px;
+    border-bottom: 1px solid rgba(102, 126, 234, 0.2);
+    position: relative;
+}
+
+.nav-logo::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 20px;
+    right: 20px;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(102, 126, 234, 0.4), transparent);
+}
+
+.nav-logo img {
     display: block;
-    text-align: left; 
-    line-height: 2; 
-    align-items: center; 
-  }
-  
-  .nav-bar a:hover {
-    background-color: rgba(255, 255, 255, 0.4);
-  }
-  
-  .nav-bar i {
-      width: 25px; 
-      text-align: center; 
-      margin-right: 2px; 
-  }
-  
-  .nav-logo {
-      margin-bottom: 0; 
-      padding-bottom: 0;
-  }
-  
-  .nav-logo img {
-      display: block; 
-      width: 100%; 
-      height: auto;
-  }
-  
-  .software-version {
-      color: #e4e4e4; 
-      background-color: transparent; 
-      padding: 0 20px; 
-      text-align: center; 
-      font-size: 0.8em; 
-      font-style: italic; 
-      border-bottom: none; 
-      margin-top: 0; 
-      margin-bottom: 20px; 
-  }
-  
-  .nav-footer {
-      position: absolute;
-      bottom: 0;
-      width: 100%; 
-  }
-  
-  .credit-link {
-      color: #4a4a4a;
-      text-decoration: none;
-      font-size: 16px;
-      padding: 10px 20px; 
-      display: flex;
-      align-items: center; 
-  }
-  
-  .github-icon {
-      height: 25px;
-      vertical-align: middle;
-      margin-right: 5px;
-  }
+    width: 100%;
+    height: auto;
+    max-width: 180px;
+    margin: 0 auto;
+    filter: drop-shadow(0 2px 8px rgba(0, 0, 0, 0.3));
+}
+
+/* Software Version */
+.software-version {
+    color: rgba(255, 255, 255, 0.6);
+    background: rgba(102, 126, 234, 0.05);
+    padding: 8px 20px;
+    text-align: center;
+    font-size: 0.75rem;
+    font-weight: 500;
+    font-style: italic;
+    border-bottom: 1px solid rgba(102, 126, 234, 0.1);
+    margin: 0;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+}
+
+/* Navigation Menu */
+.nav-bar ul {
+    list-style-type: none;
+    padding: 15px 0;
+    margin: 0;
+    flex: 1;
+    overflow-y: auto;
+}
+
+.nav-bar ul::-webkit-scrollbar {
+    width: 4px;
+}
+
+.nav-bar ul::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.nav-bar ul::-webkit-scrollbar-thumb {
+    background: rgba(102, 126, 234, 0.3);
+    border-radius: 2px;
+}
+
+.nav-bar li {
+    margin: 0 15px 8px 15px;
+    padding: 0;
+    position: relative;
+}
+
+/* Navigation Links */
+.nav-bar a {
+    text-decoration: none;
+    color: rgba(255, 255, 255, 0.85);
+    background: rgba(255, 255, 255, 0.05);
+    padding: 14px 18px;
+    border-radius: 12px;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    display: flex;
+    align-items: center;
+    text-align: left;
+    font-size: 0.9rem;
+    font-weight: 500;
+    border: 1px solid rgba(102, 126, 234, 0.1);
+    position: relative;
+    overflow: hidden;
+}
+
+.nav-bar a::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(102, 126, 234, 0.1), transparent);
+    transition: left 0.5s ease;
+}
+
+.nav-bar a:hover::before {
+    left: 100%;
+}
+
+.nav-bar a:hover {
+    background: linear-gradient(135deg, rgba(102, 126, 234, 0.2) 0%, rgba(118, 75, 162, 0.2) 100%);
+    color: #ffffff;
+    border-color: rgba(102, 126, 234, 0.4);
+    box-shadow: 
+        0 4px 15px rgba(102, 126, 234, 0.2),
+        inset 0 1px 0 rgba(255, 255, 255, 0.1);
+    transform: translateX(5px);
+}
+
+/* Active State */
+.nav-bar a.active {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: #ffffff;
+    border-color: rgba(102, 126, 234, 0.5);
+    box-shadow: 
+        0 4px 20px rgba(102, 126, 234, 0.3),
+        inset 0 1px 0 rgba(255, 255, 255, 0.2);
+    font-weight: 600;
+}
+
+.nav-bar a.active::before {
+    display: none;
+}
+
+.nav-bar a.active:hover {
+    transform: translateX(5px);
+    box-shadow: 
+        0 6px 25px rgba(102, 126, 234, 0.4),
+        inset 0 1px 0 rgba(255, 255, 255, 0.2);
+}
+
+/* Icons */
+.nav-bar i {
+    width: 20px;
+    text-align: center;
+    margin-right: 12px;
+    font-size: 1rem;
+    flex-shrink: 0;
+}
+
+/* Navigation Footer */
+.nav-footer {
+    margin-top: auto;
+    padding: 20px 15px 25px 15px;
+    border-top: 1px solid rgba(102, 126, 234, 0.15);
+    position: relative;
+}
+
+.nav-footer::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 20px;
+    right: 20px;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(102, 126, 234, 0.4), transparent);
+}
+
+.nav-footer a {
+    color: rgba(255, 255, 255, 0.6);
+    text-decoration: none;
+    font-size: 0.8rem;
+    font-weight: 500;
+    padding: 12px 15px;
+    display: flex;
+    align-items: center;
+    border-radius: 10px;
+    transition: all 0.3s ease;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(102, 126, 234, 0.1);
+}
+
+.nav-footer a:hover {
+    color: rgba(255, 255, 255, 0.9);
+    background: rgba(102, 126, 234, 0.1);
+    border-color: rgba(102, 126, 234, 0.3);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.github-icon {
+    height: 18px;
+    width: 18px;
+    margin-right: 8px;
+    opacity: 0.8;
+    transition: opacity 0.3s ease;
+    filter: brightness(1.2);
+}
+
+.nav-footer a:hover .github-icon {
+    opacity: 1;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .nav-bar {
+        width: 70px;
+        transition: width 0.3s ease;
+    }
+    
+    .nav-bar:hover {
+        width: 250px;
+    }
+    
+    .nav-bar:not(:hover) a span {
+        display: none;
+    }
+    
+    .nav-bar:not(:hover) .nav-logo img {
+        width: 40px;
+    }
+    
+    .nav-bar:not(:hover) .software-version {
+        font-size: 0;
+        padding: 4px 0;
+    }
+    
+    .nav-bar:not(:hover) .nav-footer a {
+        justify-content: center;
+        font-size: 0;
+    }
+    
+    .nav-bar:not(:hover) .github-icon {
+        margin-right: 0;
+    }
+}
+
+/* Smooth scrolling for navigation */
+.nav-bar ul {
+    scroll-behavior: smooth;
+}
+
+/* Focus states for accessibility */
+.nav-bar a:focus {
+    outline: 2px solid #667eea;
+    outline-offset: 2px;
+}
+
+/* Enhanced hover effects */
+.nav-bar a {
+    position: relative;
+    overflow: hidden;
+}
+
+.nav-bar a::after {
+    content: '';
+    position: absolute;
+    right: -2px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 3px;
+    height: 0;
+    background: linear-gradient(180deg, #667eea, #764ba2);
+    border-radius: 2px;
+    transition: height 0.3s ease;
+}
+
+.nav-bar a:hover::after {
+    height: 60%;
+}
+
+.nav-bar a.active::after {
+    height: 80%;
+    background: linear-gradient(180deg, #ffffff, rgba(255, 255, 255, 0.8));
+}
   
