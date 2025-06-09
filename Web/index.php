@@ -180,8 +180,6 @@ countYmlFiles($sigmaDirectory);
         <li><a href="mittre.php"><i class="fas fa-book"></i> Mitre Att&ck</a></li>
         <li><a href="custom_payloads.php"><i class="fas fa-code"></i> Custom Payloads</a></li>
         <li><a href="malware.php"><i class="fas fa-virus"></i> Malware</a></li>
-        <li><a href="simulation.php"><i class="fas fa-project-diagram"></i> Log Simulation</a></li>
-        <li><a href="usecase.php"><i class="fas fa-lightbulb"></i> UseCase</a></li>
         <li><a href="sharing.php"><i class="fas fa-pencil-alt"></i> Sharing</a></li>
         <li><a href="sigma.php"><i class="fas fa-shield-alt"></i> Sigma Rules</a></li>
         <li><a href="rule_lifecycle.php" class="active"><i class="fas fa-cogs"></i> Rule Lifecycle</a></li>
