@@ -208,12 +208,13 @@
     width: 18px;
     margin-right: 8px;
     opacity: 0.8;
-    transition: opacity 0.3s ease;
-    filter: brightness(1.2);
+    transition: all 0.3s ease;
+    filter: brightness(0) invert(1);
 }
 
 .nav-footer a:hover .github-icon {
     opacity: 1;
+    filter: brightness(0) invert(1) drop-shadow(0 0 3px rgba(255, 255, 255, 0.3));
 }
 
 /* Responsive Design */
