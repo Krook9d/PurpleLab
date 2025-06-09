@@ -147,17 +147,17 @@ pg_close($conn);
     </div>
 
     <ul>
-        <li><a href="index.php"><i class="fas fa-home"></i> Home</a></li>
-        <li><a href="https://<?= $_SERVER['SERVER_ADDR'] ?>:5601" target="_blank"><i class="fas fa-crosshairs"></i> Hunting</a></li>
-        <li><a href="mittre.php"><i class="fas fa-book"></i> Mitre Att&ck</a></li>
-        <li><a href="custom_payloads.php"><i class="fas fa-code"></i> Custom Payloads</a></li>
-        <li><a href="malware.php"><i class="fas fa-virus"></i> Malware</a></li>
-        <li><a href="sharing.php"><i class="fas fa-pencil-alt"></i> Sharing</a></li>
-        <li><a href="sigma.php"><i class="fas fa-shield-alt"></i> Sigma Rules</a></li>
-        <li><a href="rule_lifecycle.php" class="active"><i class="fas fa-cogs"></i> Rule Lifecycle</a></li>
-        <li><a href="health.php"><i class="fas fa-heartbeat"></i> Health</a></li>
+        <li><a href="index.php"><i class="fas fa-home"></i> <span>Home</span></a></li>
+        <li><a href="https://<?= $_SERVER['SERVER_ADDR'] ?>:5601" target="_blank"><i class="fas fa-crosshairs"></i> <span>Hunting</span></a></li>
+        <li><a href="mittre.php"><i class="fas fa-book"></i> <span>Mitre Att&ck</span></a></li>
+        <li><a href="custom_payloads.php" class="active"><i class="fas fa-code"></i> <span>Custom Payloads</span></a></li>
+        <li><a href="malware.php"><i class="fas fa-virus"></i> <span>Malware</span></a></li>
+        <li><a href="sharing.php"><i class="fas fa-pencil-alt"></i> <span>Sharing</span></a></li>
+        <li><a href="sigma.php"><i class="fas fa-shield-alt"></i> <span>Sigma Rules</span></a></li>
+        <li><a href="rule_lifecycle.php"><i class="fas fa-cogs"></i> <span>Rule Lifecycle</span></a></li>
+        <li><a href="health.php"><i class="fas fa-heartbeat"></i> <span>Health</span></a></li>
         <?php if (isset($_SESSION['email']) && $_SESSION['email'] === 'admin@local.com'): ?>
-            <li><a href="admin.php"><i class="fas fa-user-shield"></i> Admin</a></li>
+            <li><a href="admin.php"><i class="fas fa-user-shield"></i> <span>Admin</span></a></li>
         <?php endif; ?>
     </ul>
 
@@ -175,8 +175,8 @@ pg_close($conn);
         <button class="user-button">
             <span><?= $first_name ?> <?= $last_name ?></span>
             <div class="dropdown-content">
-                <a href="custom_payloads.php" id="settings-link">Settings</a>
-                <a href="logout.php">Logout</a>
+                <a href="custom_payloads.php" id="settings-link"><i class="fas fa-cog"></i>Settings</a>
+                <a href="logout.php"><i class="fas fa-sign-out-alt"></i>Logout</a>
             </div>
         </button>
     </div>
