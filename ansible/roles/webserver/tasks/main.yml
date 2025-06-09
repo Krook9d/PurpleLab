@@ -1,14 +1,14 @@
 ---
-- name: Configuration de VirtualHost Apache
+- name: Configure Apache VirtualHost
   copy:
     content: |
       <VirtualHost *:80>
           DirectoryIndex index.php
       </VirtualHost>
     dest: /etc/apache2/sites-available/000-default.conf
-  notify: Redémarrer Apache
+  notify: Restart Apache
 
-- name: Installer Apache et PHP
+- name: Install Apache and PHP packages
   apt:
     name: 
       - apache2
@@ -28,27 +28,27 @@
     state: present
     update_cache: true
 
-- name: Détecter la version de PHP installée
+- name: Detect installed PHP version
   shell: php -r "echo PHP_MAJOR_VERSION.'.'.PHP_MINOR_VERSION;"
   register: php_version
   changed_when: false
 
-- name: Afficher la version PHP détectée
+- name: Display detected PHP version
   debug:
-    msg: "Version PHP détectée: {{ php_version.stdout }}"
+    msg: "Detected PHP version: {{ php_version.stdout }}"
 
-- name: Vérifier l'existence du fichier php.ini Apache
+- name: Check Apache php.ini file existence
   stat:
     path: "/etc/php/{{ php_version.stdout }}/apache2/php.ini"
   register: php_ini_apache
 
-- name: Vérifier l'existence du fichier php.ini CLI (fallback)
+- name: Check CLI php.ini file existence (fallback)
   stat:
     path: "/etc/php/{{ php_version.stdout }}/cli/php.ini"
   register: php_ini_cli
   when: not php_ini_apache.stat.exists
 
-- name: Définir le chemin du fichier php.ini à utiliser
+- name: Set php.ini file path to use
   set_fact:
     php_ini_path: >-
       {%- if php_ini_apache.stat.exists -%}
@@ -59,11 +59,11 @@
       /etc/php/{{ php_version.stdout }}/apache2/php.ini
       {%- endif -%}
 
-- name: Afficher le chemin php.ini utilisé
+- name: Display php.ini path used
   debug:
-    msg: "Fichier php.ini utilisé: {{ php_ini_path }}"
+    msg: "Using php.ini file: {{ php_ini_path }}"
 
-- name: Configurer les limites PHP pour l'upload de fichiers
+- name: Configure PHP limits for file uploads
   lineinfile:
     path: "{{ php_ini_path }}"
     regexp: "{{ item.regexp }}"
@@ -75,9 +75,9 @@
     - { regexp: '^post_max_size\s*=', line: 'post_max_size = 60M' }
     - { regexp: '^max_execution_time\s*=', line: 'max_execution_time = 300' }
     - { regexp: '^max_input_time\s*=', line: 'max_input_time = 300' }
-  notify: Redémarrer Apache
+  notify: Restart Apache
 
-- name: Activer les modules Apache
+- name: Enable Apache modules
   apache2_module:
     name: "{{ item }}"
     state: present
@@ -86,15 +86,15 @@
     - authnz_ldap
     - rewrite
 
-- name: Activer le module mysqli
+- name: Enable mysqli module
   shell: phpenmod mysqli
   changed_when: false
 
-- name: Activer le module pgsql
+- name: Enable pgsql module
   shell: phpenmod pgsql
   changed_when: false
 
-- name: Installer les dépendances Python
+- name: Install Python dependencies
   pip:
     name: 
       - pandas
@@ -106,13 +106,13 @@
       - Flask-JWT-Extended
     state: present
 
-- name: Démarrer et activer Apache
+- name: Start and enable Apache service
   service:
     name: apache2
     state: started
     enabled: yes
 
-- name: Déplacer les fichiers PurpleLab vers le webroot
+- name: Move PurpleLab files to webroot
   shell: |
     cp -r /home/{{ ansible_user }}/PurpleLab/* /var/www/html/
     if [ -d "/var/www/html/Web" ]; then
@@ -121,14 +121,14 @@
     fi
   ignore_errors: yes
 
-- name: Déplacer app.py vers le répertoire de l'utilisateur
+- name: Move app.py to user directory
   copy:
     src: files/app.py
     dest: "/home/{{ ansible_user }}/app.py"
     remote_src: yes
     mode: '0755'
 
-- name: S'assurer que le répertoire du projet est accessible en écriture
+- name: Ensure project directory is writable
   file:
     path: /var/www/html
     state: directory
@@ -137,12 +137,12 @@
     group: www-data
     recurse: yes
 
-- name: Supprimer index.html par défaut
+- name: Remove default index.html
   file:
     path: /var/www/html/index.html
     state: absent
 
-- name: Définir les permissions appropriées
+- name: Set appropriate permissions
   file:
     path: "{{ item.path }}"
     state: directory
@@ -154,13 +154,13 @@
     - { path: '/var/www/html/Downloaded/malware_upload/', mode: '0777', recurse: yes }
     - { path: '/var/www/html/config/', mode: '0750', recurse: no }
 
-- name: Définir les permissions pour admin.php
+- name: Set permissions for admin.php
   file:
     path: /var/www/html/admin.php
     mode: '0755'
     state: file
 
-- name: Ajouter les variables d'environnement à Apache
+- name: Add environment variables to Apache
   lineinfile:
     path: /etc/apache2/envvars
     line: "{{ item }}"
@@ -170,4 +170,5 @@
     - "export DB_PASS='{{ db_pass }}'"
     - "export DB_NAME='{{ db_name }}'"
     - "export ENCRYPTION_KEY='{{ encryption_key }}'"
-  notify: Redémarrer Apache 
+    - "export OPENSEARCH_ADMIN_PASSWORD='admin123'"
+  notify: Restart Apache 
