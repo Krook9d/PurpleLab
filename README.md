@@ -10,7 +10,7 @@
 <br />
 <div align="center">
   <a href="https://github.com/Krook9d/PurpleLab">
-    <img src="/MD_image/Logotest.png" alt="Logo PurpleLab" width="120" height="120"/>
+    <img src="/MD_image/Logotest.png" alt="Logo PurpleLab" width="400" height="400"/>
   </a>
 
   <h1 align="center">PurpleLab</h1>
@@ -51,8 +51,6 @@
         <li><a href="#hunting-page-">Hunting Page</a></li>
         <li><a href="#mitre-attck-page-️">MITRE ATT&CK Page</a></li>
         <li><a href="#malware-page-">Malware Page</a></li>
-        <li><a href="#log-simulation-page-">Log Simulation Page</a></li>
-        <li><a href="#usage-case-page-">Usage Case Page</a></li>
         <li><a href="#sharing-page-️">Sharing Page</a></li>
         <li><a href="#sigma-page-️">Sigma Page</a></li>
         <li><a href="#health-page-">Health Page</a></li>
@@ -80,7 +78,7 @@ The lab includes:
 - **💻 VirtualBox Environment** - Ready-to-use Windows 10 VM with forensic tools
 - **⚙️ Flask Backend** - Robust API and application logic
 - **🗄️ PostgreSQL Database** - Secure data storage
-- **🔍 Elasticsearch Server** - Advanced log analysis and search capabilities
+- **🔍 Opensearch Server** - Advanced log analysis and search capabilities
 
 <p align="right">(<a href="#readme-top">⬆️ back to top</a>)</p>
 
@@ -248,7 +246,6 @@ The VM includes pre-installed tools:
 - **Browser** for web-based activities
 - **Atomic Red Team modules** for attack simulation
 - **LibreOffice** for document-based attacks
-- **Forensic Tools** collection - [More Info](https://github.com/cristianzsh/forensictools)
 
 <p align="right">(<a href="#readme-top">⬆️ back to top</a>)</p>
 
@@ -318,42 +315,6 @@ Comprehensive malware management platform with dual functionality:
 
 <p align="right">(<a href="#readme-top">⬆️ back to top</a>)</p>
 
-### Log simulation Page 📊
-
-Generate realistic log data for enhanced detection training:
-
-#### 🔥 Available Log Types
-- **Ubuntu Logs** *(under development)*
-- **Firewall Logs** *(fully functional)*
-
-#### ⚙️ Configuration Options
-- **Volume Control**: Specify quantity of logs to generate
-- **Time Range**: Customize timestamp ranges
-- **Randomization**: Automatic randomization of values (IPs, actions, etc.)
-
-**Output Location**: `/var/www/html/Downloaded/Log_simulation`
-**Format**: JSON (firewall.json, ubuntu.json)
-
-<img src="/MD_image/log_simulation.png" width="800" alt="Log Simulation Interface">
-
-<p align="right">(<a href="#readme-top">⬆️ back to top</a>)</p>
-
-### Usage Case Page 🧩
-
-End-to-end attack scenario simulation:
-
-#### 🎭 Available Use Cases
-- **Scenario Execution**: Run complete compromise scenarios
-- **Detailed Breakdown**: Step-by-step attack analysis
-- **IOC Discovery**: Identify Indicators of Compromise
-
-#### 🔍 Challenge Mode
-Try to trace the entire compromise path through log analysis before revealing the solution details!
-
-<img src="/MD_image/usecase.png" width="800" alt="Use Case Scenarios">
-
-<p align="right">(<a href="#readme-top">⬆️ back to top</a>)</p>
-
 ### Sharing Page ✏️
 
 Collaborative knowledge sharing platform:
@@ -388,9 +349,9 @@ Advanced Sigma rule management:
 Comprehensive system monitoring dashboard:
 
 #### 🖥️ Component Status
-- **Kibana** - Web interface status
-- **Logstash** - Data processing pipeline
-- **Elasticsearch** - Search engine status
+- **Opensearch Dashboard** - Web interface status
+- **Postgres** - Database
+- **Opensearch** - Search engine status
 - **VirtualBox** - Virtualization platform
 - **Flask Backend** - Application server
 
@@ -469,4 +430,4 @@ For comprehensive API usage and integration details, see our complete documentat
 [license-shield]: https://img.shields.io/github/license/Krook9d/PurpleLab.svg?style=for-the-badge
 [license-url]: https://github.com/Krook9d/PurpleLab/blob/master/LICENSE
 [linkedin-shield]: https://img.shields.io/badge/-LinkedIn-black.svg?style=for-the-badge&logo=linkedin&colorB=555
-[linkedin-url]: https://linkedin.com/in/your-profile
+[linkedin-url]: [https://linkedin.com/in/your-profile](https://www.linkedin.com/in/martin-cayrol-47669a1a2/)
