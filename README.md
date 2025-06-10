@@ -13,8 +13,6 @@
     <img src="/MD_image/Logotest.png" alt="Logo PurpleLab" width="400" height="400"/>
   </a>
 
-  <h1 align="center">PurpleLab</h1>
-
   <p align="center">
     A comprehensive cybersecurity lab for creating and testing detection rules, simulating attacks, and training analysts
     <br />
@@ -430,4 +428,4 @@ For comprehensive API usage and integration details, see our complete documentat
 [license-shield]: https://img.shields.io/github/license/Krook9d/PurpleLab.svg?style=for-the-badge
 [license-url]: https://github.com/Krook9d/PurpleLab/blob/master/LICENSE
 [linkedin-shield]: https://img.shields.io/badge/-LinkedIn-black.svg?style=for-the-badge&logo=linkedin&colorB=555
-[linkedin-url]: [https://linkedin.com/in/your-profile](https://www.linkedin.com/in/martin-cayrol-47669a1a2/)
+[linkedin-url]: [https://www.linkedin.com/in/martin-cayrol-47669a1a2/]
