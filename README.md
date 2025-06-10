@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="/MD_image/logo.png" alt="Logo PurpleLab"/>
+  <img src="/MD_image/Logotest.png" alt="Logo PurpleLab"/>
 </p>
 
 
