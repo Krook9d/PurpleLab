@@ -1,355 +1,472 @@
-<p align="center">
-  <img src="/MD_image/Logotest.png" alt="Logo PurpleLab"/>
-</p>
+<!-- Improved compatibility of back to top link -->
+<a id="readme-top"></a>
 
+<!-- PROJECT SHIELDS -->
+[![Issues][issues-shield]][issues-url]
+[![MIT License][license-shield]][license-url]
+[![LinkedIn][linkedin-shield]][linkedin-url]
 
-# Table of content
+<!-- PROJECT LOGO -->
+<br />
+<div align="center">
+  <a href="https://github.com/Krook9d/PurpleLab">
+    <img src="/MD_image/Logotest.png" alt="Logo PurpleLab" width="120" height="120"/>
+  </a>
 
-- [Table of content](#table-of-content)
-- [What is PurpleLab ?](#what-is-purplelab-)
-- [Installation procedure](#installation)
-	- [Requirements](#Requirements)
-	- [Installation](#installation)
-                - [Accounts](#Accounts)
-                - [ELK Configuration](#ELK-Configuration)
-                - [VM logs configuration](#VM-logs-configuration)
-- [Usage](#Usage)
-	- [Home Page](#home-page-)
-	- [Hunting Page](#hunting-page-)
-	- [Mitre Att&ck Page](#mitre-attck-page-)
-	- [Malware Page](#malware-page-)
-	- [Log simulation Page](#log-simulation-page-)
-	- [Usage Case Page](#usage-case-page-)
-	- [Sharing Page](#sharing-page-)
-	- [Sigma Page](#sigma-page-)
-	- [Health Page](#health-page-)
- 	- [Admin Page](#admin-page-)
-- [Splunk APP](#Splunk-App)
-- [Cortex Analyzer](#Cortex-Analyzer)
-- [API](#API-documentation)
+  <h1 align="center">PurpleLab</h1>
 
-# What is PurpleLab ?
+  <p align="center">
+    A comprehensive cybersecurity lab for creating and testing detection rules, simulating attacks, and training analysts
+    <br />
+    <a href="#installation"><strong>Get Started »</strong></a>
+    <br />
+    <br />
+    <a href="#usage">View Demo</a>
+    ·
+    <a href="https://github.com/Krook9d/PurpleLab/issues">Report Bug</a>
+    ·
+    <a href="https://github.com/Krook9d/PurpleLab/issues">Request Feature</a>
+  </p>
+</div>
 
-This solution will allow you to easily deploy an entire lab to create/test your detection rules, simulate logs, play tests, download and run malware and mitre attack techniques, restore the sandbox and many other features.
+<!-- TABLE OF CONTENTS -->
+<details>
+  <summary>📋 Table of Contents</summary>
+  <ol>
+    <li><a href="#-what-is-purplelab">What is PurpleLab?</a></li>
+    <li>
+      <a href="#-installation-procedure">Installation</a>
+      <ul>
+        <li><a href="#requirements">Requirements</a></li>
+        <li><a href="#installation">Installation Steps</a></li>
+        <li><a href="#accounts">Accounts Setup</a></li>
+        <li><a href="#elk-configuration">ELK Configuration</a></li>
+        <li><a href="#vm-logs-configuration">VM Logs Configuration</a></li>
+      </ul>
+    </li>
+    <li>
+      <a href="#-usage">Usage</a>
+      <ul>
+        <li><a href="#home-page-">Home Page</a></li>
+        <li><a href="#hunting-page-">Hunting Page</a></li>
+        <li><a href="#mitre-attck-page-️">MITRE ATT&CK Page</a></li>
+        <li><a href="#malware-page-">Malware Page</a></li>
+        <li><a href="#log-simulation-page-">Log Simulation Page</a></li>
+        <li><a href="#usage-case-page-">Usage Case Page</a></li>
+        <li><a href="#sharing-page-️">Sharing Page</a></li>
+        <li><a href="#sigma-page-️">Sigma Page</a></li>
+        <li><a href="#health-page-">Health Page</a></li>
+        <li><a href="#admin-page-">Admin Page</a></li>
+      </ul>
+    </li>
+    <li><a href="#-splunk-app">Splunk App</a></li>
+    <li><a href="#-cortex-analyzer">Cortex Analyzer</a></li>
+    <li><a href="#-api-documentation">API Documentation</a></li>
+  </ol>
+</details>
 
-The lab contains : 
+<br />
 
-- A web interface with a complete front end to control features
-- The Virtualbox tool with a ready-to-use Windows 10 VM and forensic tools
-- A Flask back end
-- A postgresql database
-- An elasticsearch server
+<!-- ABOUT THE PROJECT -->
+## 🚀 What is PurpleLab ?
 
-# Installation procedure
+**PurpleLab** is a comprehensive cybersecurity laboratory that enables security professionals to easily deploy an entire testing environment for creating and validating detection rules, simulating realistic attack scenarios, and training security analysts.
 
-> ⚠️ To have a fully clean installation, you have to follow all the chapiter of the installation procedure from requirements to account
+### 🏗️ Architecture Components
 
-> ⚠️ NOTE: This lab has not been hardened in any way and runs with basic credentials. Please do not connect or bridge it to any networks you care about, or secure it yourself with a PKI, better authentication systems, etc.
+The lab includes:
 
-At the start of installation, the script will test 3 Requirements, which are explained in the next chapter.
+- **🌐 Web Interface** - Complete frontend for controlling all features
+- **💻 VirtualBox Environment** - Ready-to-use Windows 10 VM with forensic tools
+- **⚙️ Flask Backend** - Robust API and application logic
+- **🗄️ PostgreSQL Database** - Secure data storage
+- **🔍 Elasticsearch Server** - Advanced log analysis and search capabilities
 
-During installation, you will be asked twice, once whether you want to install siem ELK with the application, and again to choose the network interface to be used for the application.
+<p align="right">(<a href="#readme-top">⬆️ back to top</a>)</p>
 
+<!-- INSTALLATION -->
+## 🔧 Installation procedure
 
-## Requirements
+> ⚠️ **Important**: For a completely clean installation, follow ALL chapters of the installation procedure from requirements to accounts configuration.
 
-Minimum Hardware resources : 
-- 200GB 
-- 8 cores
-- 13GB RAM
+> ⚠️ **Security Notice**: This lab has not been hardened and runs with basic credentials. Do not connect it to production networks or secure it with proper PKI and authentication systems.
 
-A clean installation of Ubuntu server 22.04 available : [Here](https://ubuntu.com/download/server?ref=linuxhandbook.com)
+### Requirements
 
-> ⚠️ If you use Ubuntu server 23.10 you will have issues with python library installation 
+**Minimum Hardware Resources:**
+- **Storage**: 200GB available space
+- **CPU**: 8 cores minimum
+- **RAM**: 13GB minimum
 
+**Software Requirements:**
+- Clean installation of **Ubuntu Server 22.04** - [Download Here](https://ubuntu.com/download/server?ref=linuxhandbook.com)
 
-⚠️ Enable Hardware Virtualization ⚠️ :
+> ⚠️ **Note**: Ubuntu Server 23.10 may cause issues with Python library installation.
 
-In VM Ware workstation -> Go to the settings of the VM -> Processors -> Virtualization engine -> enable "Virtualize Intel VT-x/EPT or AMD-V/RVI" 
+**⚠️ Hardware Virtualization Setup:**
 
-In VirtualBox -> Select the relevant virtual machine -> Right-click -> Settings -> System -> Processor -> Check "Enable Nested VT-x/AMD-V".
+<details>
+<summary>Click to expand virtualization setup instructions</summary>
 
-On the physical machine (host) -> Access the BIOS/UEFI settings -> Look for an option to enable hardware virtualization (VT-x for Intel or AMD-V for AMD) in the CPU or motherboard settings. This option may be called "Intel Virtualization Technology," "VT-x," "AMD-V," "Virtualization Extensions," or something similar. Ensure it is enabled if not already, save the changes, and restart your computer.
+**VMware Workstation:**
+1. Go to VM settings → Processors → Virtualization engine
+2. Enable "Virtualize Intel VT-x/EPT or AMD-V/RVI"
 
-In your home folder, Download repo 
+**VirtualBox:**
+1. Select VM → Right-click → Settings → System → Processor
+2. Check "Enable Nested VT-x/AMD-V"
+
+**Physical Machine (Host):**
+1. Access BIOS/UEFI settings
+2. Enable hardware virtualization (VT-x/AMD-V)
+3. Save changes and restart
+
+</details>
+
+**Download Repository:**
 ```bash
 git clone https://github.com/Krook9d/PurpleLab.git && mv PurpleLab/install.sh .
 ```
 
-## installation
+<p align="right">(<a href="#readme-top">⬆️ back to top</a>)</p>
 
-run : 
+### Installation
+
+Execute the installation script:
 
 ```bash
 sudo bash install.sh
 ```
 
-At the start of the installation, a dialog box will ask you whether you want to install the default ELK siem or install your own siem later. If you answer yes, the ELK installation will be skipped.
-> ⚠️ Warning: if you don't install ELK, PHP errors will appear on the home page. Edit the code to prevent errors from appearing on the page 
+During installation, you'll be prompted to:
+1. **ELK Installation**: Choose whether to install the default ELK SIEM
+2. **Network Interface**: Select the network interface for the application
+
+> ⚠️ **Warning**: If you skip ELK installation, PHP errors will appear on the home page.
+
+<p align="right">(<a href="#readme-top">⬆️ back to top</a>)</p>
 
 ### Accounts
 
-#### Admin Account
+#### 👤 Admin Account
 
-An admin account is created by default, stored in your home directory in the admin.txt file and then hashed into the database.
+A default admin account is automatically created and stored in `~/admin.txt` with the format:
+```
+admin@local.com:password
+```
 
-> Note: admin's password is presented as in this form (admin@local.com:password) in admin.txt
+#### 👥 User Account Setup
 
-#### User Account
+1. **Access the application** using your server's IP address
+2. **Click "Register"** button
+3. **Fill required fields:**
+   - **First Name**: Your first name
+   - **Last Name**: Your last name  
+   - **Analyst Level**: Your analyst level (N1/N2/N3)
+   - **Avatar**: Select an avatar (< 1MB)
+   - **Password**: Must contain at least 8 characters with uppercase, lowercase, number, and special character
 
-You have to set up your accounts. after installation :
-
-1. Type the IP adress of your server
-<img src="/MD_image/connexion.png" width="800" alt="Health Page">
-
-2. click on the button **Register**
-
-3. Fill all the following fields :
-
-- **First Name**: Your first name.
-- **Last name**: Your last name.
-- **Analyst level**: Your analyst lvl (N1/N2/N3)
-- **Avatar**: Select an avatar.
-- **Password**: The password must contain **at least 8 characters, including at least one uppercase letter, one lowercase letter, one number and one special character**
-
-> ⚠️Avatar have to be light (< 1mo)
-> On the welcome page after a connection, there will be a php error, this is normal, we'll configure VM log collection in the next step
+<p align="right">(<a href="#readme-top">⬆️ back to top</a>)</p>
 
 ### ELK Configuration
 
-
-1. On the server do :
+1. **Generate enrollment token:**
 ```bash
 sudo /usr/share/elasticsearch/bin/elasticsearch-create-enrollment-token --scope kibana
 ```
-Then go to the "Hunting" page to open ELK and copy the token when prompted.
 
-2. After pasting the enrolment token, you'll be asked for a verification code. Here's how to obtain it
+2. **Navigate to "Hunting" page** and paste the token
+
+3. **Get verification code:**
 ```bash
 sudo /usr/share/kibana/bin/kibana-verification-code
 ```
 
-> Note: To regenerate the token you can use this command : `sudo /usr/share/elasticsearch/bin/elasticsearch-create-enrollment-token --scope kibana`
-
-
-If you have issues submitting the enrolment token restart the elastic search service
+**Troubleshooting:**
+If token submission fails, restart Elasticsearch:
 ```bash
 service elasticsearch restart
 ```
 
+<p align="right">(<a href="#readme-top">⬆️ back to top</a>)</p>
+
 ### VM logs configuration
 
-You have to connect to the VM, edit the winlogbeats.yml and do some commands 
+1. **Connect to the VM** (IP available on health page):
+```bash
+sudo VBoxManage guestproperty get sandbox "/VirtualBox/GuestInfo/Net/0/V4/IP"
+```
 
-1. Connect to the VM (you have the IP adress on the health.php page or you can do `sudo VBoxManage guestproperty get sandbox "/VirtualBox/GuestInfo/Net/0/V4/IP"
-`)
-
-
-2. Open the file `C:\Program Files\winlogbeat` with notepadd or other
-Change :
-the password at "password:" (put the password "elastic built-in superuser" you have in admin.txt)
-
-Replace All the Ip that corresponding to 192.168.142.130 or other **with the address of your ELK server**
-
-Replace the ca_trusted_fingerprint, to have it, run this command **in the purplelab server** :
+2. **Edit winlogbeat configuration** at `C:\Program Files\winlogbeat\winlogbeat.yml`:
+   - Update password field with elastic superuser password from `admin.txt`
+   - Replace all IP addresses (192.168.142.130) with your ELK server IP
+   - Update `ca_trusted_fingerprint` with the output from:
 
 ```bash
 sudo openssl x509 -fingerprint -sha256 -in /etc/elasticsearch/certs/http_ca.crt | awk -F '=' '/Fingerprint/{print $2}' | tr -d ':'
 ```
 
-3. Open an Administrator Powershell Prompt and go to this folder :
-
-```bash
+3. **Test configuration** (Admin PowerShell):
+```powershell
 cd 'C:\Program Files\winlogbeat'
+& "C:\Program Files\Winlogbeat\winlogbeat.exe" test config -c "C:\Program Files\Winlogbeat\winlogbeat.yml" -e
 ```
 
-4. test the configuration with : 
-
-```bash
-  & "C:\Program Files\Winlogbeat\winlogbeat.exe" test config -c "C:\Program Files\Winlogbeat\winlogbeat.yml" -e
-```
-
-5. If the configuration is OK, set up assets with the following command : 
-```bash
+4. **Setup assets:**
+```powershell
 .\winlogbeat.exe setup -e
 ```
 
-6. If you have the message "Loaded Ingest pipelines" at the end of the output, the installation went well, you can restart the VM 
-
-7. ⚠️ On the purplelab server once the VM is restarted, Make a snapshot of the vm -> named: "Snapshot1"
-
+5. **Create snapshot** after VM restart:
 ```bash
 sudo VBoxManage snapshot "sandbox" take "Snapshot1" --description "snapshot before the mess"
 ```
 
-> ⚠️ After that, and once you've finished configuring the elastic search server, check if the service is running, go to kibana (Hunting page on Purplelab), click on the Discover tab, normally, you will see the Windows event from the VM. 
-Indicators in the home page  should be fed
+<p align="right">(<a href="#readme-top">⬆️ back to top</a>)</p>
 
-# Usage
+<!-- USAGE -->
+## 💡 Usage
 
-
-Open a new prompt on the PurpleLab server and start the flask server on : 
+**Start the Flask server:**
 ```bash
 sudo python3 /home/$(logname)/app.py
 ```
 
-Make sure that de VM is running :
+**Ensure VM is running:**
 ```bash
 sudo VBoxManage showvminfo sandbox --machinereadable | grep "VMState=" | awk -F'"' '{print $2}'
 ```
-If not, do :
+
+**Start VM if needed:**
 ```bash
 sudo VBoxManage startvm sandbox --type headless
 ```
 
-You can also do this from the health page once you have started the flask back end.
+### 🪟 Windows 10 Sandbox VM 
 
-Once the application is fully configured lets explain all the pages and the features
+The VM includes pre-installed tools:
+- **Browser** for web-based activities
+- **Atomic Red Team modules** for attack simulation
+- **LibreOffice** for document-based attacks
+- **Forensic Tools** collection - [More Info](https://github.com/cristianzsh/forensictools)
 
-## Windows 10 Sandbox VM 
+<p align="right">(<a href="#readme-top">⬆️ back to top</a>)</p>
 
-there are several tools installed on the windows 10 sandbox VM, a browser, atomics red team modules, libre office, 
-Forensic tools collected in "Forensictools" more info: https://github.com/cristianzsh/forensictools
+### Home Page 🏠
 
-## Home Page 🏠
+The dashboard displays key performance indicators from Elasticsearch:
+- **Event Count** from Windows machine
+- **Unique IP Addresses** detected in logs
+- **MITRE ATT&CK** techniques and sub-techniques count
+- **Log Distribution** from VM collection
 
-This is the home page, she is composed of several KPI that are retreiving from the elasticsearch server
-From this page you can saw the number of event from the Windows machine, the number of Unique IP detected from the log, the number of Mitre Attack technique/subtechnique, the repartition of your log that is collected from the VM
+<img src="/MD_image/home_page.png" width="800" alt="Home Page Dashboard">
 
-<img src="/MD_image/home_page.png" width="800" alt="Health Page">
+<p align="right">(<a href="#readme-top">⬆️ back to top</a>)</p>
 
-## Hunting Page 🎯
+### Hunting Page 🎯
 
-This page redirect you to the Kibana server, go to discover to check the log of the VM or the log from the simulation page
+Direct access to **Kibana server** for log analysis. Navigate to **Discover** to examine:
+- VM logs and events
+- Simulated log data
+- Real-time security events
 
-## Mitre Att&ck Page 🛡️
+<p align="right">(<a href="#readme-top">⬆️ back to top</a>)</p>
 
-This page is used to list the techniques from the MITRE ATT&CK framework and execute payloads that simulate attacks corresponding to each technique. This is done in order to create detection rules for each technique.
+### Mitre Att&ck Page 🛡️
 
-To search for a technique, you need to enter the first 5 characters of a technique, for example, T1070. The corresponding list for that technique along with its sub-techniques will load. You can then click on a specific technique, and a table with all the information about that technique will appear. At the very end, there is a "run test" button. Clicking on it will execute the payloads associated with that technique on the VM.
+Interactive MITRE ATT&CK framework interface for:
 
-The payloads work with the Invoke-Atomic tool, which is installed on the VM. The list of tests for this tool can be found here: https://atomicredteam.io/discovery/
+**🔍 Technique Discovery:**
+- Search using technique IDs (e.g., "T1070")
+- Browse sub-techniques and detailed information
+- Access comprehensive technique documentation
 
-The "Mitre ATT&CK update database" button allows you to update the MITRE ATT&CK framework database with the most recent data.
+**⚡ Payload Execution:**
+- Execute Atomic Red Team payloads
+- Simulate real attack scenarios
+- Generate detection-worthy events
 
-> ⚠️ The loading time to display a technique is not instantaneous (2-3 seconds).
+**📊 Database Management:**
+- Update MITRE ATT&CK database with latest data
+- Maintain current threat intelligence
 
-<img src="/MD_image/mitre.png" width="800" alt="Health Page">
+> **Reference**: [Atomic Red Team Tests](https://atomicredteam.io/discovery/)
 
-## Malware Page 🦠
+<img src="/MD_image/mitre.png" width="800" alt="MITRE ATT&CK Interface">
 
-This page is divided into two parts:
+<p align="right">(<a href="#readme-top">⬆️ back to top</a>)</p>
 
-The "Malware Downloader" section allows you to download malware. In the field, enter a type of malware, for example, "Trojan." This will download the 10 latest malware samples that have been reported on the website https://bazaar.abuse.ch with the tag "Trojan."
+### Malware Page 🦠
 
-Once the download is complete, the malware is automatically uploaded to the Windows VM. The "Display the content of the CSV" button becomes clickable. By clicking on it, you can view a summary of the downloaded malware and then execute them by clicking on their respective "Run" buttons.
+Comprehensive malware management platform with dual functionality:
 
-The "Malware Uploader" section allows you to upload your own executables, scripts, DLLs, etc. 
-> ⚠️Please note that the accepted file extensions are as follows: .exe, .dll, .bin, .py, .ps1. 
+#### 📥 Malware Downloader
+- **Search & Download**: Enter malware types (e.g., "Trojan")
+- **Auto-Integration**: Automatically uploads to Windows VM
+- **Batch Processing**: Downloads 10 latest samples from [Malware Bazaar](https://bazaar.abuse.ch)
+- **Execution Control**: Run malware with single-click execution
 
-The submitted executable is uploaded to the VM, and you can then click on "List of hosted malware" to display the available uploaded executables.
+#### 📤 Malware Uploader
+- **Custom Uploads**: Upload your own executables and scripts
+- **Supported Formats**: `.exe`, `.dll`, `.bin`, `.py`, `.ps1`
+- **Inventory Management**: List and manage uploaded malware
 
-> Note: Malware is downloaded to the VM from the /var/www/html/Downloaded/malware_upload/ directory.
+> **Storage Location**: `/var/www/html/Downloaded/malware_upload/`
 
-<img src="/MD_image/malware.png" width="800" alt="Health Page">
+<img src="/MD_image/malware.png" width="800" alt="Malware Management Interface">
 
-## Log simulation Page 📊
+<p align="right">(<a href="#readme-top">⬆️ back to top</a>)</p>
 
-This page allows you to simulate logs to create more realistic traffic for log analysis. It also provides an opportunity to practice detecting suspicious behavior concealed within legitimate traffic.
+### Log simulation Page 📊
 
-Currently, two types of logs are offered in the current version:
+Generate realistic log data for enhanced detection training:
 
-Ubuntu Log (under construction)
-Firewall Log (functional)
-You can then choose the quantity of logs to generate and the time range for timestamping the logs.
+#### 🔥 Available Log Types
+- **Ubuntu Logs** *(under development)*
+- **Firewall Logs** *(fully functional)*
 
-The logs have randomized values; for example, the firewall logs will have different IP addresses, "Deny" and "Accept" values assigned randomly, as well as other fields.
+#### ⚙️ Configuration Options
+- **Volume Control**: Specify quantity of logs to generate
+- **Time Range**: Customize timestamp ranges
+- **Randomization**: Automatic randomization of values (IPs, actions, etc.)
 
-Once the fields are filled and the button is clicked, the logs will be generated, and you can find them in the SIEM.
+**Output Location**: `/var/www/html/Downloaded/Log_simulation`
+**Format**: JSON (firewall.json, ubuntu.json)
 
-> Note : The logs are generated in JSON format with names like firewall.json or ubuntu.json and are located at path = `/var/www/html/Downloaded/Log_simulation`
+<img src="/MD_image/log_simulation.png" width="800" alt="Log Simulation Interface">
 
-<img src="/MD_image/log_simulation.png" width="800" alt="Health Page">
+<p align="right">(<a href="#readme-top">⬆️ back to top</a>)</p>
 
-## Usage Case Page 🧩
+### Usage Case Page 🧩
 
-This page allows you to play out custom-made use cases from start to finish, replicating a compromise scenario. Currently, two use cases are available.
+End-to-end attack scenario simulation:
 
-Once a use case is selected, there are two buttons: one to execute the use case on the VM and another to display the use case details.
+#### 🎭 Available Use Cases
+- **Scenario Execution**: Run complete compromise scenarios
+- **Detailed Breakdown**: Step-by-step attack analysis
+- **IOC Discovery**: Identify Indicators of Compromise
 
-The details will provide you with a step-by-step scenario of the use case, the actions taken, and any IOCs (Indicators of Compromise). For an added challenge, try to trace the entire compromise path by analyzing the logs before displaying the details 😊
+#### 🔍 Challenge Mode
+Try to trace the entire compromise path through log analysis before revealing the solution details!
 
-<img src="/MD_image/usecase.png" width="800" alt="Health Page">
+<img src="/MD_image/usecase.png" width="800" alt="Use Case Scenarios">
 
-## Sharing Page  ✏️
+<p align="right">(<a href="#readme-top">⬆️ back to top</a>)</p>
 
-This page is a simple sharing platform. When you have found a good query or detection rule, you can publish it on this shared page to benefit other analysts, and vice versa.
+### Sharing Page ✏️
 
-<img src="/MD_image/sharing.png" width="800" alt="Health Page">
+Collaborative knowledge sharing platform:
 
-## Sigma Page  🛡️
+- **Query Sharing**: Publish effective detection queries
+- **Rule Exchange**: Share custom detection rules
+- **Community Benefit**: Learn from other analysts' discoveries
 
-This page will allow you to search for sigma rules with key words, this can be technique IDs or words like "powershell", the list of concerned rules is displayed
-Once a rule is selected it is displayed, on the top right side of the rule is an icon with arrows, once clicked it displays two buttons "Splunk" and "Lucene" and when a button is clicked it converts the sigma rule with the chosen language. 
+<img src="/MD_image/sharing.png" width="800" alt="Knowledge Sharing Platform">
 
-<img src="/MD_image/sigma.png" width="800" alt="Health Page">
+<p align="right">(<a href="#readme-top">⬆️ back to top</a>)</p>
 
-## Health Page  🩺
+### Sigma Page 🛡️
 
-This page allows you to monitor all the components and resources of the PurpleLab tool.
+Advanced Sigma rule management:
 
-First, you will see the status of the following components:
+#### 🔍 Search Capabilities
+- **Keyword Search**: Find rules by technique IDs or keywords (e.g., "powershell")
+- **Rule Display**: View complete Sigma rule details
+- **Format Conversion**: Convert rules to Splunk or Lucene syntax
 
-Kibana
-Logstash
-Elastic
-VirtualBox
-Flask Backend
-Then, you can check the RAM and disk usage.
+#### 🔄 Conversion Features
+- **Splunk Format**: One-click conversion to Splunk queries
+- **Lucene Format**: Transform to Elasticsearch-compatible syntax
 
-Next, you will find information about the VM, including its status, IP address, and snapshot.
+<img src="/MD_image/sigma.png" width="800" alt="Sigma Rule Management">
 
-There are several buttons to manage the VM
+<p align="right">(<a href="#readme-top">⬆️ back to top</a>)</p>
 
-> ⚠️ Sometimes, the restoration of the VM snapshot is reported with an error even though it is successfully completed. Please confirm this by connecting to the VM.
+### Health Page 🩺
 
-<img src="/MD_image/health_page.png" width="800" alt="Health Page">
+Comprehensive system monitoring dashboard:
 
-## Admin Page 🔐
+#### 🖥️ Component Status
+- **Kibana** - Web interface status
+- **Logstash** - Data processing pipeline
+- **Elasticsearch** - Search engine status
+- **VirtualBox** - Virtualization platform
+- **Flask Backend** - Application server
 
-This page is designed for administrators to manage the configuration of the PurpleLab environment. Here, administrators can perform several tasks related to the configuration of the lab.
+#### 📊 Resource Monitoring
+- **RAM Usage** - Memory utilization
+- **Disk Usage** - Storage consumption
 
-### Key Features
+#### 🔧 VM Management
+- **Status Monitoring** - Current VM state
+- **IP Information** - Network configuration
+- **Snapshot Control** - Restore points management
 
-- **LDAP Configuration**: Allows administrators to configure and save LDAP settings for centralized authentication. Upon submitting the form, a green message is displayed at the bottom to confirm that the configuration has been successfully saved.
+> **Note**: Snapshot restoration may show errors even when successful - verify by connecting to the VM.
 
-- **API Key Generation**: Administrators can generate new API keys that are essential for authenticating and interfacing with the lab's API endpoints. This facilitates secure communication between the lab's components and external services or applications.
+<img src="/MD_image/health_page.png" width="800" alt="System Health Dashboard">
 
-### How to Access the Admin Page
+<p align="right">(<a href="#readme-top">⬆️ back to top</a>)</p>
 
-To access the Admin page, ensure you are logged in with the administrator account (`admin@local.com`). 
+### Admin Page 🔐
 
-<img src="/MD_image/admin.png" width="800" alt="Health Page">
+Administrative control center for system configuration:
 
-# Splunk App
+#### 🔑 Key Features
+- **LDAP Configuration**: Centralized authentication setup
+- **API Key Generation**: Secure API access management
+- **System Settings**: Core configuration management
 
-https://github.com/Krook9d/TA-Purplelab-Splunk
+#### 🔐 Access Requirements
+Login with administrator account: `admin@local.com`
 
-Atomic Red Team Test Execution: Initiate Atomic Red Team tests on the PurpleLab platform directly from Splunk.
-Threat Hunting Dashboard: Utilize a dedicated dashboard within Splunk for efficient threat hunting, powered by data from PurpleLab.
-Seamless Integration: Easy setup and configuration to interconnect PurpleLab with Splunk for enhanced security operations.
+<img src="/MD_image/admin.png" width="800" alt="Administration Panel">
 
-https://github.com/Krook9d/TA-Purplelab-Splunk/assets/40600995/eb5d0c27-06e5-416d-b707-af806c02323e
+<p align="right">(<a href="#readme-top">⬆️ back to top</a>)</p>
 
-# Cortex Analyzer
+<!-- INTEGRATIONS -->
+## 🔌 Splunk App
 
-https://github.com/Krook9d/PurpleLab-Cortex-Analyzer
+**Repository**: [TA-Purplelab-Splunk](https://github.com/Krook9d/TA-Purplelab-Splunk)
 
-PurpleLab Cortex Analyzer enhances TheHive incident responses by automating uploads and detonations of executables tied to cases.
-This tool streamlines SOC workflows, improving threat analysis and security outcomes. 
+### Features
+- **🚀 Atomic Red Team Integration**: Execute tests directly from Splunk
+- **🔍 Threat Hunting Dashboard**: Dedicated hunting interface
+- **🔗 Seamless Integration**: Easy PurpleLab-Splunk connectivity
 
-https://github.com/Krook9d/PurpleLab-Cortex-Analyzer/assets/40600995/690a8728-4ba7-4fda-a12e-48708e9b7d1d
+### Demo
+[![Splunk Integration Demo](https://github.com/Krook9d/TA-Purplelab-Splunk/assets/40600995/eb5d0c27-06e5-416d-b707-af806c02323e)](https://github.com/Krook9d/TA-Purplelab-Splunk)
 
-# API documentation
+<p align="right">(<a href="#readme-top">⬆️ back to top</a>)</p>
 
-For more information on using the PurpleLab API, see [API Documentation](/Documentation/flask_app_documentation.md).
+## 🔍 Cortex Analyzer
+
+**Repository**: [PurpleLab-Cortex-Analyzer](https://github.com/Krook9d/PurpleLab-Cortex-Analyzer)
+
+### Capabilities
+- **📤 Automated Uploads**: Seamless executable transfer to PurpleLab
+- **💥 Detonation Analysis**: Automated malware execution and analysis
+- **🔗 TheHive Integration**: Enhanced incident response workflows
+
+### Demo
+[![Cortex Analyzer Demo](https://github.com/Krook9d/PurpleLab-Cortex-Analyzer/assets/40600995/690a8728-4ba7-4fda-a12e-48708e9b7d1d)](https://github.com/Krook9d/PurpleLab-Cortex-Analyzer)
+
+<p align="right">(<a href="#readme-top">⬆️ back to top</a>)</p>
+
+<!-- API DOCUMENTATION -->
+## 📚 API documentation
+
+For comprehensive API usage and integration details, see our complete documentation:
+
+**[📖 API Documentation](/Documentation/flask_app_documentation.md)**
+
+<p align="right">(<a href="#readme-top">⬆️ back to top</a>)</p>
+
+<!-- MARKDOWN LINKS & IMAGES -->
+[issues-shield]: https://img.shields.io/github/issues/Krook9d/PurpleLab.svg?style=for-the-badge
+[issues-url]: https://github.com/Krook9d/PurpleLab/issues
+[license-shield]: https://img.shields.io/github/license/Krook9d/PurpleLab.svg?style=for-the-badge
+[license-url]: https://github.com/Krook9d/PurpleLab/blob/master/LICENSE
+[linkedin-shield]: https://img.shields.io/badge/-LinkedIn-black.svg?style=for-the-badge&logo=linkedin&colorB=555
+[linkedin-url]: https://linkedin.com/in/your-profile
