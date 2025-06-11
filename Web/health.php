@@ -457,9 +457,6 @@ $vmInfo['IP'] = $vmIP;
                         <button id="startVmButton" onclick="confirmAction('start', 'Start VM Headless', 'This will start the virtual machine in headless mode (no GUI).')">
                             <i class="fas fa-play"></i> Start VM Headless
                         </button>
-                        <button id="restartWinlogbeatButton" onclick="confirmAction('restart', 'Restart Winlogbeat Service', 'This will restart the Winlogbeat service on the VM.')">
-                            <i class="fas fa-sync-alt"></i> Restart Winlogbeat Service
-                        </button>
                     </div>
                     
                     <!-- Antivirus Toggle -->
@@ -487,7 +484,7 @@ $vmInfo['IP'] = $vmIP;
     </div>
 </div>
 
-<!-- Modale de confirmation d'action -->
+
 <div id="actionConfirmModal" class="action-confirm-modal">
     <div class="action-confirm-modal-content">
         <div class="action-confirm-modal-header">
@@ -513,7 +510,7 @@ $vmInfo['IP'] = $vmIP;
 <div id="toastContainer" class="toast-container"></div>
 
 <script>
-// Variables globales pour la modal
+
 let currentAction = null;
 
 // Toast Notification System
@@ -572,7 +569,7 @@ function removeToast(toastId) {
     }
 }
 
-// Fonction de confirmation générique
+
 function confirmAction(actionType, title, message) {
     currentAction = actionType;
     
@@ -583,7 +580,7 @@ function confirmAction(actionType, title, message) {
     modal.classList.add('modal-show');
 }
 
-// Gestionnaires d'événements
+
 document.addEventListener('DOMContentLoaded', function() {
     const modal = document.getElementById('actionConfirmModal');
     const cancelBtn = document.getElementById('cancelAction');
@@ -632,7 +629,7 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 });
 
-// Fonction pour exécuter les actions
+
 function executeAction(actionType) {
     switch(actionType) {
         case 'restore':
@@ -644,48 +641,11 @@ function executeAction(actionType) {
         case 'start':
             startVMHeadless();
             break;
-        case 'restart':
-            restartWinlogbeat();
-            break;
         default:
             console.error('Action inconnue:', actionType);
     }
 }
 
-// Fonctions d'action avec toasts
-function restartWinlogbeat() {
-    var button = document.getElementById('restartWinlogbeatButton');
-    button.innerHTML = '<i class="fas fa-sync fa-spin"></i> Restarting...';
-    button.disabled = true;
-
-    fetch('http://' + window.location.hostname + ':5000/restart_winlogbeat', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json'
-        }
-    })
-    .then(response => {
-        if (!response.ok) {
-            throw new Error('Network response was not ok: ' + response.statusText);
-        }
-        return response.json();
-    })
-    .then(data => {
-        if (data.message) {
-            createToast('success', 'Service Restarted', data.message);
-        } else if (data.error) {
-            createToast('error', 'Restart Failed', data.error);
-        }
-        setTimeout(() => {
-            window.location.reload();
-        }, 2000);
-    })
-    .catch(error => {
-        console.error('Error:', error);
-        createToast('error', 'Connection Error', 'Failed to restart Winlogbeat service');
-        updateButtons();
-    });
-}
 
 function restoreSnapshot() {
     var button = document.getElementById('restoreButton');
@@ -917,8 +877,6 @@ function updateButtons() {
     document.getElementById('powerOffButton').disabled = false;
     document.getElementById('startVmButton').innerHTML = '<i class="fas fa-play"></i> Start VM Headless';
     document.getElementById('startVmButton').disabled = false;
-    document.getElementById('restartWinlogbeatButton').innerHTML = '<i class="fas fa-sync-alt"></i> Restart Winlogbeat Service';
-    document.getElementById('restartWinlogbeatButton').disabled = false;
 }
 </script>
 
