@@ -97,8 +97,8 @@ body.blank::before {
 /* Logo container */
 #logo-container {
     position: absolute;
-    top: -1%;
-    left: 70%;
+    top: 5%;
+    left: 72%;
     width: 350px; 
     height: auto; 
     z-index: 10;
