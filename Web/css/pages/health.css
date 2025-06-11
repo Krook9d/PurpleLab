@@ -318,17 +318,7 @@ button {
     box-shadow: 0 8px 25px rgba(16, 185, 129, 0.4);
 }
 
-/* Service Action Button - Cyan/Teal (Service management) */
-#restartWinlogbeatButton {
-    background: linear-gradient(135deg, #06b6d4 0%, #0891b2 100%);
-    color: #ffffff;
-    box-shadow: 0 4px 15px rgba(6, 182, 212, 0.3);
-}
 
-#restartWinlogbeatButton:hover {
-    background: linear-gradient(135deg, #0891b2 0%, #0e7490 100%);
-    box-shadow: 0 8px 25px rgba(6, 182, 212, 0.4);
-}
 
 /* Forensic Buttons */
 .forensic-button {
