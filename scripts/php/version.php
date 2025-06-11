@@ -1,4 +1,4 @@
 <?php
 // /scripts/php/version.php
-define('SOFTWARE_VERSION', 'v2.0.0');
+define('SOFTWARE_VERSION', 'v3.0.0');
 ?>
