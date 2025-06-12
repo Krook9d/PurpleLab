@@ -9,15 +9,14 @@
   </a>
     <h3 align="center"><em>Hack, Learn, Defend.</em></h3>
 
-  
+<p>
 <!-- PROJECT SHIELDS -->
-  <p>
-    [![Issues][issues-shield]][issues-url]
-    [![MIT License][license-shield]][license-url]
-    [![LinkedIn][linkedin-shield]][linkedin-url]
-    [![Forks][forks-shield]][forks-url]
-    [![Stargazers][stars-shield]][stars-url]
-  </p>
+[![Issues][issues-shield]][issues-url]
+[![MIT License][license-shield]][license-url]
+[![LinkedIn][linkedin-shield]][linkedin-url]
+[![Forks][forks-shield]][forks-url]
+[![Stargazers][stars-shield]][stars-url]
+</p>
 
   <p align="center">
     A comprehensive cybersecurity lab for creating and testing detection rules, simulating attacks, and training analysts
