@@ -286,7 +286,7 @@ Interactive MITRE ATT&CK framework interface for:
 - Update MITRE ATT&CK database with latest data
 - Maintain current threat intelligence
 
-> **Reference**: [Atomic Red Team Tests](https://atomicredteam.io/discovery/)
+> **Reference**: [Atomic Red Team Tests](https://www.atomicredteam.io/atomic-red-team/docs)
 
 <img src="/MD_image/mitre.png" width="800" alt="MITRE ATT&CK Interface">
 
