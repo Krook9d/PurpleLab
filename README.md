@@ -1,19 +1,23 @@
 <!-- Improved compatibility of back to top link -->
 <a id="readme-top"></a>
 
-<!-- PROJECT SHIELDS -->
-[![Issues][issues-shield]][issues-url]
-[![MIT License][license-shield]][license-url]
-[![LinkedIn][linkedin-shield]][linkedin-url]
-[![Forks][forks-shield]][forks-url]
-[![Stargazers][stars-shield]][stars-url]
-
 <!-- PROJECT LOGO -->
 <br />
 <div align="center">
   <a href="https://github.com/Krook9d/PurpleLab">
     <img src="/MD_image/Logotest.png" alt="Logo PurpleLab" width="400" height="400"/>
   </a>
+    <h3 align="center"><em>Hack, Learn, Defend.</em></h3>
+
+  
+<!-- PROJECT SHIELDS -->
+  <p>
+    [![Issues][issues-shield]][issues-url]
+    [![MIT License][license-shield]][license-url]
+    [![LinkedIn][linkedin-shield]][linkedin-url]
+    [![Forks][forks-shield]][forks-url]
+    [![Stargazers][stars-shield]][stars-url]
+  </p>
 
   <p align="center">
     A comprehensive cybersecurity lab for creating and testing detection rules, simulating attacks, and training analysts
