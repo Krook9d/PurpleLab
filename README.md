@@ -430,4 +430,9 @@ For comprehensive API usage and integration details, see our complete documentat
 [license-shield]: https://img.shields.io/github/license/Krook9d/PurpleLab.svg?style=for-the-badge
 [license-url]: https://github.com/Krook9d/PurpleLab/blob/master/LICENSE
 [linkedin-shield]: https://img.shields.io/badge/-LinkedIn-black.svg?style=for-the-badge&logo=linkedin&colorB=555
-[linkedin-url]: [https://www.linkedin.com/in/martin-cayrol-47669a1a2/]
+[linkedin-url]: https://www.linkedin.com/in/martin-cayrol-47669a1a2/
+[forks-shield]: https://img.shields.io/github/forks/Krook9d/PurpleLab.svg?style=for-the-badge
+[forks-url]: https://github.com/Krook9d/PurpleLab/network/members
+[stars-shield]: https://img.shields.io/github/stars/Krook9d/PurpleLab.svg?style=for-the-badge
+[stars-url]: https://github.com/Krook9d/PurpleLab/stargazers
+
