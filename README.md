@@ -53,6 +53,7 @@
         <li><a href="#malware-page-">Malware Page</a></li>
         <li><a href="#sharing-page-️">Sharing Page</a></li>
         <li><a href="#sigma-page-️">Sigma Page</a></li>
+        <li><a href="#rule-lifecycle-page-️">Rule Lifecycle Page</a></li>
         <li><a href="#health-page-">Health Page</a></li>
         <li><a href="#admin-page-">Admin Page</a></li>
       </ul>
@@ -121,8 +122,6 @@ The lab includes:
 git clone https://github.com/Krook9d/PurpleLab.git && mv PurpleLab/install_ansible.sh
 ```
 
-<p align="right">(<a href="#readme-top">⬆️ back to top</a>)</p>
-
 ### Installation
 
 Execute the Ansible installation script:
@@ -135,8 +134,6 @@ The script will automatically:
 1. **Install all components**: OpenSearch, PostgreSQL, VirtualBox, and web interface
 2. **Configure the Windows Server VM**: Set up monitoring and security tools
 3. **Generate credentials**: Save all login information to `admin.txt`
-
-<p align="right">(<a href="#readme-top">⬆️ back to top</a>)</p>
 
 ### Accounts
 
@@ -160,8 +157,6 @@ admin@local.com:password
 
 <p align="right">(<a href="#readme-top">⬆️ back to top</a>)</p>
 
-<p align="right">(<a href="#readme-top">⬆️ back to top</a>)</p>
-
 <!-- USAGE -->
 ## 💡 Usage
 
@@ -182,8 +177,6 @@ The automatically configured VM includes:
 - **Pre-configured directories**: samples, malware_upload, and upload folders
 - **Windows Defender exclusions** for testing scenarios
 
-<p align="right">(<a href="#readme-top">⬆️ back to top</a>)</p>
-
 ### Home Page 🏠
 
 The dashboard displays key performance indicators from OpenSearch:
@@ -194,8 +187,6 @@ The dashboard displays key performance indicators from OpenSearch:
 
 <img src="/MD_image/home_page.png" width="800" alt="Home Page Dashboard">
 
-<p align="right">(<a href="#readme-top">⬆️ back to top</a>)</p>
-
 ### Hunting Page 🎯
 
 Direct access to **OpenSearch Dashboards** for log analysis. Navigate to **Discover** to examine:
@@ -203,8 +194,6 @@ Direct access to **OpenSearch Dashboards** for log analysis. Navigate to **Disco
 - Simulated log data and security events
 - Real-time monitoring of system activities
 - **Sysmon events** with detailed process and network information
-
-<p align="right">(<a href="#readme-top">⬆️ back to top</a>)</p>
 
 ### Mitre Att&ck Page 🛡️
 
@@ -228,8 +217,6 @@ Interactive MITRE ATT&CK framework interface for:
 
 <img src="/MD_image/mitre.png" width="800" alt="MITRE ATT&CK Interface">
 
-<p align="right">(<a href="#readme-top">⬆️ back to top</a>)</p>
-
 ### Malware Page 🦠
 
 Comprehensive malware management platform with dual functionality:
@@ -249,8 +236,6 @@ Comprehensive malware management platform with dual functionality:
 
 <img src="/MD_image/malware.png" width="800" alt="Malware Management Interface">
 
-<p align="right">(<a href="#readme-top">⬆️ back to top</a>)</p>
-
 ### Sharing Page ✏️
 
 Collaborative knowledge sharing platform:
@@ -260,8 +245,6 @@ Collaborative knowledge sharing platform:
 - **Community Benefit**: Learn from other analysts' discoveries
 
 <img src="/MD_image/sharing.png" width="800" alt="Knowledge Sharing Platform">
-
-<p align="right">(<a href="#readme-top">⬆️ back to top</a>)</p>
 
 ### Sigma Page 🛡️
 
@@ -277,6 +260,32 @@ Advanced Sigma rule management:
 - **Lucene Format**: Transform to Elasticsearch-compatible syntax
 
 <img src="/MD_image/sigma.png" width="800" alt="Sigma Rule Management">
+
+### Rule Lifecycle Page ⚙️
+
+Advanced rule lifecycle management system for connecting and managing security rules across multiple SIEM platforms:
+
+#### 🔌 Connectors Management
+- **Splunk Integration**: Configure connections to Splunk instances with SSL support
+- **OpenSearch Integration**: Connect to OpenSearch clusters for rule synchronization
+- **Connection Testing**: Validate configurations before deployment
+- **Status Monitoring**: Real-time connector health and connectivity status
+
+#### 📋 Rules & Payloads
+- **Rule Synchronization**: Automatically fetch detection rules from connected SIEM platforms
+- **Payload Association**: Link PowerShell payloads to specific detection rules
+- **Custom Payload Creation**: Build and edit PowerShell scripts for rule testing
+- **Rule Filtering**: Filter rules by payload status and connector type
+- **Last Sync Tracking**: Monitor synchronization timestamps and rule freshness
+
+#### ⚡ Execution & Results
+- **Payload Execution**: Run individual or batch payloads against associated rules
+- **Result Analysis**: View detailed execution outputs and error messages
+- **Status Filtering**: Filter results by triggered/not triggered/error states
+- **Time-based Filtering**: Analyze executions over different time periods
+- **Batch Operations**: Execute all payloads for displayed rules simultaneously
+
+<img src="/MD_image/rule_lifecycle.png" width="800" alt="Rule Lifecycle Management">
 
 <p align="right">(<a href="#readme-top">⬆️ back to top</a>)</p>
 
@@ -303,8 +312,6 @@ Comprehensive system monitoring dashboard:
 > **Note**: Snapshot restoration may show errors even when successful - verify by connecting to the VM.
 
 <img src="/MD_image/health_page.png" width="800" alt="System Health Dashboard">
-
-<p align="right">(<a href="#readme-top">⬆️ back to top</a>)</p>
 
 ### Admin Page 🔐
 
@@ -337,8 +344,6 @@ Login with administrator account: `admin@local.com`
 
 
 https://github.com/Krook9d/TA-Purplelab-Splunk/assets/40600995/eb5d0c27-06e5-416d-b707-af806c02323e
-
-<p align="right">(<a href="#readme-top">⬆️ back to top</a>)</p>
 
 ## 🔍 Cortex Analyzer
 
