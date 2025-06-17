@@ -26,19 +26,24 @@ if 'SPLUNK_USERNAME' in os.environ:
 if 'SPLUNK_PASSWORD' in os.environ:
     print("Using SPLUNK_PASSWORD from environment (value hidden)")
 
-def connect_to_splunk(host, port, username, password):
+def connect_to_splunk(host, port, username, password, ssl_enabled=True):
+    scheme = "https" if ssl_enabled else "http"
+    if host.startswith("http://"):
+        host = host.split("://")[1]
+    elif host.startswith("https://"):
+        host = host.split("://")[1]
     return client.connect(
         host=host,
         port=port,
         username=username,
         password=password,
-        scheme="https"
+        scheme=scheme
     )
 
 def list_saved_alerts(service):
     print("\nList of saved alerts:")
     for saved_search in service.saved_searches:
-        if saved_search['alert_type'] != 'always':
+        if saved_search['alert_type']:
             print(f" - {saved_search.name}")
 
 def list_triggered_alerts(service, sid=None, verbose=False):
@@ -53,19 +58,15 @@ def list_triggered_alerts(service, sid=None, verbose=False):
     print("\nRecently triggered alerts:")
     try:
         if sid:
-            # If a SID is specified, display only details for this SID
             print(f"Retrieving details for SID: {sid}")
             return get_alert_details_by_sid(service, sid)
             
-        # Approach 1: Use the /services/alerts/fired_alerts endpoint as recommended on the Splunk forum
         print("Retrieving triggered alerts via the Splunk API...")
         
         try:
-            # Retrieve all triggered alerts
             response = service.get('/services/alerts/fired_alerts', output_mode='json', count=0)
             api_data = json.loads(response.body.read().decode('utf-8'))
             
-            # Extract the list of alert names (ignore empty names or '-')
             alert_names = []
             for entry in api_data.get('entry', []):
                 alert_name = entry.get('name', '')
@@ -75,7 +76,6 @@ def list_triggered_alerts(service, sid=None, verbose=False):
             if not alert_names:
                 print("No triggered alerts found via the API (with a valid name).")
                 
-                # Check if there are unnamed alerts but with SIDs
                 unnamed_alerts_found = False
                 for entry in api_data.get('entry', []):
                     if entry.get('name', '') == '-':
@@ -84,23 +84,22 @@ def list_triggered_alerts(service, sid=None, verbose=False):
                 
                 if unnamed_alerts_found:
                     print("Unnamed alerts have been found. They will be named after their SID.")
-                    # Add a special entry for unnamed alerts
                     alert_names.append("(Unnamed Alerts)")
             else:
                 print(f"Alerts found: {', '.join(alert_names)}")
                 
-            # For each found alert, retrieve the details
             alerts_details = {}
             
-            # First process alerts with a name
             for alert_name in alert_names:
                 if alert_name == "(Unnamed Alerts)":
-                    # Process unnamed alerts separately
+                    continue
+                
+                # Skip system alerts
+                if is_system_alert(alert_name):
                     continue
                 
                 print(f"\nRetrieving details for alert: {alert_name}")
                 
-                # Retrieve the last N triggers of this alert, sorted by date
                 alert_response = service.get(
                     f'/services/alerts/fired_alerts/{alert_name}',
                     output_mode='json',
@@ -110,46 +109,40 @@ def list_triggered_alerts(service, sid=None, verbose=False):
                 )
                 alert_data = json.loads(alert_response.body.read().decode('utf-8'))
                 
-                # Extract entries
                 entries = alert_data.get('entry', [])
                 if not entries:
                     print(f"  No triggers found for alert: {alert_name}")
                     continue
                 
-                sids_set = set()  # To detect duplicates
+                sids_set = set()
                 
-                # Initialize the entry for this alert
                 alerts_details[alert_name] = {
                     "name": alert_name,
-                    "count": 0,  # Will be incremented while processing triggers
+                    "count": 0,
                     "triggers": [],
                     "first_time": None,
                     "last_time": None,
                     "app": "search",
-                    "severity": "Medium",  # Default value
+                    "severity": "Medium",
                     "sids": []
                 }
                 
-                # For each trigger, extract details
                 for entry in entries:
                     content = entry.get('content', {})
                     trigger_time_unix = content.get('trigger_time', '')
                     
-                    # Convert Unix timestamp to readable date
                     try:
                         trigger_time = datetime.fromtimestamp(float(trigger_time_unix)).strftime('%Y-%m-%d %H:%M:%S')
                     except (ValueError, TypeError):
-                        trigger_time = trigger_time_unix  # Keep the original value if conversion fails
+                        trigger_time = trigger_time_unix
                     
                     sid = None
                     
-                    # Retrieve the SID from the links
                     links = entry.get('links', {})
                     job_link = links.get('job', '')
                     if job_link:
                         sid = job_link.split('/')[-1]
                     
-                    # Avoid duplicate SIDs
                     if sid and sid not in sids_set:
                         sids_set.add(sid)
                         alerts_details[alert_name]["sids"].append(sid)
@@ -162,38 +155,31 @@ def list_triggered_alerts(service, sid=None, verbose=False):
                         }
                         alerts_details[alert_name]["triggers"].append(trigger_info)
                 
-                # Establish first/last timestamps in readable format
                 if alerts_details[alert_name]["triggers"]:
                     alerts_details[alert_name]["first_time"] = alerts_details[alert_name]["triggers"][-1]["time"]
                     alerts_details[alert_name]["last_time"] = alerts_details[alert_name]["triggers"][0]["time"]
                 
-                # If we have at least one SID, retrieve additional info
                 if alerts_details[alert_name]["sids"]:
                     sample_sid = alerts_details[alert_name]["sids"][0]
                     try:
-                        # Retrieve job details
                         job_response = service.get(f'/services/search/jobs/{sample_sid}', output_mode='json')
                         job_data = json.loads(job_response.body.read().decode('utf-8'))
                         
-                        # Extract app and severity if available
                         job_entry = job_data.get('entry', [{}])[0]
                         job_content = job_entry.get('content', {})
                         
                         if 'eai:acl' in job_content and 'app' in job_content['eai:acl']:
                             alerts_details[alert_name]["app"] = job_content['eai:acl']['app']
                         
-                        # For severity, we could find it in the results
                         if verbose:
                             print(f"  Retrieving sample results for SID: {sample_sid}")
                             get_alert_details_by_sid(service, sample_sid, show_header=False, sample_only=True)
                     except Exception as e:
                         print(f"  Error retrieving job details: {str(e)}")
             
-            # Process unnamed alerts if necessary
             if "(Unnamed Alerts)" in alert_names:
                 print("\nRetrieving details for unnamed alerts")
                 
-                # Retrieve unnamed alerts
                 response = service.get('/services/alerts/fired_alerts/-', output_mode='json', count=50, sort_dir='desc', sort_key='trigger_time')
                 unnamed_data = json.loads(response.body.read().decode('utf-8'))
                 
@@ -201,7 +187,6 @@ def list_triggered_alerts(service, sid=None, verbose=False):
                 if not entries:
                     print("  No unnamed alerts found.")
                 else:
-                    # Group by base SID to identify unique alerts
                     sids_by_base = {}
                     for entry in entries:
                         links = entry.get('links', {})
@@ -210,7 +195,6 @@ def list_triggered_alerts(service, sid=None, verbose=False):
                             continue
                             
                         sid = job_link.split('/')[-1]
-                        # Extract base ID (before _at_)
                         sid_parts = sid.split('_at_')
                         sid_base = sid_parts[0]
                         
@@ -222,9 +206,7 @@ def list_triggered_alerts(service, sid=None, verbose=False):
                             "entry": entry
                         })
                     
-                    # For each unique alert (based on base SID)
                     for base_id, entries in sids_by_base.items():
-                        # Generate a name based on the ID
                         alert_name = f"Alert {base_id.split('__')[-1]}"
                         
                         alerts_details[alert_name] = {
@@ -238,7 +220,6 @@ def list_triggered_alerts(service, sid=None, verbose=False):
                             "sids": []
                         }
                         
-                        # Process each trigger
                         for entry_info in entries:
                             entry = entry_info["entry"]
                             sid = entry_info["sid"]
@@ -246,7 +227,6 @@ def list_triggered_alerts(service, sid=None, verbose=False):
                             content = entry.get('content', {})
                             trigger_time_unix = content.get('trigger_time', '')
                             
-                            # Convert timestamp to readable date
                             try:
                                 trigger_time = datetime.fromtimestamp(float(trigger_time_unix)).strftime('%Y-%m-%d %H:%M:%S')
                             except (ValueError, TypeError):
@@ -261,15 +241,12 @@ def list_triggered_alerts(service, sid=None, verbose=False):
                             }
                             alerts_details[alert_name]["triggers"].append(trigger_info)
                         
-                        # Sort triggers by time (most recent to oldest)
                         alerts_details[alert_name]["triggers"].sort(key=lambda x: x.get("time_unix", "0"), reverse=True)
                         
-                        # Establish first/last timestamps
                         if alerts_details[alert_name]["triggers"]:
                             alerts_details[alert_name]["first_time"] = alerts_details[alert_name]["triggers"][-1]["time"]
                             alerts_details[alert_name]["last_time"] = alerts_details[alert_name]["triggers"][0]["time"]
                         
-                        # Retrieve additional info from the first SID
                         if alerts_details[alert_name]["sids"]:
                             sample_sid = alerts_details[alert_name]["sids"][0]
                             try:
@@ -282,7 +259,6 @@ def list_triggered_alerts(service, sid=None, verbose=False):
                                 if 'eai:acl' in job_content and 'app' in job_content['eai:acl']:
                                     alerts_details[alert_name]["app"] = job_content['eai:acl']['app']
                                 
-                                # If we find the real alert name somewhere
                                 saved_search = job_content.get('savedsearch_name')
                                 if saved_search and saved_search != '-':
                                     alerts_details[alert_name]["real_name"] = saved_search
@@ -290,7 +266,6 @@ def list_triggered_alerts(service, sid=None, verbose=False):
                             except Exception as e:
                                 print(f"  Error retrieving job details: {str(e)}")
             
-            # Display the summary
             print("\nSummary of triggered alerts:")
             for i, (name, details) in enumerate(alerts_details.items(), 1):
                 display_name = details.get("real_name", name)
@@ -308,7 +283,6 @@ def list_triggered_alerts(service, sid=None, verbose=False):
                     if len(details['triggers']) > 10:
                         print(f"    ... and {len(details['triggers']) - 10} other triggers.")
                 
-                # Do not display SIDs unless in verbose mode
                 if verbose and details['sids']:
                     print(f"  - SIDs of triggers:")
                     print(f"    {', '.join(details['sids'][:5])}" + (", ..." if len(details['sids']) > 5 else ""))
@@ -319,10 +293,8 @@ def list_triggered_alerts(service, sid=None, verbose=False):
             print(f"Error using the fired_alerts API: {str(e)}")
             print("Trying the alternative approach...")
         
-        # If the API approach failed, use the audit logs
         print("Retrieving triggered alerts from audit logs...")
         
-        # Search to retrieve triggered alerts
         search_query = """
         search index=_audit action=alert_fired earliest=-24h
         | fillnull value="-" 
@@ -332,11 +304,9 @@ def list_triggered_alerts(service, sid=None, verbose=False):
         
         job = service.jobs.create(search_query, earliest_time="-24h", latest_time="now", output_mode="json")
         
-        # Wait for the job to finish
         while not job.is_done():
             time.sleep(0.5)
         
-        # Retrieve results
         results = job.results(output_mode="json")
         search_data = json.loads(results.read().decode('utf-8'))
         
@@ -347,7 +317,6 @@ def list_triggered_alerts(service, sid=None, verbose=False):
             print("No triggered alerts found.")
             return
             
-        # Group by search ID to identify unique alerts
         alerts_by_search_id = {}
         
         for result in results_list:
@@ -355,7 +324,6 @@ def list_triggered_alerts(service, sid=None, verbose=False):
             if not alert_sid:
                 continue
                 
-            # Extract the base search ID (before _at_)
             search_id_parts = alert_sid.split('_at_')
             search_id_base = search_id_parts[0] if len(search_id_parts) > 0 else alert_sid
             
@@ -364,15 +332,11 @@ def list_triggered_alerts(service, sid=None, verbose=False):
             
             alerts_by_search_id[search_id_base].append(result)
         
-        # Group alerts by name for aggregation
         alerts_by_name = {}
         
-        # For each distinct search ID
         for search_id, results in alerts_by_search_id.items():
-            # Try to determine the alert name for this group
             alert_names = []
             
-            # Collect all possible names
             for result in results:
                 name = result.get('savedsearch_name', '')
                 if name and name != '-' and name != 'N/A':
@@ -382,25 +346,24 @@ def list_triggered_alerts(service, sid=None, verbose=False):
                 if alt_name and alt_name != '-' and alt_name != 'N/A':
                     alert_names.append(alt_name)
             
-            # Select the most frequent or relevant name
             alert_name = None
             if alert_names:
-                # Take the most frequent name
                 name_counter = Counter(alert_names)
                 alert_name = name_counter.most_common(1)[0][0]
             
-            # If no name found, use a generic name
             if not alert_name:
                 alert_name = f"Alert (ID: {search_id.split('__')[-1] if '__' in search_id else search_id})"
             
-            # Process all results associated with this search ID
+            # Skip system alerts
+            if is_system_alert(alert_name):
+                continue
+            
             for result in results:
                 alert_time = result.get('_time', 'N/A')
                 app = result.get('app', 'N/A')
                 severity = result.get('severity', 'N/A')
                 alert_sid = result.get('sid', 'N/A')
                 
-                # For severity, convert numeric code to text
                 severity_text = "Unknown"
                 if severity == "3":
                     severity_text = "Medium"
@@ -413,7 +376,6 @@ def list_triggered_alerts(service, sid=None, verbose=False):
                 elif severity == "1":
                     severity_text = "Informational"
                 
-                # Aggregate alerts by name
                 if alert_name not in alerts_by_name:
                     alerts_by_name[alert_name] = {
                         "name": alert_name,
@@ -432,7 +394,6 @@ def list_triggered_alerts(service, sid=None, verbose=False):
                     alerts_by_name[alert_name]["sids"].append(alert_sid)
                 alerts_by_name[alert_name]["details"].append(result)
         
-        # Display the summary of alerts
         print(f"\nSummary of triggered alerts: {alert_count} triggers for {len(alerts_by_name)} alert(s)")
         
         for i, (name, info) in enumerate(alerts_by_name.items(), 1):
@@ -443,14 +404,12 @@ def list_triggered_alerts(service, sid=None, verbose=False):
             print(f"  - Application: {info['app']}")
             
             if verbose:
-                # Display all triggers in verbose mode
                 print(f"  - Trigger details:")
                 for j, detail in enumerate(info['details'], 1):
                     alert_sid = detail.get('sid', 'N/A')
                     trigger_time = detail.get('_time', 'N/A')
                     print(f"    [{j}] {trigger_time} - SID: {alert_sid}")
                     
-                # If we have SIDs, retrieve details of the first
                 if info['sids'] and not sid:
                     sample_sid = info['sids'][0]
                     get_alert_details_by_sid(service, sample_sid, show_header=False, sample_only=True)
@@ -473,26 +432,21 @@ def get_alert_details_by_sid(service, sid, show_header=True, sample_only=False):
         if show_header:
             print(f"\nDetails for SID {sid}:")
         
-        # Retrieve search results
         results_url = f'/services/search/jobs/{sid}/results'
         results_response = service.get(results_url, output_mode='json', count=10 if sample_only else 100)
         results_data = json.loads(results_response.body.read().decode('utf-8'))
         
-        # Retrieve job summary
         summary_url = f'/services/search/jobs/{sid}'
         summary_response = service.get(summary_url, output_mode='json')
         summary_data = json.loads(summary_response.body.read().decode('utf-8'))
         
-        # Extract job info
         entry = summary_data.get('entry', [{}])[0]
         content = entry.get('content', {})
         
-        # Display general job information
         print(f"  - Query: {content.get('search', 'N/A')}")
         print(f"  - Status: {content.get('dispatchState', 'N/A')}")
         print(f"  - Execution time: {content.get('runDuration', 'N/A')} seconds")
         
-        # Display results
         sample_results = results_data.get('results', [])
         result_count = len(sample_results)
         
@@ -503,7 +457,6 @@ def get_alert_details_by_sid(service, sid, show_header=True, sample_only=False):
         max_display = 3 if sample_only else 10
         print(f"  - {result_count} result(s) found" + (" (sample)" if sample_only else ""))
         
-        # Determine fields to display
         sample = sample_results[0]
         fields = []
         for key in sample:
@@ -511,11 +464,9 @@ def get_alert_details_by_sid(service, sid, show_header=True, sample_only=False):
                 continue
             fields.append(key)
         
-        # Limit fields to 5 if in sample mode
         if sample_only and len(fields) > 5:
             fields = fields[:5]
             
-        # Display results
         for i, result in enumerate(sample_results[:max_display], 1):
             print(f"\n    Result {i}:")
             for field in fields:
@@ -533,12 +484,133 @@ def get_alert_details_by_sid(service, sid, show_header=True, sample_only=False):
         print(f"  Error retrieving details for SID {sid}: {str(e)}")
         return False
 
+def is_system_alert(search_name, search_info=None):
+    """
+    Determine if an alert is a system/default alert that should be filtered out
+    """
+    # System app names to exclude (more restrictive on 'search' app)
+    system_apps = ['launcher', 'learned', 'legacy', 'sample_app', 'introspection_generator_addon', 'splunk_monitoring_console', 'splunk_instrumentation']
+    
+    # Default alert name patterns to exclude
+    default_patterns = [
+        'Errors in the last',
+        'Splunk errors',
+        'Indexing workload',
+        'License usage',
+        'Search head cluster',
+        'Deployment server',
+        'DMC ',  # Distributed Management Console alerts
+        'SplunkEnterpriseSecuritySuite',
+        'Notable Event',
+        'Risk Notable',
+        'Incident Review',
+        'Asset Investigator',
+        'Identity Investigator',
+        'Network Investigator',
+        'Splunk_TA_',
+        'SA-',
+        'TA-',
+        'Add-on',
+        'Technology Add-on',
+        'Orphaned scheduled searches',
+        'Bucket Merge',
+        'Retrieve Conf Settings',
+        'Actions Accelerate',
+        'Accelerate',
+        'Data Model Acceleration',
+        'Summary indexing',
+        'Report acceleration',
+        'KV Store',
+        'Internal audit',
+        'System health',
+        'Performance monitoring',
+        'Scheduler',
+        'Internal logs',
+        'Splunk platform',
+        'Configuration',
+        'Messages by minute',
+        'Messages by hour',
+        'Events per second',
+        'Volume by sourcetype',
+        'Data quality',
+        'Index size',
+        'Forwarder monitoring'
+    ]
+    
+    # Check alert name patterns
+    search_name_lower = search_name.lower()
+    for pattern in default_patterns:
+        if pattern.lower() in search_name_lower:
+            return True
+    
+    # Check if it's from a system app
+    if search_info:
+        app = search_info.get('eai:acl', {}).get('app', '')
+        if app in system_apps:
+            return True
+        
+        # Special handling for 'search' app - more selective filtering
+        if app == 'search':
+            # If it's from 'search' app and matches system patterns, exclude it
+            for pattern in default_patterns:
+                if pattern.lower() in search_name_lower:
+                    return True
+            
+            # Check if owned by 'nobody' or 'system' (often indicates system alerts)
+            owner = search_info.get('eai:acl', {}).get('owner', '')
+            if owner in ['nobody', 'system', '']:
+                # Additional check: if it's a simple report without alert actions
+                if search_info.get('is_scheduled', False) and not search_info.get('alert_type'):
+                    return True
+                
+                # Check if search query looks like system monitoring
+                search_query = search_info.get('search', '').lower()
+                system_query_patterns = [
+                    'index=_internal',
+                    'index=_audit',
+                    'index=_introspection',
+                    'component=',
+                    'sourcetype=splunk',
+                    'splunkd_access',
+                    'scheduler',
+                    'metrics.log'
+                ]
+                
+                if any(pattern in search_query for pattern in system_query_patterns):
+                    return True
+        
+        # Check if it's a report rather than an alert
+        if search_info.get('is_scheduled', False) and not search_info.get('alert_type'):
+            return True
+            
+        # Check if alert actions are only basic ones (might indicate system alert)
+        actions = []
+        for key, value in search_info.items():
+            if key.startswith('action.') and value == '1':
+                action_name = key.split('.')[1]
+                actions.append(action_name)
+        
+        # If only email/log actions, might be system alert
+        system_actions = ['email', 'log', 'outputlookup', 'summary_index']
+        if actions and all(action in system_actions for action in actions):
+            # Additional check: if it has very generic search terms
+            search_query = search_info.get('search', '').lower()
+            generic_terms = ['error', 'warn', 'fail', 'exception', 'license', 'usage', 'status']
+            if any(term in search_query for term in generic_terms) and len(search_query) < 200:
+                return True
+    
+    return False
+
 def get_all_saved_searches():
     try:
         service = connect_to_splunk(SPLUNK_HOST, SPLUNK_PORT, SPLUNK_USERNAME, SPLUNK_PASSWORD)
         saved_searches = []
         
         for search in service.saved_searches:
+            # Skip system alerts
+            if is_system_alert(search.name, search.content):
+                continue
+                
             search_info = {
                 "name": search.name,
                 "is_scheduled": bool(search.content.get("is_scheduled", False)),
@@ -546,10 +618,10 @@ def get_all_saved_searches():
                 "description": search.content.get("description", ""),
                 "cron_schedule": search.content.get("cron_schedule", ""),
                 "alert_type": search.content.get("alert_type", ""),
-                "alert_threshold": search.content.get("alert_threshold", "")
+                "alert_threshold": search.content.get("alert_threshold", ""),
+                "app": search.content.get("eai:acl", {}).get("app", "unknown")
             }
             
-            # Add all properties that start with 'action.' or 'alert.'
             for key, value in search.content.items():
                 if key.startswith('action.') or key.startswith('alert.'):
                     search_info[key] = value
@@ -561,28 +633,37 @@ def get_all_saved_searches():
         return f"Error retrieving saved searches: {str(e)}"
 
 def list_saved_searches(json_output=False):
-    """List all saved searches with their properties"""
+    """List saved searches that are configured as alerts (including real-time alerts)"""
     if json_output:
         searches_data = get_all_saved_searches()
         if isinstance(searches_data, str) and searches_data.startswith("Error"):
             return {"error": searches_data}
         
-        # Convert to a format suitable for the frontend
         saved_searches = []
         for search in searches_data:
+            alert_type = search.get("alert_type", "")
+            is_scheduled = search.get("is_scheduled", False)
+            
+            # Include all alerts with alert_type, including real-time alerts ("always")
+            if not alert_type:
+                continue
+                
+            # Include both scheduled and real-time alerts
+            if not is_scheduled and alert_type != "always":
+                continue
+            
             search_data = {
                 "name": search.get("name", "Unknown"),
                 "search": search.get("search", ""),
                 "description": search.get("description", ""),
-                "is_scheduled": search.get("is_scheduled", False),
+                "is_scheduled": is_scheduled,
                 "cron_schedule": search.get("cron_schedule", ""),
-                "alert_type": search.get("alert_type", ""),
+                "alert_type": alert_type,
                 "alert_threshold": search.get("alert_threshold", ""),
                 "severity": search.get("alert.severity", ""),
                 "actions": []
             }
             
-            # Extract actions
             for key in search:
                 if key.startswith("action.") and search.get(key) == "1":
                     action_name = key.split(".")[1]
@@ -592,66 +673,83 @@ def list_saved_searches(json_output=False):
         
         return {"saved_searches": saved_searches}
     
-    # Regular console output
     searches_data = get_all_saved_searches()
     if isinstance(searches_data, str):
         print(searches_data)
         return
     
-    print(f"\nFound {len(searches_data)} saved searches:")
-    for i, search in enumerate(searches_data, 1):
-        is_alert = search.get("alert_type") and search.get("is_scheduled")
+    alert_searches = []
+    for search in searches_data:
+        alert_type = search.get("alert_type", "")
+        is_scheduled = search.get("is_scheduled", False)
+        
+        # Include all alerts with alert_type, including real-time alerts
+        if alert_type and (is_scheduled or alert_type == "always"):
+            alert_searches.append(search)
+    
+    print(f"\nFound {len(alert_searches)} alerts (filtered from {len(searches_data)} total saved searches):")
+    for i, search in enumerate(alert_searches, 1):
         print(f"\n[{i}] {search.get('name')}")
-        print(f"  - Is Alert: {is_alert}")
-        print(f"  - Is Scheduled: {search.get('is_scheduled')}")
+        print(f"  - Alert Type: {search.get('alert_type')}")
+        print(f"  - Schedule: {search.get('cron_schedule')}")
         print(f"  - Search: {search.get('search')[:100]}...")
         if search.get("description"):
             print(f"  - Description: {search.get('description')}")
-        if search.get("is_scheduled"):
-            print(f"  - Schedule: {search.get('cron_schedule')}")
-        if is_alert:
-            print(f"  - Alert Type: {search.get('alert_type')}")
-            severity = search.get("alert.severity", "N/A")
-            print(f"  - Severity: {severity}")
-            
-            # Display actions
-            actions = []
-            for key in search:
-                if key.startswith("action.") and search.get(key) == "1":
-                    action_name = key.split(".")[1]
-                    actions.append(action_name)
-            
-            if actions:
-                print(f"  - Actions: {', '.join(actions)}")
+        
+        severity = search.get("alert.severity", "N/A")
+        print(f"  - Severity: {severity}")
+        
+        actions = []
+        for key in search:
+            if key.startswith("action.") and search.get(key) == "1":
+                action_name = key.split(".")[1]
+                actions.append(action_name)
+        
+        if actions:
+            print(f"  - Actions: {', '.join(actions)}")
 
 def get_saved_searches_with_trigger_info(json_output=False):
-    """Get saved searches with trigger information from fired alerts"""
+    """Get saved searches with trigger information from fired alerts (including real-time alerts)"""
     try:
         service = connect_to_splunk(SPLUNK_HOST, SPLUNK_PORT, SPLUNK_USERNAME, SPLUNK_PASSWORD)
         
-        # Get all saved searches
         saved_searches = []
         for search in service.saved_searches:
+            # Skip system alerts
+            if is_system_alert(search.name, search.content):
+                continue
+                
+            alert_type = search.content.get("alert_type", "")
+            is_scheduled = bool(search.content.get("is_scheduled", False))
+            
+            # Include all alerts with alert_type, including real-time alerts ("always")
+            if not alert_type:
+                continue
+                
+            # Include both scheduled and real-time alerts
+            if not is_scheduled and alert_type != "always":
+                continue
+            
             search_info = {
                 "name": search.name,
-                "id": search.name,  # Use name as ID for consistency
-                "is_scheduled": bool(search.content.get("is_scheduled", False)),
+                "id": search.name,
+                "is_scheduled": is_scheduled,
                 "search": search.content.get("search", ""),
                 "description": search.content.get("description", ""),
                 "cron_schedule": search.content.get("cron_schedule", ""),
-                "alert_type": search.content.get("alert_type", ""),
+                "alert_type": alert_type,
                 "alert_threshold": search.content.get("alert_threshold", ""),
                 "severity": search.content.get("alert.severity", ""),
-                "rule_type": "saved_search",
-                "type": "alert" if search.content.get("alert_type") else "search",
+                "rule_type": "alert",
+                "type": "alert",
                 "is_active": False,
                 "start_time": None,
                 "last_notification_time": None,
                 "trigger_time": None,
-                "actions": []
+                "actions": [],
+                "app": search.content.get("eai:acl", {}).get("app", "unknown")
             }
             
-            # Extract actions
             for key, value in search.content.items():
                 if key.startswith("action.") and value == "1":
                     action_name = key.split(".")[1]
@@ -661,12 +759,10 @@ def get_saved_searches_with_trigger_info(json_output=False):
             
             saved_searches.append(search_info)
         
-        # Get fired alerts information
         try:
             response = service.get('/services/alerts/fired_alerts', output_mode='json', count=0)
             api_data = json.loads(response.body.read().decode('utf-8'))
             
-            # Create a map of alert names to their trigger information
             alert_trigger_map = {}
             
             for entry in api_data.get('entry', []):
@@ -674,12 +770,15 @@ def get_saved_searches_with_trigger_info(json_output=False):
                 if not alert_name or alert_name == '-':
                     continue
                 
-                # Get the most recent trigger time for this alert
+                # Skip system alerts from fired alerts too
+                if is_system_alert(alert_name):
+                    continue
+                
                 try:
                     alert_response = service.get(
                         f'/services/alerts/fired_alerts/{alert_name}',
                         output_mode='json',
-                        count=1,  # Only get the most recent
+                        count=1,
                         sort_dir='desc',
                         sort_key='trigger_time'
                     )
@@ -703,7 +802,6 @@ def get_saved_searches_with_trigger_info(json_output=False):
         except Exception as e:
             print(f"Error retrieving fired alerts: {e}")
         
-        # Merge trigger information with saved searches
         for search in saved_searches:
             search_name = search['name']
             if search_name in alert_trigger_map:
