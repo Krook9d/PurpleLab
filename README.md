@@ -68,14 +68,14 @@
 <!-- ABOUT THE PROJECT -->
 ## 🚀 What is PurpleLab ?
 
-**PurpleLab** is a comprehensive cybersecurity laboratory that enables security professionals to easily deploy an entire testing environment for creating and validating detection rules, simulating realistic attack scenarios, and training security analysts.
+**PurpleLab** is a cybersecurity laboratory that enables security professionals to easily deploy an entire testing environment for creating and validating detection rules, simulating realistic attack scenarios, and training security analysts.
 
 ### 🏗️ Architecture Components
 
 The lab includes:
 
 - **🌐 Web Interface** - Complete frontend for controlling all features
-- **💻 VirtualBox Environment** - Ready-to-use Windows 10 VM with forensic tools
+- **💻 VirtualBox Environment** - Ready-to-use Windows server 2019 with sysmon and opensearch collector
 - **⚙️ Flask Backend** - Robust API and application logic
 - **🗄️ PostgreSQL Database** - Secure data storage
 - **🔍 Opensearch Server** - Advanced log analysis and search capabilities
@@ -103,9 +103,6 @@ The lab includes:
 
 **⚠️ Hardware Virtualization Setup:**
 
-<details>
-<summary>Click to expand virtualization setup instructions</summary>
-
 **VMware Workstation:**
 1. Go to VM settings → Processors → Virtualization engine
 2. Enable "Virtualize Intel VT-x/EPT or AMD-V/RVI"
@@ -119,28 +116,25 @@ The lab includes:
 2. Enable hardware virtualization (VT-x/AMD-V)
 3. Save changes and restart
 
-</details>
-
 **Download Repository:**
 ```bash
-git clone https://github.com/Krook9d/PurpleLab.git && mv PurpleLab/install.sh .
+git clone https://github.com/Krook9d/PurpleLab.git && mv PurpleLab/install_ansible.sh
 ```
 
 <p align="right">(<a href="#readme-top">⬆️ back to top</a>)</p>
 
 ### Installation
 
-Execute the installation script:
+Execute the Ansible installation script:
 
 ```bash
-sudo bash install.sh
+sudo bash install_ansible.sh
 ```
 
-During installation, you'll be prompted to:
-1. **ELK Installation**: Choose whether to install the default ELK SIEM
-2. **Network Interface**: Select the network interface for the application
-
-> ⚠️ **Warning**: If you skip ELK installation, PHP errors will appear on the home page.
+The script will automatically:
+1. **Install all components**: OpenSearch, PostgreSQL, VirtualBox, and web interface
+2. **Configure the Windows Server VM**: Set up monitoring and security tools
+3. **Generate credentials**: Save all login information to `admin.txt`
 
 <p align="right">(<a href="#readme-top">⬆️ back to top</a>)</p>
 
@@ -166,60 +160,6 @@ admin@local.com:password
 
 <p align="right">(<a href="#readme-top">⬆️ back to top</a>)</p>
 
-### ELK Configuration
-
-1. **Generate enrollment token:**
-```bash
-sudo /usr/share/elasticsearch/bin/elasticsearch-create-enrollment-token --scope kibana
-```
-
-2. **Navigate to "Hunting" page** and paste the token
-
-3. **Get verification code:**
-```bash
-sudo /usr/share/kibana/bin/kibana-verification-code
-```
-
-**Troubleshooting:**
-If token submission fails, restart Elasticsearch:
-```bash
-service elasticsearch restart
-```
-
-<p align="right">(<a href="#readme-top">⬆️ back to top</a>)</p>
-
-### VM logs configuration
-
-1. **Connect to the VM** (IP available on health page):
-```bash
-sudo VBoxManage guestproperty get sandbox "/VirtualBox/GuestInfo/Net/0/V4/IP"
-```
-
-2. **Edit winlogbeat configuration** at `C:\Program Files\winlogbeat\winlogbeat.yml`:
-   - Update password field with elastic superuser password from `admin.txt`
-   - Replace all IP addresses (192.168.142.130) with your ELK server IP
-   - Update `ca_trusted_fingerprint` with the output from:
-
-```bash
-sudo openssl x509 -fingerprint -sha256 -in /etc/elasticsearch/certs/http_ca.crt | awk -F '=' '/Fingerprint/{print $2}' | tr -d ':'
-```
-
-3. **Test configuration** (Admin PowerShell):
-```powershell
-cd 'C:\Program Files\winlogbeat'
-& "C:\Program Files\Winlogbeat\winlogbeat.exe" test config -c "C:\Program Files\Winlogbeat\winlogbeat.yml" -e
-```
-
-4. **Setup assets:**
-```powershell
-.\winlogbeat.exe setup -e
-```
-
-5. **Create snapshot** after VM restart:
-```bash
-sudo VBoxManage snapshot "sandbox" take "Snapshot1" --description "snapshot before the mess"
-```
-
 <p align="right">(<a href="#readme-top">⬆️ back to top</a>)</p>
 
 <!-- USAGE -->
@@ -230,29 +170,24 @@ sudo VBoxManage snapshot "sandbox" take "Snapshot1" --description "snapshot befo
 sudo python3 /home/$(logname)/app.py
 ```
 
-**Ensure VM is running:**
-```bash
-sudo VBoxManage showvminfo sandbox --machinereadable | grep "VMState=" | awk -F'"' '{print $2}'
-```
+### 🪟 Windows Server 2019 Sandbox VM 
 
-**Start VM if needed:**
-```bash
-sudo VBoxManage startvm sandbox --type headless
-```
-
-### 🪟 Windows 10 Sandbox VM 
-
-The VM includes pre-installed tools:
-- **Browser** for web-based activities
-- **Atomic Red Team modules** for attack simulation
-- **LibreOffice** for document-based attacks
+The automatically configured VM includes:
+- **Windows Server 2019** with admin user `oem/oem`
+- **Sysmon** with SwiftOnSecurity configuration for advanced logging
+- **Winlogbeat OSS 7.12.1** automatically sending logs to OpenSearch
+- **Atomic Red Team** with full test suite for attack simulation
+- **Python environment** and **Chocolatey** package manager
+- **PowerShell-YAML module** for YAML file processing
+- **Pre-configured directories**: samples, malware_upload, and upload folders
+- **Windows Defender exclusions** for testing scenarios
 
 <p align="right">(<a href="#readme-top">⬆️ back to top</a>)</p>
 
 ### Home Page 🏠
 
-The dashboard displays key performance indicators from Elasticsearch:
-- **Event Count** from Windows machine
+The dashboard displays key performance indicators from OpenSearch:
+- **Event Count** from Windows Server VM
 - **Unique IP Addresses** detected in logs
 - **MITRE ATT&CK** techniques and sub-techniques count
 - **Log Distribution** from VM collection
@@ -263,10 +198,11 @@ The dashboard displays key performance indicators from Elasticsearch:
 
 ### Hunting Page 🎯
 
-Direct access to **Kibana server** for log analysis. Navigate to **Discover** to examine:
-- VM logs and events
-- Simulated log data
-- Real-time security events
+Direct access to **OpenSearch Dashboards** for log analysis. Navigate to **Discover** to examine:
+- **Automatically collected VM logs** from Windows Server sandbox
+- Simulated log data and security events
+- Real-time monitoring of system activities
+- **Sysmon events** with detailed process and network information
 
 <p align="right">(<a href="#readme-top">⬆️ back to top</a>)</p>
 
@@ -377,6 +313,7 @@ Administrative control center for system configuration:
 #### 🔑 Key Features
 - **LDAP Configuration**: Centralized authentication setup
 - **API Key Generation**: Secure API access management
+- **AlienVault OTX API Key**: Configure threat intelligence integration for enhanced KPIs
 - **System Settings**: Core configuration management
 
 #### 🔐 Access Requirements
@@ -397,7 +334,9 @@ Login with administrator account: `admin@local.com`
 - **🔗 Seamless Integration**: Easy PurpleLab-Splunk connectivity
 
 ### Demo
-[![Splunk Integration Demo](https://github.com/Krook9d/TA-Purplelab-Splunk/assets/40600995/eb5d0c27-06e5-416d-b707-af806c02323e)](https://github.com/Krook9d/TA-Purplelab-Splunk)
+
+
+https://github.com/Krook9d/TA-Purplelab-Splunk/assets/40600995/eb5d0c27-06e5-416d-b707-af806c02323e
 
 <p align="right">(<a href="#readme-top">⬆️ back to top</a>)</p>
 
@@ -411,7 +350,9 @@ Login with administrator account: `admin@local.com`
 - **🔗 TheHive Integration**: Enhanced incident response workflows
 
 ### Demo
-[![Cortex Analyzer Demo](https://github.com/Krook9d/PurpleLab-Cortex-Analyzer/assets/40600995/690a8728-4ba7-4fda-a12e-48708e9b7d1d)](https://github.com/Krook9d/PurpleLab-Cortex-Analyzer)
+
+
+https://github.com/Krook9d/PurpleLab-Cortex-Analyzer/assets/40600995/690a8728-4ba7-4fda-a12e-48708e9b7d1d
 
 <p align="right">(<a href="#readme-top">⬆️ back to top</a>)</p>
 
