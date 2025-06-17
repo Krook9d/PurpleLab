@@ -679,7 +679,7 @@ document.addEventListener('DOMContentLoaded', function() {
  
         const titleEl = document.getElementById('sidepanel-title');
         if (titleEl) {
-            titleEl.textContent = type === 'opensearch' ? 'Configuration OpenSearch' : 'Configuration Splunk';
+            titleEl.textContent = type === 'opensearch' ? 'OpenSearch Configuration' : 'Splunk Configuration';
         }
         
         let html = '';
@@ -687,17 +687,57 @@ document.addEventListener('DOMContentLoaded', function() {
             html += `<div class='form-group'><label>Host</label><input type='text' id='opensearch-host' placeholder='https://localhost:9200'></div>`;
             html += `<div class='form-group'><label>Username</label><input type='text' id='opensearch-username' placeholder='admin'></div>`;
             html += `<div class='form-group'><label>Password</label><input type='password' id='opensearch-password'></div>`;
-            html += `<div class='form-actions'><button class='btn btn-test' id='test-opensearch-connection'>Tester</button> <button class='btn btn-save' id='save-opensearch-connection'>Enregistrer</button></div>`;
+            html += `<div class='form-group'><label>SSL Enabled</label><div class='ssl-switch-container'>
+              <label class='ssl-switch'><input type='checkbox' id='opensearch-ssl-enabled' checked><span class='ssl-slider'></span></label>
+              <span class='ssl-switch-label'>HTTPS</span><span class='ssl-switch-status'>ON</span>
+            </div></div>`;
+            html += `<div class='form-actions'><button class='btn btn-test' id='test-opensearch-connection'>Test</button> <button class='btn btn-save' id='save-opensearch-connection'>Save</button></div>`;
         } else {
             html += `<div class='form-group'><label>Host</label><input type='text' id='splunk-host' placeholder='127.0.0.1'></div>`;
             html += `<div class='form-group'><label>Port</label><input type='text' id='splunk-port' placeholder='8089'></div>`;
+            html += `<div class='form-group'><label>SSL Enabled</label><div class='ssl-switch-container'>
+              <label class='ssl-switch'><input type='checkbox' id='splunk-ssl-enabled' checked><span class='ssl-slider'></span></label>
+              <span class='ssl-switch-label'>HTTPS</span><span class='ssl-switch-status'>ON</span>
+            </div></div>`;
             html += `<div class='form-group'><label>Username</label><input type='text' id='splunk-username' placeholder='admin'></div>`;
             html += `<div class='form-group'><label>Password</label><input type='password' id='splunk-password'></div>`;
-            html += `<div class='form-actions'><button class='btn btn-test' id='test-splunk-connection'>Tester</button> <button class='btn btn-save' id='save-splunk-connection'>Enregistrer</button></div>`;
+            html += `<div class='form-actions'><button class='btn btn-test' id='test-splunk-connection'>Test</button> <button class='btn btn-save' id='save-splunk-connection'>Save</button></div>`;
         }
         form.innerHTML = html;
         
         panel.classList.add('open');
+        
+        // Ajouter les event listeners pour les switches SSL
+        const splunkSslSwitch = document.getElementById('splunk-ssl-enabled');
+        const opensearchSslSwitch = document.getElementById('opensearch-ssl-enabled');
+        
+        if (splunkSslSwitch) {
+            splunkSslSwitch.addEventListener('change', function() {
+                const statusEl = this.parentElement.parentElement.querySelector('.ssl-switch-status');
+                const labelEl = this.parentElement.parentElement.querySelector('.ssl-switch-label');
+                if (this.checked) {
+                    statusEl.textContent = 'ON';
+                    labelEl.textContent = 'HTTPS';
+                } else {
+                    statusEl.textContent = 'OFF';
+                    labelEl.textContent = 'HTTP';
+                }
+            });
+        }
+        
+        if (opensearchSslSwitch) {
+            opensearchSslSwitch.addEventListener('change', function() {
+                const statusEl = this.parentElement.parentElement.querySelector('.ssl-switch-status');
+                const labelEl = this.parentElement.parentElement.querySelector('.ssl-switch-label');
+                if (this.checked) {
+                    statusEl.textContent = 'ON';
+                    labelEl.textContent = 'HTTPS';
+                } else {
+                    statusEl.textContent = 'OFF';
+                    labelEl.textContent = 'HTTP';
+                }
+            });
+        }
         
         if (type === 'opensearch') {
             const testBtn = document.getElementById('test-opensearch-connection');
@@ -742,20 +782,48 @@ document.addEventListener('DOMContentLoaded', function() {
                     const host = document.getElementById('opensearch-host');
                     const username = document.getElementById('opensearch-username');
                     const password = document.getElementById('opensearch-password');
+                    const sslEnabled = document.getElementById('opensearch-ssl-enabled');
                     
                     if (host) host.value = data.host || '';
                     if (username) username.value = data.username || '';
                     if (password) password.value = data.password || '';
+                    if (sslEnabled) {
+                        sslEnabled.checked = data.ssl_enabled !== false;
+                        // Mettre à jour l'affichage du switch
+                        const statusEl = sslEnabled.parentElement.parentElement.querySelector('.ssl-switch-status');
+                        const labelEl = sslEnabled.parentElement.parentElement.querySelector('.ssl-switch-label');
+                        if (sslEnabled.checked) {
+                            statusEl.textContent = 'ON';
+                            labelEl.textContent = 'HTTPS';
+                        } else {
+                            statusEl.textContent = 'OFF';
+                            labelEl.textContent = 'HTTP';
+                        }
+                    }
                 } else if (type === 'splunk') {
                     const host = document.getElementById('splunk-host');
                     const port = document.getElementById('splunk-port');
                     const username = document.getElementById('splunk-username');
                     const password = document.getElementById('splunk-password');
+                    const sslEnabled = document.getElementById('splunk-ssl-enabled');
                     
                     if (host) host.value = data.host || '';
                     if (port) port.value = data.port || '';
                     if (username) username.value = data.username || '';
                     if (password) password.value = data.password || '';
+                    if (sslEnabled) {
+                        sslEnabled.checked = data.ssl_enabled !== false;
+                        // Mettre à jour l'affichage du switch
+                        const statusEl = sslEnabled.parentElement.parentElement.querySelector('.ssl-switch-status');
+                        const labelEl = sslEnabled.parentElement.parentElement.querySelector('.ssl-switch-label');
+                        if (sslEnabled.checked) {
+                            statusEl.textContent = 'ON';
+                            labelEl.textContent = 'HTTPS';
+                        } else {
+                            statusEl.textContent = 'OFF';
+                            labelEl.textContent = 'HTTP';
+                        }
+                    }
                 }
             }
         })
@@ -1227,14 +1295,14 @@ function testConnection(connectorType) {
         }
         
         if (data.success) {
-            resultElement.innerHTML = '<div class="alert alert-success">Connexion réussie !</div>';
+            resultElement.innerHTML = '<div class="alert alert-success">Connection successful!</div>';
             
             // Update status indicator in main view
             const statusElement = document.getElementById(`${connectorType}-status`);
             if (statusElement) statusElement.classList.add('connected');
             updateConnectorStatus(connectorType, 'active', params);
         } else {
-            resultElement.innerHTML = `<div class="alert alert-error">Échec de la connexion : ${data.message || 'Veuillez vérifier vos informations'}</div>`;
+            resultElement.innerHTML = `<div class="alert alert-error">Connection failed: ${data.message || 'Please check your information'}</div>`;
             const statusElement = document.getElementById(`${connectorType}-status`);
             if (statusElement) statusElement.classList.remove('connected');
             updateConnectorStatus(connectorType, 'inactive');
@@ -1258,7 +1326,7 @@ function testConnection(connectorType) {
             oldResult.remove();
         }
         
-        resultElement.innerHTML = `<div class="alert alert-error">Erreur API : ${error.message}</div>`;
+        resultElement.innerHTML = `<div class="alert alert-error">API error: ${error.message}</div>`;
         document.getElementById('sidepanel-form').appendChild(resultElement);
         
         const statusElement = document.getElementById(`${connectorType}-status`);
@@ -1269,17 +1337,21 @@ function testConnection(connectorType) {
 
 function getConnectorConfig(connectorType) {
     if (connectorType === 'splunk') {
+        const sslEnabled = document.getElementById('splunk-ssl-enabled') ? document.getElementById('splunk-ssl-enabled').checked : true;
         return {
             host: document.getElementById('splunk-host').value,
             port: document.getElementById('splunk-port').value,
             username: document.getElementById('splunk-username').value,
-            password: document.getElementById('splunk-password').value
+            password: document.getElementById('splunk-password').value,
+            ssl_enabled: sslEnabled
         };
     } else if (connectorType === 'opensearch') {
+        const sslEnabled = document.getElementById('opensearch-ssl-enabled') ? document.getElementById('opensearch-ssl-enabled').checked : true;
         return {
             host: document.getElementById('opensearch-host').value,
             username: document.getElementById('opensearch-username').value,
-            password: document.getElementById('opensearch-password').value
+            password: document.getElementById('opensearch-password').value,
+            ssl_enabled: sslEnabled
         };
     }
     return {};
@@ -1302,7 +1374,7 @@ function saveConnection(connectorType) {
       
         let resultElement = document.createElement('div');
         resultElement.id = `${connectorType}-save-result`;
-        resultElement.innerHTML = '<div class="alert alert-error">Veuillez remplir tous les champs requis.</div>';
+        resultElement.innerHTML = '<div class="alert alert-error">Please fill in all required fields.</div>';
         
       
         let oldResult = document.getElementById(`${connectorType}-save-result`);
@@ -1358,8 +1430,8 @@ function saveConnection(connectorType) {
             if (statusElement) statusElement.classList.add('connected');
             
            
-            resultElement.innerHTML = '<div class="alert alert-success">Configuration enregistrée avec succès !</div>';
-            showToast('Configuration enregistrée !');
+            resultElement.innerHTML = '<div class="alert alert-success">Configuration saved successfully!</div>';
+            showToast('Configuration saved successfully!');
             
         
             updateConnectorStatus(connectorType, 'active', params);
@@ -1371,7 +1443,7 @@ function saveConnection(connectorType) {
             }, 1500);
         } else {
          
-            resultElement.innerHTML = `<div class="alert alert-error">Échec de l'enregistrement : ${data.message || 'Erreur inconnue'}</div>`;
+            resultElement.innerHTML = `<div class="alert alert-error">Save failed: ${data.message || 'Unknown error'}</div>`;
         }
         
 
@@ -1395,7 +1467,7 @@ function saveConnection(connectorType) {
             oldResult.remove();
         }
         
-        resultElement.innerHTML = `<div class="alert alert-error">Erreur API : ${error.message}</div>`;
+        resultElement.innerHTML = `<div class="alert alert-error">API error: ${error.message}</div>`;
         
     
         const sidepanelForm = document.getElementById('sidepanel-form');
