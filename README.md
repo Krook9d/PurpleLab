@@ -119,7 +119,7 @@ The lab includes:
 
 **Download Repository:**
 ```bash
-git clone https://github.com/Krook9d/PurpleLab.git && mv PurpleLab/install_ansible.sh
+git clone https://github.com/Krook9d/PurpleLab.git && mv PurpleLab/install.sh
 ```
 
 ### Installation
