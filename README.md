@@ -124,10 +124,10 @@ git clone https://github.com/Krook9d/PurpleLab.git && mv PurpleLab/install_ansib
 
 ### Installation
 
-Execute the Ansible installation script:
+Execute the installation script:
 
 ```bash
-sudo bash install_ansible.sh
+sudo bash install.sh
 ```
 
 The script will automatically:
