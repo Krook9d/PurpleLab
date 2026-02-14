@@ -51,6 +51,15 @@
   become: false
   delegate_to: localhost
 
+- name: Security Plugin configuration | Clean existing certificates
+  ansible.builtin.file:
+    path: /tmp/opensearch-nodecerts/config/
+    state: absent
+  run_once: true
+  become: false
+  delegate_to: localhost
+  ignore_errors: yes
+
 - name: Security Plugin configuration | Generate the node & admin certificates in local
   ansible.builtin.command:
     cmd: /tmp/opensearch-nodecerts/tools/sgtlstool.sh -c /tmp/opensearch-nodecerts/config/tlsconfig.yml -ca -crt -t /tmp/opensearch-nodecerts/config/

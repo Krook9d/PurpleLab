@@ -1,1 +1,7 @@
 install.sh
+ansible/roles/virtualbox/files/.terraform.lock.hcl
+ansible/roles/virtualbox/files/terraform.log
+ansible/roles/virtualbox/files/terraform.tfstate
+ansible/roles/virtualbox/files/terraform.tfvars
+ansible/roles/virtualbox/files/.terraform/providers/registry.terraform.io/hashicorp/null/3.2.4/linux_amd64/LICENSE.txt
+ansible/roles/virtualbox/files/.terraform/providers/registry.terraform.io/hashicorp/null/3.2.4/linux_amd64/terraform-provider-null_v3.2.4_x5
