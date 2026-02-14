@@ -5,8 +5,9 @@
 - name: Security Plugin configuration | Force remove local temporary directory for certificates generation
   local_action:
     module: file
-    path: /tmp/opensearch-nodecerts
-    state: absent
+    args:
+      path: /tmp/opensearch-nodecerts
+      state: absent
   run_once: true
   become: false
   when: iac_enable
@@ -14,8 +15,9 @@
 - name: Security Plugin configuration | Create local temporary directory for certificates generation
   local_action:
     module: file
-    path: /tmp/opensearch-nodecerts
-    state: directory
+    args:
+      path: /tmp/opensearch-nodecerts
+      state: directory
   run_once: true
   register: configuration
   become: false
@@ -23,8 +25,9 @@
 - name: Security Plugin configuration | Download certificates generation tool
   local_action:
     module: get_url
-    url: https://search.maven.org/remotecontent?filepath=com/floragunn/search-guard-tlstool/1.5/search-guard-tlstool-1.5.tar.gz
-    dest: /tmp/opensearch-nodecerts/search-guard-tlstool.tar.gz
+    args:
+      url: https://search.maven.org/remotecontent?filepath=com/floragunn/search-guard-tlstool/1.5/search-guard-tlstool-1.5.tar.gz
+      dest: /tmp/opensearch-nodecerts/search-guard-tlstool.tar.gz
   run_once: true
   when: configuration.changed
   become: false
@@ -38,8 +41,9 @@
 - name: Security Plugin configuration | Make the executable file
   local_action:
     module: file
-    dest: /tmp/opensearch-nodecerts/tools/sgtlstool.sh
-    mode: a+x
+    args:
+      dest: /tmp/opensearch-nodecerts/tools/sgtlstool.sh
+      mode: a+x
   run_once: true
   when: configuration.changed
   become: false
@@ -47,15 +51,18 @@
 - name: Security Plugin configuration | Prepare the certificates generation template file
   local_action:
     module: template
-    src: tlsconfig.yml
-    dest: /tmp/opensearch-nodecerts/config/tlsconfig.yml
+    args:
+      src: tlsconfig.yml
+      dest: /tmp/opensearch-nodecerts/config/tlsconfig.yml
   run_once: true
   when: configuration.changed
   become: false
 
 - name: Security Plugin configuration | Generate the node & admin certificates in local
   local_action:
-    module: command /tmp/opensearch-nodecerts/tools/sgtlstool.sh -c /tmp/opensearch-nodecerts/config/tlsconfig.yml -ca -crt -t /tmp/opensearch-nodecerts/config/
+    module: command
+    args:
+      cmd: /tmp/opensearch-nodecerts/tools/sgtlstool.sh -c /tmp/opensearch-nodecerts/config/tlsconfig.yml -ca -crt -t /tmp/opensearch-nodecerts/config/
   run_once: true
   when: configuration.changed
   become: false
@@ -308,8 +315,9 @@
 - name: Security Plugin configuration | Cleanup local temporary directory
   local_action:
     module: file
-    path: /tmp/opensearch-nodecerts
-    state: absent
+    args:
+      path: /tmp/opensearch-nodecerts
+      state: absent
   run_once: true
   when: configuration.changed
   become: false

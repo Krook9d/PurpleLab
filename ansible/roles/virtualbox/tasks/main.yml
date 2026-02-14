@@ -64,10 +64,22 @@
     state: present
 
 - name: Installation de Vagrant
-  apt:
-    name: vagrant
-    state: present
-    update_cache: yes
+  block:
+    - name: Téléchargement de Vagrant
+      get_url:
+        url: https://releases.hashicorp.com/vagrant/2.4.1/vagrant_2.4.1-1_amd64.deb
+        dest: /tmp/vagrant.deb
+        mode: '0644'
+    
+    - name: Installation de Vagrant depuis le paquet .deb
+      apt:
+        deb: /tmp/vagrant.deb
+        state: present
+    
+    - name: Nettoyage du fichier temporaire
+      file:
+        path: /tmp/vagrant.deb
+        state: absent
 
 - name: Création du répertoire Vagrant
   file:

@@ -29,7 +29,7 @@
 
 - name: OpenSearch Install | Copy Configuration File
   ansible.builtin.blockinfile:
-    block: "{{ lookup('template', 'templates/opensearch-{{ cluster_type }}.yml') }}"
+    block: "{{ lookup('template', 'templates/opensearch-' + cluster_type + '.yml') }}"
     dest: "{{ os_conf_dir }}/opensearch.yml"
     backup: true
     state: present
