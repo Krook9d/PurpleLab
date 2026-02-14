@@ -69,7 +69,8 @@ apt-get install -y ansible
 
 # Install psycopg2 for the PostgreSQL module
 echo -e "${YELLOW}Installing psycopg2...${NC}"
-pip install psycopg2-binary
+python3 -m venv /opt/purplelab-venv
+/opt/purplelab-venv/bin/pip install psycopg2-binary
 
 # Prepare the web directory
 echo -e "${YELLOW}Preparing the web directory...${NC}"
