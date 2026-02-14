@@ -729,7 +729,7 @@
 - name: Enregistrer la VM si elle n'est pas déjà enregistrée
   shell: |
     if ! sudo VBoxManage list vms | grep -q '"sandbox"'; then
-      sudo VBoxManage registervm "/home/purplelab/VirtualBox VMs/sandbox/sandbox.vbox"
+      sudo VBoxManage registervm "/home/{{ lookup('env', 'SUDO_USER') | default('user', true) }}/VirtualBox VMs/sandbox/sandbox.vbox"
     fi
   register: vm_register_result
   retries: 3

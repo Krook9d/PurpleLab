@@ -8,7 +8,7 @@
     db_name: "purplelab"
     encryption_key: "{{ lookup('password', '/dev/null chars=ascii_letters,digits,hexdigits length=32') }}"
     admin_password: "{{ lookup('password', '/dev/null chars=ascii_letters,digits,special length=12') }}"
-    ansible_user: "purplelab"
+    ansible_user: "{{ lookup('env', 'SUDO_USER') | default('user', true) }}"
 
   roles:
     - { role: common, tags: ['common'] }

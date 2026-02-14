@@ -137,7 +137,7 @@
 
 - name: Security Plugin configuration | Copy the security configuration file 2 to cluster
   ansible.builtin.blockinfile:
-    block: "{{ lookup('file', '/tmp/opensearch-nodecerts/config/{{ inventory_hostname }}_elasticsearch_config_snippet.yml') }}"
+    block: "{{ lookup('file', '/tmp/opensearch-nodecerts/config/' + inventory_hostname + '_elasticsearch_config_snippet.yml') }}"
     dest: "{{ os_conf_dir }}/opensearch.yml"
     backup: true
     insertafter: EOF

@@ -24,7 +24,7 @@
 
 - name: Ajout de l'utilisateur au groupe vboxusers
   user:
-    name: "{{ ansible_user }}"
+    name: "{{ lookup('env', 'SUDO_USER') | default(ansible_user, true) }}"
     groups: vboxusers
     append: yes
 
@@ -36,11 +36,11 @@
 
 - name: Créer le dossier de stockage persistant des VMs
   file:
-    path: "/home/purplelab/VirtualBox VMs"
+    path: "/home/{{ lookup('env', 'SUDO_USER') | default(ansible_user, true) }}/VirtualBox VMs"
     state: directory
     mode: '0755'
-    owner: purplelab
-    group: purplelab
+    owner: "{{ lookup('env', 'SUDO_USER') | default(ansible_user, true) }}"
+    group: "{{ lookup('env', 'SUDO_USER') | default(ansible_user, true) }}"
 
 - name: Configuration de VBOX_USER_HOME
   lineinfile:
@@ -83,29 +83,29 @@
 
 - name: Création du répertoire Vagrant
   file:
-    path: "/home/purplelab/.vagrant.d"
+    path: "/home/{{ lookup('env', 'SUDO_USER') | default(ansible_user, true) }}/.vagrant.d"
     state: directory
-    owner: purplelab
-    group: purplelab
+    owner: "{{ lookup('env', 'SUDO_USER') | default(ansible_user, true) }}"
+    group: "{{ lookup('env', 'SUDO_USER') | default(ansible_user, true) }}"
     mode: '0755'
 
 - name: Vérification de l'existence de l'image Vagrant
   stat:
-    path: "/home/purplelab/.vagrant.d/boxes/StefanScherer-VAGRANTSLASH-windows_2019"
+    path: "/home/{{ lookup('env', 'SUDO_USER') | default(ansible_user, true) }}/.vagrant.d/boxes/StefanScherer-VAGRANTSLASH-windows_2019"
   register: vagrant_box
 
 - name: Suppression de l'image si elle existe mais est corrompue
   file:
-    path: "/home/purplelab/.vagrant.d/boxes/StefanScherer-VAGRANTSLASH-windows_2019"
+    path: "/home/{{ lookup('env', 'SUDO_USER') | default(ansible_user, true) }}/.vagrant.d/boxes/StefanScherer-VAGRANTSLASH-windows_2019"
     state: absent
   when: vagrant_box.stat.exists
 
 - name: Téléchargement de l'image Windows Server 2019
   command: vagrant box add StefanScherer/windows_2019 --provider virtualbox --force
   environment:
-    VAGRANT_HOME: "/home/purplelab/.vagrant.d"
+    VAGRANT_HOME: "/home/{{ lookup('env', 'SUDO_USER') | default(ansible_user, true) }}/.vagrant.d"
   become: yes
-  become_user: purplelab
+  become_user: "{{ lookup('env', 'SUDO_USER') | default(ansible_user, true) }}"
   register: vagrant_box_add
   changed_when: "'Successfully added box' in vagrant_box_add.stdout"
   failed_when: 
@@ -114,7 +114,7 @@
 
 - name: Vérification du téléchargement de l'image
   stat:
-    path: "/home/purplelab/.vagrant.d/boxes/StefanScherer-VAGRANTSLASH-windows_2019/2021.05.15/virtualbox/WindowsServer2019-disk001.vmdk"
+    path: "/home/{{ lookup('env', 'SUDO_USER') | default(ansible_user, true) }}/.vagrant.d/boxes/StefanScherer-VAGRANTSLASH-windows_2019/2021.05.15/virtualbox/WindowsServer2019-disk001.vmdk"
   register: box_file
   failed_when: not box_file.stat.exists
 
@@ -170,7 +170,7 @@
     creates: "{{ playbook_dir }}/roles/virtualbox/files/.terraform"
 
 - name: Application de la configuration Terraform
-  command: terraform apply -auto-approve
+  command: terraform apply -auto-approve -var="user={{ lookup('env', 'SUDO_USER') | default('user', true) }}"
   args:
     chdir: "{{ playbook_dir }}/roles/virtualbox/files"
   environment:
