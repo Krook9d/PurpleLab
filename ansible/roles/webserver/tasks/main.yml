@@ -105,6 +105,7 @@
       - mitreattack-python
       - Flask-JWT-Extended
     state: present
+    virtualenv: /opt/purplelab-venv
 
 - name: Start and enable Apache service
   service:
@@ -114,7 +115,7 @@
 
 - name: Move PurpleLab files to webroot
   shell: |
-    cp -r /home/{{ ansible_user }}/PurpleLab/* /var/www/html/
+    cp -r /home/{{ lookup('env', 'SUDO_USER') | default(ansible_user, true) }}/PurpleLab/* /var/www/html/
     if [ -d "/var/www/html/Web" ]; then
       cp -r /var/www/html/Web/* /var/www/html/
       rm -rf /var/www/html/Web
@@ -124,7 +125,7 @@
 - name: Move app.py to user directory
   copy:
     src: files/app.py
-    dest: "/home/{{ ansible_user }}/app.py"
+    dest: "/home/{{ lookup('env', 'SUDO_USER') | default(ansible_user, true) }}/app.py"
     remote_src: yes
     mode: '0755'
 

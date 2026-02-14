@@ -8,4 +8,4 @@ localhost ansible_connection=local
 localhost ansible_connection=local ip="{{ ansible_default_ipv4.address }}"
 
 [dashboards]
-localhost ansible_connection=local ip="{{ ansible_default_ipv4.address }}" 
+localhost ansible_connection=local ip="{{ ansible_default_ipv4.address }}"
