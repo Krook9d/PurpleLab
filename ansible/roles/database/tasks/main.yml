@@ -86,7 +86,9 @@
   become: true
   become_user: postgres
   postgresql_query:
-    database: "{{ db_name }}"
+    login_db: "{{ db_name }}"
+    login_user: "{{ db_user }}"
+    login_password: "{{ db_pass }}"
     query: |
       CREATE TABLE IF NOT EXISTS users (
         id SERIAL PRIMARY KEY,
@@ -171,7 +173,9 @@
   become: true
   become_user: postgres
   postgresql_query:
-    database: "{{ db_name }}"
+    login_db: "{{ db_name }}"
+    login_user: "{{ db_user }}"
+    login_password: "{{ db_pass }}"
     query: "TRUNCATE TABLE mitre_techniques;"
 
 - name: Importer les données Excel dans mitre_techniques via CSV
@@ -185,7 +189,9 @@
   become: true
   become_user: postgres
   postgresql_query:
-    database: "{{ db_name }}"
+    login_db: "{{ db_name }}"
+    login_user: "{{ db_user }}"
+    login_password: "{{ db_pass }}"
     query: "DELETE FROM users WHERE email='admin@local.com';"
   ignore_errors: yes
 
@@ -239,7 +245,9 @@
   become: true
   become_user: postgres
   postgresql_query:
-    database: "{{ db_name }}"
+    login_db: "{{ db_name }}"
+    login_user: "{{ db_user }}"
+    login_password: "{{ db_pass }}"
     query: "INSERT INTO users (first_name, last_name, email, analyst_level, avatar, password) VALUES ('Admin', 'Admin', 'admin@local.com', 'n3', '/MD_image/admin.png', '{{ hashed_password.stdout }}');"
 
 - name: Mettre à jour les scripts PHP pour utiliser la base de données
