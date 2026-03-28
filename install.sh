@@ -61,7 +61,7 @@ echo -e "${YELLOW}Updating packages...${NC}"
 apt-get update
 
 echo -e "${YELLOW}Installing necessary dependencies...${NC}"
-apt-get install -y software-properties-common git python3 python3-pip curl unzip
+apt-get install -y software-properties-common git python3 python3-pip python3-venv curl unzip
 
 echo -e "${YELLOW}Installing Ansible...${NC}"
 apt-add-repository --yes --update ppa:ansible/ansible
