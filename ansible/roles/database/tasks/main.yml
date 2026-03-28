@@ -46,8 +46,8 @@
     - name: Mettre à jour pg_hba.conf pour les connexions locales
       lineinfile:
         path: "{{ pg_hba_path.stdout_lines[0] }}"
-        regexp: '^local\s+all\s+postgres\s+peer'
-        line: 'local   all             postgres                                peer'
+        regexp: '^local\s+all\s+all\s+peer'
+        line: 'local   all             all                                     md5'
         state: present
       when: pg_hba_path.stdout_lines | length > 0
       register: pg_hba_updated

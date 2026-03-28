@@ -43,14 +43,6 @@
   become: false
   delegate_to: localhost
 
-- name: Security Plugin configuration | Prepare the certificates generation template file
-  ansible.builtin.template:
-    src: tlsconfig.yml
-    dest: /tmp/opensearch-nodecerts/config/tlsconfig.yml
-  run_once: true
-  become: false
-  delegate_to: localhost
-
 - name: Security Plugin configuration | Clean existing certificates
   ansible.builtin.file:
     path: /tmp/opensearch-nodecerts/config/
@@ -59,6 +51,22 @@
   become: false
   delegate_to: localhost
   ignore_errors: yes
+
+- name: Security Plugin configuration | Create config directory
+  ansible.builtin.file:
+    path: /tmp/opensearch-nodecerts/config/
+    state: directory
+  run_once: true
+  become: false
+  delegate_to: localhost
+
+- name: Security Plugin configuration | Prepare the certificates generation template file
+  ansible.builtin.template:
+    src: tlsconfig.yml
+    dest: /tmp/opensearch-nodecerts/config/tlsconfig.yml
+  run_once: true
+  become: false
+  delegate_to: localhost
 
 - name: Security Plugin configuration | Generate the node & admin certificates in local
   ansible.builtin.command:
