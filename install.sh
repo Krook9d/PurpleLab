@@ -72,6 +72,18 @@ echo -e "${YELLOW}Installing psycopg2...${NC}"
 python3 -m venv /opt/purplelab-venv
 /opt/purplelab-venv/bin/pip install psycopg2-binary
 
+# Install Flask and required dependencies
+echo -e "${YELLOW}Installing Flask and dependencies...${NC}"
+/opt/purplelab-venv/bin/pip install flask flask-cors flask-jwt-extended werkzeug
+
+# Create symbolic link for easier access
+echo -e "${YELLOW}Creating symbolic link for PurpleLab app...${NC}"
+ln -sf /opt/purplelab-venv/bin/python /usr/local/bin/purplelab-app
+
+# Add sudo access for the virtual environment Python
+echo -e "${YELLOW}Adding sudo access for virtual environment Python...${NC}"
+echo "purplelab ALL=(ALL) NOPASSWD: /opt/purplelab-venv/bin/python *" | sudo tee -a /etc/sudoers.d/purplelab
+
 # Prepare the web directory
 echo -e "${YELLOW}Preparing the web directory...${NC}"
 mkdir -p /var/www/html
