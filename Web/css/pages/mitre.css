@@ -149,11 +149,16 @@
 
 /* Draggable MITRE AI widget */
 .mittre-ai-widget {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-end;
-    gap: 10px;
+    display: block;
+    position: relative;
+    width: max-content;
+    height: max-content;
     max-width: calc(100vw - 32px);
+}
+
+.mittre-ai-widget.mittre-ai-direction-down {
+    /* direction class is used to place the panel below the FAB */
+    --mittre-ai-direction: down;
 }
 
 .mittre-ai-fab-row {
@@ -185,7 +190,10 @@
 .mittre-ai-panel {
     width: min(420px, calc(100vw - 40px));
     height: 460px;
-    max-height: none;
+    max-height: calc(100vh - 120px);
+    position: absolute;
+    right: 0;
+    bottom: calc(100% + 10px);
     background: #16162a;
     border: 1px solid #3d3d55;
     border-radius: 12px;
@@ -193,6 +201,11 @@
     display: flex;
     flex-direction: column;
     overflow: hidden;
+}
+
+.mittre-ai-widget.mittre-ai-direction-down .mittre-ai-panel {
+    bottom: auto;
+    top: calc(100% + 10px);
 }
 
 .mittre-ai-panel-head {
@@ -284,14 +297,23 @@
 }
 
 .mittre-ai-tech-link {
-    color: #c4b5fd;
+    color: #e9d5ff;
     font-weight: 600;
     text-decoration: underline;
     text-underline-offset: 2px;
 }
 
 .mittre-ai-tech-link:hover {
+    color: #ffffff;
+}
+
+.mittre-ai-bubble-assistant a {
     color: #e9d5ff;
+    font-weight: 600;
+}
+
+.mittre-ai-bubble-assistant a:hover {
+    color: #ffffff;
 }
 
 .mittre-ai-input-row {
@@ -334,9 +356,9 @@
 }
 
 .mittre-ai-fab-logo {
-    width: 82px;
+    width: 110px;
     height: auto;
-    max-height: 82px;
+    max-height: 110px;
     object-fit: contain;
     user-select: none;
 }

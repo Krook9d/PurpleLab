@@ -561,9 +561,28 @@ window.onload = function() {
         });
     }
 
+    function updatePanelDirection() {
+        if (!$panel.is(':visible')) return;
+        var margin = 12;
+        var fabEl = document.getElementById('mittre-ai-fab');
+        if (!fabEl) return;
+        var r = fabEl.getBoundingClientRect();
+        var panelH = $panel.outerHeight() || 0;
+        var spaceAbove = r.top - margin;
+        var spaceBelow = window.innerHeight - r.bottom - margin;
+        var openDown = spaceBelow >= spaceAbove;
+        if (spaceAbove >= panelH) openDown = false;
+        if (spaceBelow >= panelH) openDown = true;
+        $widget.toggleClass('mittre-ai-direction-down', !!openDown);
+
+        var available = Math.max(180, (openDown ? spaceBelow : spaceAbove));
+        $panel.css({ maxHeight: Math.floor(available) + 'px' });
+    }
+
     var $widget = $('#mittre-ai-widget');
     var $panel = $('#mittre-ai-panel');
     var resizableInited = false;
+    var ignoreNextFabClick = false;
 
     function clampWidgetDrag(ui) {
         var margin = 8;
@@ -575,7 +594,14 @@ window.onload = function() {
 
     function setDefaultWidgetPosition() {
         var marginRight = 24;
-        var marginTop = 70; // leave space for the top UI
+        var marginTop = 70; // fallback
+        var $userBar = $('.user-info-bar');
+        if ($userBar.length) {
+            var h = $userBar.outerHeight();
+            if (typeof h === 'number' && h > 0) {
+                marginTop = h + 12;
+            }
+        }
         var left = window.innerWidth - $widget.outerWidth() - marginRight;
         $widget.css({
             position: 'fixed',
@@ -612,22 +638,34 @@ window.onload = function() {
         var widgetUi = { position: $widget.position() };
         clampWidgetDrag(widgetUi);
         $widget.css({ left: widgetUi.position.left + 'px', top: widgetUi.position.top + 'px' });
+        updatePanelDirection();
     });
 
     $widget.draggable({
         handle: '.mittre-ai-drag-handle, .mittre-ai-panel-head',
+        cancel: 'textarea, input, select, option, button:not(#mittre-ai-fab)',
+        distance: 6,
         scroll: false,
         containment: false,
+        start: function() {
+            ignoreNextFabClick = false;
+        },
         drag: function(event, ui) {
             clampWidgetDrag(ui);
         },
         stop: function(event, ui) {
             clampWidgetDrag(ui);
+            ignoreNextFabClick = true;
+            setTimeout(function() {
+                ignoreNextFabClick = false;
+            }, 0);
+            updatePanelDirection();
         }
     });
 
     $('#mittre-ai-fab').on('click', function(e) {
         e.stopPropagation();
+        if (ignoreNextFabClick) return;
         var $p = $('#mittre-ai-panel');
         var open = $p.is(':visible');
         if (open) {
@@ -637,6 +675,7 @@ window.onload = function() {
             $p.show().attr('aria-hidden', 'false');
             $(this).attr('aria-expanded', 'true');
             initResizableIfNeeded();
+            updatePanelDirection();
         }
     });
 
@@ -653,7 +692,7 @@ window.onload = function() {
         }
     });
 
-    $(document).on('click', '.mittre-ai-tech-link', function(ev) {
+    $(document).on('click', '#mittreAiMessages a', function(ev) {
         var href = $(this).attr('href');
         if (!href) return;
         try {
