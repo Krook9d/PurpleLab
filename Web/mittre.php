@@ -41,8 +41,14 @@ if ($result && $row = pg_fetch_assoc($result)) {
 
 pg_free_result($result);
 pg_close($conn);
-?>
 
+$mittreAiConfigured = false;
+$mittreAiMetaPath = __DIR__ . '/mitre_ai/config.json';
+if (is_readable($mittreAiMetaPath)) {
+    $mittreAiMeta = json_decode((string) file_get_contents($mittreAiMetaPath), true);
+    $mittreAiConfigured = is_array($mittreAiMeta) && !empty($mittreAiMeta['configured']);
+}
+?>
 
 
 <!DOCTYPE html>
@@ -54,9 +60,11 @@ pg_close($conn);
     <title>Purplelab</title>
     <link rel="stylesheet" href="css/main.css?v=<?= filemtime('css/main.css') ?>">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+    <link rel="stylesheet" href="https://code.jquery.com/ui/1.13.2/themes/base/jquery-ui.css">
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    
-    
+    <script src="https://code.jquery.com/ui/1.13.2/jquery-ui.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+</head>
 <body>
 
 
@@ -177,6 +185,27 @@ pg_close($conn);
 
 </div>
 
+<?php if ($mittreAiConfigured): ?>
+<div id="mittre-ai-widget" class="mittre-ai-widget">
+    <div id="mittre-ai-panel" class="mittre-ai-panel" style="display:none;" aria-hidden="true">
+        <div class="mittre-ai-drag-handle mittre-ai-panel-head">
+            <span class="mittre-ai-panel-title"><i class="fas fa-magic"></i> MITRE scenario assistant</span>
+            <button type="button" class="mittre-ai-close" id="mittreAiCloseBtn" aria-label="Close chat">&times;</button>
+        </div>
+        <div id="mittreAiMessages" class="mittre-ai-messages"></div>
+        <div class="mittre-ai-input-row">
+            <textarea id="mittreAiInput" class="mittre-ai-input" rows="3" placeholder="Describe a scenario (e.g. Lumma stealer, ransomware encryption phase...)"></textarea>
+            <button type="button" id="mittreAiSend" class="mittre-ai-send">Send</button>
+        </div>
+    </div>
+    <div class="mittre-ai-fab-row">
+        <button type="button" id="mittre-ai-fab" class="mittre-ai-fab mittre-ai-drag-handle" aria-expanded="false" aria-controls="mittre-ai-panel" title="MITRE AI assistant">
+            <img class="mittre-ai-fab-logo" src="/MD_image/PurplelabIA.png" alt="Purplelab AI" draggable="false">
+        </button>
+    </div>
+</div>
+<?php endif; ?>
+
 <script>
 function searchFunction() {
     var input = document.getElementById('searchInput');
@@ -281,6 +310,11 @@ function loadTechniqueDetails(techniqueId) {
             cellValueRunTest.appendChild(runTestButton);
             detailsTable.style.display = 'table';
             displayCsvData(techniqueId);
+            if (window.history && window.history.replaceState) {
+                var u = new URL(window.location.href);
+                u.searchParams.set('technique', techniqueId);
+                window.history.replaceState(null, '', u.toString());
+            }
         },
         error: function() {
             loadingIcon.style.display = 'none';
@@ -435,9 +469,209 @@ function updateDatabase() {
 
 window.onload = function() {
     document.getElementById('searchResultsTable').style.display = 'none';
-    document.getElementById('techniqueDetailsTable').style.display = 'none'; 
+    document.getElementById('techniqueDetailsTable').style.display = 'none';
+    var params = new URLSearchParams(window.location.search);
+    var tid = params.get('technique');
+    if (tid && /^T\d{4}(?:\.\d{3})?$/.test(tid)) {
+        document.getElementById('searchInput').value = tid.substring(0, Math.min(5, tid.length));
+        loadTechniqueDetails(tid);
+    }
 };
 </script>
+
+<?php if ($mittreAiConfigured): ?>
+<script>
+(function() {
+    var chatHistory = [];
+
+    if (window.marked) {
+        marked.setOptions({ gfm: true, breaks: true });
+    }
+
+    function renderAssistantHtml(text) {
+        var withLinks = text.replace(/\b(T\d{4}(?:\.\d{3})?)\b/g, function(_, id) {
+            return '[' + id + '](mittre.php?technique=' + encodeURIComponent(id) + ')';
+        });
+        if (window.marked) {
+            var html = marked.parse(withLinks);
+            return html.replace(/<script[\s\S]*?>[\s\S]*?<\/script>/gi, '');
+        }
+        return $('<div>').text(text).html().replace(/\n/g, '<br>');
+    }
+
+    function appendBubble(role, htmlOrText, isHtml) {
+        var $box = $('#mittreAiMessages');
+        var $b = $('<div class="mittre-ai-bubble mittre-ai-bubble-' + role + '"></div>');
+        if (isHtml) {
+            $b.html(htmlOrText);
+        } else {
+            $b.text(htmlOrText);
+        }
+        $box.append($b);
+        $box.scrollTop($box[0].scrollHeight);
+    }
+
+    function setLoading(on) {
+        $('#mittreAiSend').prop('disabled', on);
+        $('#mittreAiInput').prop('disabled', on);
+    }
+
+    function sendMitreAi() {
+        var text = ($('#mittreAiInput').val() || '').trim();
+        if (!text) return;
+        appendBubble('user', text, false);
+        $('#mittreAiInput').val('');
+        chatHistory.push({ role: 'user', content: text });
+        setLoading(true);
+        var $pending = $(
+            '<div class="mittre-ai-bubble mittre-ai-bubble-assistant mittre-ai-thinking-bubble">' +
+                '<div class="mittre-ai-thinking">' +
+                    '<i class="fas fa-spinner fa-spin"></i>' +
+                    '<span class="mittre-ai-thinking-text">Thinking...</span>' +
+                '</div>' +
+            '</div>'
+        );
+        $('#mittreAiMessages').append($pending);
+        $('#mittreAiMessages').scrollTop($('#mittreAiMessages')[0].scrollHeight);
+
+        $.ajax({
+            url: '/scripts/php/mitre_ai_chat.php',
+            type: 'POST',
+            contentType: 'application/json',
+            data: JSON.stringify({ messages: chatHistory }),
+            dataType: 'json'
+        }).done(function(res) {
+            $pending.remove();
+            if (res.ok && res.message) {
+                chatHistory.push({ role: 'assistant', content: res.message });
+                appendBubble('assistant', renderAssistantHtml(res.message), true);
+            } else {
+                appendBubble('assistant', res.error || 'Request failed.', false);
+            }
+        }).fail(function(xhr) {
+            $pending.remove();
+            var msg = 'Request failed.';
+            try {
+                var j = xhr.responseJSON;
+                if (j && j.error) msg = j.error;
+            } catch (e) {}
+            appendBubble('assistant', msg, false);
+        }).always(function() {
+            setLoading(false);
+        });
+    }
+
+    var $widget = $('#mittre-ai-widget');
+    var $panel = $('#mittre-ai-panel');
+    var resizableInited = false;
+
+    function clampWidgetDrag(ui) {
+        var margin = 8;
+        var maxLeft = window.innerWidth - $widget.outerWidth() - margin;
+        var maxTop = window.innerHeight - $widget.outerHeight() - margin;
+        ui.position.left = Math.max(margin, Math.min(ui.position.left, maxLeft));
+        ui.position.top = Math.max(margin, Math.min(ui.position.top, maxTop));
+    }
+
+    function setDefaultWidgetPosition() {
+        var marginRight = 24;
+        var marginTop = 70; // leave space for the top UI
+        var left = window.innerWidth - $widget.outerWidth() - marginRight;
+        $widget.css({
+            position: 'fixed',
+            zIndex: 100050,
+            left: Math.max(8, left) + 'px',
+            top: marginTop + 'px',
+            right: 'auto',
+            bottom: 'auto'
+        });
+    }
+
+    function initResizableIfNeeded() {
+        if (resizableInited) return;
+        $panel.resizable({
+            handles: 'w,s,sw,se',
+            minWidth: 280,
+            minHeight: 220,
+            resize: function() {
+                $('#mittreAiMessages').css({ overflowY: 'auto' });
+            },
+            stop: function(event, ui) {
+                // ui.position is relative to the panel; clamp the widget to viewport.
+                var widgetUi = { position: $widget.position() };
+                clampWidgetDrag(widgetUi);
+                $widget.css({ left: widgetUi.position.left + 'px', top: widgetUi.position.top + 'px' });
+            }
+        });
+        resizableInited = true;
+    }
+
+    setDefaultWidgetPosition();
+
+    $(window).on('resize', function() {
+        var widgetUi = { position: $widget.position() };
+        clampWidgetDrag(widgetUi);
+        $widget.css({ left: widgetUi.position.left + 'px', top: widgetUi.position.top + 'px' });
+    });
+
+    $widget.draggable({
+        handle: '.mittre-ai-drag-handle, .mittre-ai-panel-head',
+        scroll: false,
+        containment: false,
+        drag: function(event, ui) {
+            clampWidgetDrag(ui);
+        },
+        stop: function(event, ui) {
+            clampWidgetDrag(ui);
+        }
+    });
+
+    $('#mittre-ai-fab').on('click', function(e) {
+        e.stopPropagation();
+        var $p = $('#mittre-ai-panel');
+        var open = $p.is(':visible');
+        if (open) {
+            $p.hide().attr('aria-hidden', 'true');
+            $(this).attr('aria-expanded', 'false');
+        } else {
+            $p.show().attr('aria-hidden', 'false');
+            $(this).attr('aria-expanded', 'true');
+            initResizableIfNeeded();
+        }
+    });
+
+    $('#mittreAiCloseBtn').on('click', function() {
+        $('#mittre-ai-panel').hide().attr('aria-hidden', 'true');
+        $('#mittre-ai-fab').attr('aria-expanded', 'false');
+    });
+
+    $('#mittreAiSend').on('click', sendMitreAi);
+    $('#mittreAiInput').on('keydown', function(e) {
+        if (e.key === 'Enter' && !e.shiftKey) {
+            e.preventDefault();
+            sendMitreAi();
+        }
+    });
+
+    $(document).on('click', '.mittre-ai-tech-link', function(ev) {
+        var href = $(this).attr('href');
+        if (!href) return;
+        try {
+            var u = new URL(href, window.location.origin);
+            if (u.pathname.indexOf('mittre.php') === -1) return;
+            var t = u.searchParams.get('technique');
+            if (!t || !/^T\d{4}(?:\.\d{3})?$/.test(t)) return;
+            ev.preventDefault();
+            document.getElementById('searchInput').value = t.substring(0, Math.min(5, t.length));
+            loadTechniqueDetails(t);
+            if (window.history && window.history.replaceState) {
+                window.history.replaceState(null, '', u.pathname + u.search);
+            }
+        } catch (err) {}
+    });
+})();
+</script>
+<?php endif; ?>
 
 
 </body>

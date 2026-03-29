@@ -39,6 +39,25 @@ if ($result && $row = pg_fetch_assoc($result)) {
 pg_free_result($result);
 pg_close($conn);
 
+$mitreAiConfigPath = __DIR__ . '/mitre_ai/config.json';
+$mitreAiConfigured = false;
+$mitreAiProvider = 'openai';
+$mitreAiBase = '';
+$mitreAiModel = '';
+$mitreAiKeyPreview = '';
+$mitreAiLastUpdated = '';
+if (is_readable($mitreAiConfigPath)) {
+    $mitreAiJson = json_decode((string) file_get_contents($mitreAiConfigPath), true);
+    if (is_array($mitreAiJson) && !empty($mitreAiJson['configured'])) {
+        $mitreAiConfigured = true;
+        $mitreAiProvider = $mitreAiJson['provider'] ?? 'openai';
+        $mitreAiBase = $mitreAiJson['api_base'] ?? '';
+        $mitreAiModel = $mitreAiJson['model'] ?? '';
+        $mitreAiKeyPreview = $mitreAiJson['key_preview'] ?? '';
+        $mitreAiLastUpdated = $mitreAiJson['last_updated'] ?? '';
+    }
+}
+
 ?>
 
 <!DOCTYPE html>
@@ -285,11 +304,124 @@ pg_close($conn);
                 </div>
             </div>
         </div>
+
+        <!-- MITRE AI (OpenAI-compatible + Gemini API) -->
+        <div class="admin-section">
+            <h2 class="admin-section-title"><i class="fas fa-magic"></i> MITRE AI assistant (OpenAI-compatible + Gemini)</h2>
+
+            <div class="admin-card">
+                <div class="mitre-ai-configuration-content">
+                    <p class="section-description">
+                        Configure either an OpenAI-compatible endpoint (OpenAI, NVIDIA NIM, vLLM, etc.) or Google Gemini for the draggable MITRE assistant.
+                        For OpenAI-compatible, use a base URL that ends with <code>/v1</code> (example: <code>https://integrate.api.nvidia.com/v1</code>).
+                    </p>
+
+                    <?php if ($mitreAiConfigured): ?>
+                    <div class="api-status-card active">
+                        <div class="api-status-header">
+                            <div class="status-indicator active"></div>
+                            <div class="api-status-info">
+                                <h3 class="api-status-title">MITRE AI configured</h3>
+                                <p class="api-status-description">Provider: <code><?php echo htmlspecialchars($mitreAiProvider); ?></code></p>
+                                <p class="api-key-preview">Key: <code><?php echo htmlspecialchars($mitreAiKeyPreview); ?></code></p>
+                                <p class="api-status-description">Base URL: <code><?php echo htmlspecialchars($mitreAiBase); ?></code></p>
+                                <p class="api-status-description">Model: <code><?php echo htmlspecialchars($mitreAiModel); ?></code></p>
+                                <?php if ($mitreAiLastUpdated): ?>
+                                <p class="api-last-updated">Last updated: <?php echo htmlspecialchars($mitreAiLastUpdated); ?></p>
+                                <?php endif; ?>
+                            </div>
+                        </div>
+                        <div class="api-actions">
+                            <form action="/scripts/php/saveMitreAiConfig.php" method="post" style="display: inline-block;" onsubmit="return confirm('Remove MITRE AI API configuration?');">
+                                <input type="hidden" name="action" value="delete">
+                                <button type="submit" class="admin-button danger">
+                                    <i class="fas fa-trash"></i> Delete configuration
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                    <?php endif; ?>
+
+                    <form id="mitreAiConfigForm" method="post" action="/scripts/php/saveMitreAiConfig.php" class="admin-form">
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label for="mitreAiProvider"><i class="fas fa-project-diagram"></i> Provider</label>
+                                <select id="mitreAiProvider" name="provider" required>
+                                    <option value="openai" <?php echo $mitreAiProvider === 'openai' ? 'selected' : ''; ?>>OpenAI-compatible (OpenAI, NVIDIA NIM, etc.)</option>
+                                    <option value="gemini" <?php echo $mitreAiProvider === 'gemini' ? 'selected' : ''; ?>>Google Gemini API</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="mitreAiBase"><i class="fas fa-link"></i> API base URL</label>
+                                <input type="url" id="mitreAiBase" name="api_base" placeholder="https://integrate.api.nvidia.com/v1" value="<?php echo htmlspecialchars($mitreAiBase); ?>">
+                            </div>
+                            <div class="form-group">
+                                <label for="mitreAiModel"><i class="fas fa-microchip"></i> Model name</label>
+                                <input type="text" id="mitreAiModel" name="model" placeholder="e.g. meta/llama-3.1-8b-instruct or gemini-2.0-flash-lite" value="<?php echo htmlspecialchars($mitreAiModel); ?>" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="mitreAiKey"><i class="fas fa-key"></i> API key</label>
+                                <input type="password" id="mitreAiKey" name="api_key" placeholder="<?php echo $mitreAiConfigured ? 'Leave empty to keep current key' : 'Your API key'; ?>" <?php echo $mitreAiConfigured ? '' : 'required'; ?> autocomplete="new-password">
+                            </div>
+                        </div>
+                        <div class="form-actions">
+                            <button type="submit" class="admin-button primary">
+                                <i class="fas fa-save"></i> Save and test connection
+                            </button>
+                        </div>
+                    </form>
+
+                    <?php if (isset($_SESSION['mitre_ai_saved']) && $_SESSION['mitre_ai_saved'] === true): ?>
+                    <div class="alert alert-success">
+                        <i class="fas fa-check-circle"></i>
+                        MITRE AI configuration saved successfully.
+                    </div>
+                    <?php unset($_SESSION['mitre_ai_saved']); ?>
+                    <?php endif; ?>
+
+                    <?php if (isset($_SESSION['mitre_ai_deleted']) && $_SESSION['mitre_ai_deleted'] === true): ?>
+                    <div class="alert alert-success">
+                        <i class="fas fa-check-circle"></i>
+                        MITRE AI configuration removed.
+                    </div>
+                    <?php unset($_SESSION['mitre_ai_deleted']); ?>
+                    <?php endif; ?>
+
+                    <?php if (isset($_SESSION['mitre_ai_error'])): ?>
+                    <div class="alert alert-error">
+                        <i class="fas fa-exclamation-circle"></i>
+                        <?php echo htmlspecialchars($_SESSION['mitre_ai_error']); ?>
+                    </div>
+                    <?php unset($_SESSION['mitre_ai_error']); ?>
+                    <?php endif; ?>
+                </div>
+            </div>
+        </div>
     </div>
 </div>
 
 <script>
 $(document).ready(function() {
+    function updateMitreAiProviderUi() {
+        var provider = $('#mitreAiProvider').val();
+        var $base = $('#mitreAiBase');
+        if (provider === 'gemini') {
+            $base.prop('required', false);
+            if (!$base.val()) {
+                $base.val('https://generativelanguage.googleapis.com/v1beta');
+            }
+            $base.attr('placeholder', 'https://generativelanguage.googleapis.com/v1beta');
+        } else {
+            $base.prop('required', true);
+            $base.attr('placeholder', 'https://integrate.api.nvidia.com/v1');
+        }
+    }
+
+    if ($('#mitreAiProvider').length) {
+        updateMitreAiProviderUi();
+        $('#mitreAiProvider').on('change', updateMitreAiProviderUi);
+    }
+
     $('#generateToken').click(function() {
         var button = $(this);
         button.prop('disabled', true);
