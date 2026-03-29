@@ -162,7 +162,7 @@ admin@local.com:password
 
 **Start the Flask server:**
 ```bash
-sudo python3 /home/$(logname)/app.py
+sudo /opt/purplelab-venv/bin/python /home/$(logname)/app.py
 ```
 
 ### 🪟 Windows Server 2019 Sandbox VM 
