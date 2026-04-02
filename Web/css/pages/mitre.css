@@ -147,18 +147,14 @@
     }
 }
 
-/* Draggable MITRE AI widget */
+/* ─── MITRE AI Chat Widget ─────────────────────────────────────────── */
+
 .mittre-ai-widget {
     display: block;
     position: relative;
     width: max-content;
     height: max-content;
     max-width: calc(100vw - 32px);
-}
-
-.mittre-ai-widget.mittre-ai-direction-down {
-    /* direction class is used to place the panel below the FAB */
-    --mittre-ai-direction: down;
 }
 
 .mittre-ai-fab-row {
@@ -180,42 +176,44 @@
     align-items: center;
     justify-content: center;
     padding: 0;
-    transition: transform 0.15s ease;
+    transition: transform 0.2s ease, filter 0.2s ease;
 }
 
 .mittre-ai-fab:hover {
-    transform: scale(1.05);
+    transform: scale(1.06);
+    filter: drop-shadow(0 0 10px rgba(139, 92, 246, 0.55));
 }
 
+/* Panel – always positioned via JS as position:fixed relative to viewport */
 .mittre-ai-panel {
-    width: min(420px, calc(100vw - 40px));
-    height: 460px;
-    max-height: calc(100vh - 120px);
-    position: absolute;
-    right: 0;
-    bottom: calc(100% + 10px);
-    background: #16162a;
-    border: 1px solid #3d3d55;
-    border-radius: 12px;
-    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.55);
+    width: min(460px, calc(100vw - 24px));
+    height: 540px;
+    max-height: calc(100vh - 60px);
+    position: fixed;
+    background: #0d0d1c;
+    border: 1px solid rgba(139, 92, 246, 0.28);
+    border-radius: 16px;
+    box-shadow:
+        0 24px 64px rgba(0, 0, 0, 0.75),
+        0 0 0 1px rgba(139, 92, 246, 0.08),
+        inset 0 1px 0 rgba(255, 255, 255, 0.04);
     display: flex;
     flex-direction: column;
     overflow: hidden;
+    z-index: 100060;
 }
 
-.mittre-ai-widget.mittre-ai-direction-down .mittre-ai-panel {
-    bottom: auto;
-    top: calc(100% + 10px);
-}
-
+/* ── Panel header ── */
 .mittre-ai-panel-head {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 10px 12px;
-    background: linear-gradient(90deg, #2d1b4e 0%, #1e1e2f 100%);
-    border-bottom: 1px solid #3d3d55;
+    padding: 13px 16px;
+    background: linear-gradient(135deg, #231345 0%, #1a1a35 60%, #161628 100%);
+    border-bottom: 1px solid rgba(139, 92, 246, 0.22);
     cursor: grab;
+    flex-shrink: 0;
+    user-select: none;
 }
 
 .mittre-ai-panel-head:active {
@@ -223,136 +221,290 @@
 }
 
 .mittre-ai-panel-title {
-    font-size: 0.95rem;
-    font-weight: 600;
-    color: #e2e8f0;
+    font-size: 0.88rem;
+    font-weight: 700;
+    color: #ddd6fe;
+    letter-spacing: 0.03em;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.mittre-ai-panel-title i {
+    color: #a78bfa;
 }
 
 .mittre-ai-close {
-    background: transparent;
-    border: none;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.09);
+    border-radius: 6px;
     color: #94a3b8;
-    font-size: 1.4rem;
-    line-height: 1;
+    font-size: 1rem;
+    width: 26px;
+    height: 26px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     cursor: pointer;
-    padding: 0 4px;
+    padding: 0;
+    line-height: 1;
+    transition: background 0.15s, color 0.15s, border-color 0.15s;
 }
 
 .mittre-ai-close:hover {
-    color: #f1f5f9;
+    background: rgba(255, 255, 255, 0.12);
+    color: #f8fafc;
+    border-color: rgba(255, 255, 255, 0.18);
 }
 
+/* ── Messages area ── */
 .mittre-ai-messages {
     flex: 1;
     overflow-y: auto;
-    padding: 12px;
-    min-height: 100px;
-    font-size: 0.9rem;
+    padding: 14px 14px 8px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    font-size: 0.875rem;
     color: #cbd5e1;
+    min-height: 80px;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(139, 92, 246, 0.35) transparent;
 }
 
+.mittre-ai-messages::-webkit-scrollbar { width: 4px; }
+.mittre-ai-messages::-webkit-scrollbar-track { background: transparent; }
+.mittre-ai-messages::-webkit-scrollbar-thumb {
+    background: rgba(139, 92, 246, 0.4);
+    border-radius: 2px;
+}
+
+/* ── Bubbles ── */
 .mittre-ai-bubble {
-    margin-bottom: 10px;
-    padding: 8px 10px;
-    border-radius: 8px;
-    line-height: 1.45;
+    padding: 10px 14px;
+    border-radius: 14px;
+    line-height: 1.55;
     word-break: break-word;
+    max-width: 88%;
+    animation: ai-bubble-in 0.18s ease;
+}
+
+@keyframes ai-bubble-in {
+    from { opacity: 0; transform: translateY(8px); }
+    to   { opacity: 1; transform: translateY(0); }
 }
 
 .mittre-ai-bubble-user {
-    background: #2a2142;
-    border: 1px solid #5b21b6;
-    margin-left: 12px;
+    background: linear-gradient(135deg, #3b1e6e 0%, #2d1858 100%);
+    border: 1px solid rgba(139, 92, 246, 0.45);
+    margin-left: auto;
+    border-bottom-right-radius: 4px;
+    color: #ede9fe;
 }
 
 .mittre-ai-bubble-assistant {
-    background: #1a2332;
-    border: 1px solid #334155;
-    margin-right: 12px;
+    background: rgba(20, 24, 42, 0.9);
+    border: 1px solid rgba(51, 65, 85, 0.55);
+    margin-right: auto;
+    border-bottom-left-radius: 4px;
+    color: #cbd5e1;
 }
 
-.mittre-ai-bubble-assistant p,
+/* ── Markdown inside assistant bubbles ── */
+.mittre-ai-bubble-assistant p { margin: 0 0 8px; }
+.mittre-ai-bubble-assistant p:last-child { margin-bottom: 0; }
+
+.mittre-ai-bubble-assistant h1,
+.mittre-ai-bubble-assistant h2,
+.mittre-ai-bubble-assistant h3,
+.mittre-ai-bubble-assistant h4 {
+    color: #c4b5fd;
+    font-weight: 700;
+    margin: 12px 0 5px;
+    line-height: 1.35;
+    padding-bottom: 4px;
+    border-bottom: 1px solid rgba(139, 92, 246, 0.2);
+}
+.mittre-ai-bubble-assistant h1 { font-size: 1em; }
+.mittre-ai-bubble-assistant h2 { font-size: 0.96em; }
+.mittre-ai-bubble-assistant h3 { font-size: 0.92em; border: none; }
+
 .mittre-ai-bubble-assistant ul,
 .mittre-ai-bubble-assistant ol {
-    margin: 0 0 8px;
+    margin: 5px 0 8px 20px;
+    padding: 0;
+}
+.mittre-ai-bubble-assistant li { margin-bottom: 3px; }
+
+.mittre-ai-bubble-assistant strong { color: #e2d9f3; font-weight: 600; }
+.mittre-ai-bubble-assistant em    { color: #a5b4fc; font-style: italic; }
+
+.mittre-ai-bubble-assistant blockquote {
+    border-left: 3px solid rgba(139, 92, 246, 0.55);
+    margin: 8px 0;
+    padding: 4px 10px;
+    color: #94a3b8;
+    background: rgba(139, 92, 246, 0.06);
+    border-radius: 0 6px 6px 0;
+    font-style: italic;
+}
+
+.mittre-ai-bubble-assistant code {
+    background: rgba(10, 15, 30, 0.85);
+    border: 1px solid rgba(51, 65, 85, 0.5);
+    border-radius: 5px;
+    padding: 1px 5px;
+    font-family: 'Consolas', 'Courier New', monospace;
+    font-size: 0.83em;
+    color: #93c5fd;
+}
+
+.mittre-ai-bubble-assistant pre {
+    background: rgba(10, 15, 30, 0.9);
+    border: 1px solid rgba(51, 65, 85, 0.5);
+    border-radius: 10px;
+    padding: 12px 14px;
+    margin: 8px 0;
+    overflow-x: auto;
+    font-size: 0.8em;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(139, 92, 246, 0.3) transparent;
+}
+.mittre-ai-bubble-assistant pre code {
+    background: none;
+    border: none;
+    padding: 0;
+    color: #7dd3fc;
 }
 
 .mittre-ai-bubble-assistant table {
     width: 100%;
     border-collapse: collapse;
     margin: 8px 0;
+    font-size: 0.82em;
 }
-
 .mittre-ai-bubble-assistant th,
 .mittre-ai-bubble-assistant td {
-    border: 1px solid #334155;
-    padding: 6px 8px;
+    border: 1px solid rgba(51, 65, 85, 0.5);
+    padding: 5px 8px;
     text-align: left;
 }
-
-.mittre-ai-bubble-assistant code {
-    background: rgba(30, 41, 59, 0.8);
-    border-radius: 4px;
-    padding: 1px 4px;
-}
-
-.mittre-ai-tech-link {
-    color: #e9d5ff;
+.mittre-ai-bubble-assistant th {
+    background: rgba(30, 25, 55, 0.7);
+    color: #c4b5fd;
     font-weight: 600;
-    text-decoration: underline;
-    text-underline-offset: 2px;
 }
-
-.mittre-ai-tech-link:hover {
-    color: #ffffff;
+.mittre-ai-bubble-assistant tr:nth-child(even) td {
+    background: rgba(139, 92, 246, 0.04);
 }
 
 .mittre-ai-bubble-assistant a {
-    color: #e9d5ff;
+    color: #a78bfa;
     font-weight: 600;
+    text-decoration: none;
+    border-bottom: 1px solid rgba(167, 139, 250, 0.35);
+    transition: color 0.15s, border-color 0.15s;
 }
-
 .mittre-ai-bubble-assistant a:hover {
-    color: #ffffff;
+    color: #ddd6fe;
+    border-bottom-color: rgba(221, 214, 254, 0.6);
 }
 
+/* ── Thinking indicator ── */
+.mittre-ai-thinking {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: #6b7fa3;
+    font-style: italic;
+    font-size: 0.85em;
+}
+
+.mittre-ai-thinking-dots {
+    display: inline-flex;
+    gap: 4px;
+    align-items: center;
+}
+
+.mittre-ai-thinking-dots span {
+    display: inline-block;
+    width: 6px;
+    height: 6px;
+    background: #7c3aed;
+    border-radius: 50%;
+    animation: ai-dot-bounce 1.3s ease-in-out infinite;
+}
+.mittre-ai-thinking-dots span:nth-child(2) { animation-delay: 0.18s; }
+.mittre-ai-thinking-dots span:nth-child(3) { animation-delay: 0.36s; }
+
+@keyframes ai-dot-bounce {
+    0%, 60%, 100% { opacity: 0.25; transform: scale(0.75); }
+    30%            { opacity: 1;    transform: scale(1.2);  }
+}
+
+/* ── Input area ── */
 .mittre-ai-input-row {
     display: flex;
     flex-direction: column;
     gap: 8px;
-    padding: 10px 12px 12px;
-    border-top: 1px solid #3d3d55;
-    background: #12121f;
+    padding: 11px 14px 14px;
+    border-top: 1px solid rgba(61, 61, 85, 0.45);
+    background: rgba(11, 11, 22, 0.97);
+    flex-shrink: 0;
 }
 
 .mittre-ai-input {
     width: 100%;
     box-sizing: border-box;
-    resize: vertical;
-    min-height: 64px;
-    padding: 8px 10px;
-    border-radius: 8px;
-    border: 1px solid #444851;
-    background: #1e1e2f;
+    resize: none;
+    min-height: 58px;
+    max-height: 120px;
+    padding: 9px 12px;
+    border-radius: 10px;
+    border: 1px solid rgba(68, 72, 81, 0.55);
+    background: rgba(25, 25, 44, 0.85);
     color: #e2e8f0;
     font-family: inherit;
-    font-size: 0.9rem;
+    font-size: 0.875rem;
+    line-height: 1.5;
+    transition: border-color 0.15s, box-shadow 0.15s;
+    outline: none;
 }
+
+.mittre-ai-input:focus {
+    border-color: rgba(139, 92, 246, 0.55);
+    box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.1);
+}
+
+.mittre-ai-input::placeholder { color: #3d4a60; }
 
 .mittre-ai-send {
     align-self: flex-end;
-    padding: 8px 18px;
+    padding: 8px 22px;
     border: none;
-    border-radius: 6px;
-    background: linear-gradient(45deg, #6A0DAD, #8A2BE2);
+    border-radius: 8px;
+    background: linear-gradient(135deg, #7c3aed 0%, #5b21b6 100%);
     color: #fff;
     font-weight: 600;
+    font-size: 0.875rem;
     cursor: pointer;
+    transition: all 0.18s ease;
+    box-shadow: 0 2px 10px rgba(124, 58, 237, 0.35);
+    letter-spacing: 0.01em;
 }
 
+.mittre-ai-send:hover:not(:disabled) {
+    background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
+    box-shadow: 0 4px 16px rgba(124, 58, 237, 0.5);
+    transform: translateY(-1px);
+}
+
+.mittre-ai-send:active:not(:disabled) { transform: translateY(0); }
+
 .mittre-ai-send:disabled {
-    opacity: 0.55;
+    opacity: 0.4;
     cursor: not-allowed;
+    box-shadow: none;
 }
 
 .mittre-ai-fab-logo {
@@ -363,26 +515,25 @@
     user-select: none;
 }
 
-.mittre-ai-thinking {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-}
-
-.mittre-ai-thinking-text {
+/* ── Tech ID links ── */
+.mittre-ai-tech-link {
+    color: #c4b5fd;
     font-weight: 700;
+    text-decoration: none;
+    border-bottom: 1px solid rgba(196, 181, 253, 0.4);
+    transition: color 0.15s;
 }
+.mittre-ai-tech-link:hover { color: #ede9fe; }
 
-/* jQuery UI resizable "se" handle (bottom-right) */
-.mittre-ai-panel.ui-resizable {
-    position: relative;
-}
+/* ── jQuery UI resizable handles ── */
+/* keep overflow:hidden so messages scroll correctly; handles are at edges */
 
 .mittre-ai-panel .ui-resizable-handle.ui-resizable-se {
     width: 16px;
     height: 16px;
-    background: rgba(196, 181, 253, 0.25);
+    background: rgba(196, 181, 253, 0.2);
     border-radius: 2px;
+    z-index: 10;
 }
 
 .mittre-ai-panel .ui-resizable-handle.ui-resizable-se::after,
@@ -392,31 +543,29 @@
     bottom: 3px;
     width: 8px;
     height: 8px;
-    border-bottom: 2px solid rgba(196, 181, 253, 0.9);
+    border-bottom: 2px solid rgba(196, 181, 253, 0.8);
 }
 
 .mittre-ai-panel .ui-resizable-handle.ui-resizable-se::after {
     right: 3px;
-    border-right: 2px solid rgba(196, 181, 253, 0.9);
+    border-right: 2px solid rgba(196, 181, 253, 0.8);
 }
 
 .mittre-ai-panel .ui-resizable-handle.ui-resizable-sw::after {
     left: 3px;
-    border-left: 2px solid rgba(196, 181, 253, 0.9);
+    border-left: 2px solid rgba(196, 181, 253, 0.8);
 }
 
 .mittre-ai-panel .ui-resizable-w {
-    left: -2px;
-    width: 8px;
+    left: -3px;
+    width: 6px;
     cursor: ew-resize;
-    background: linear-gradient(90deg, rgba(196, 181, 253, 0.55), rgba(196, 181, 253, 0));
 }
 
 .mittre-ai-panel .ui-resizable-s {
-    bottom: -2px;
-    height: 8px;
+    bottom: -3px;
+    height: 6px;
     cursor: ns-resize;
-    background: linear-gradient(180deg, rgba(196, 181, 253, 0), rgba(196, 181, 253, 0.55));
 }
 
 .mittre-ai-panel .ui-resizable-sw {
@@ -425,7 +574,7 @@
     width: 16px;
     height: 16px;
     cursor: sw-resize;
-    background: rgba(196, 181, 253, 0.25);
+    background: rgba(196, 181, 253, 0.2);
     border-radius: 2px;
 }
 
