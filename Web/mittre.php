@@ -186,20 +186,20 @@ if (is_readable($mittreAiMetaPath)) {
 </div>
 
 <?php if ($mittreAiConfigured): ?>
-<div id="mittre-ai-widget" class="mittre-ai-widget">
-    <div id="mittre-ai-panel" class="mittre-ai-panel" style="display:none;" aria-hidden="true">
-        <div class="mittre-ai-drag-handle mittre-ai-panel-head">
-            <span class="mittre-ai-panel-title"><i class="fas fa-magic"></i> MITRE scenario assistant</span>
-            <button type="button" class="mittre-ai-close" id="mittreAiCloseBtn" aria-label="Close chat">&times;</button>
-        </div>
-        <div id="mittreAiMessages" class="mittre-ai-messages"></div>
-        <div class="mittre-ai-input-row">
-            <textarea id="mittreAiInput" class="mittre-ai-input" rows="3" placeholder="Describe a scenario (e.g. Lumma stealer, ransomware encryption phase...)"></textarea>
-            <button type="button" id="mittreAiSend" class="mittre-ai-send">Send</button>
-        </div>
+<div id="mittre-ai-panel" class="mittre-ai-panel" style="display:none;" aria-hidden="true">
+    <div class="mittre-ai-panel-head">
+        <span class="mittre-ai-panel-title"><i class="fas fa-magic"></i> MITRE scenario assistant</span>
+        <button type="button" class="mittre-ai-close" id="mittreAiCloseBtn" aria-label="Close chat">&times;</button>
     </div>
+    <div id="mittreAiMessages" class="mittre-ai-messages"></div>
+    <div class="mittre-ai-input-row">
+        <textarea id="mittreAiInput" class="mittre-ai-input" rows="3" placeholder="Describe a scenario (e.g. Lumma stealer, ransomware encryption phase...)"></textarea>
+        <button type="button" id="mittreAiSend" class="mittre-ai-send">Send</button>
+    </div>
+</div>
+<div id="mittre-ai-widget" class="mittre-ai-widget">
     <div class="mittre-ai-fab-row">
-        <button type="button" id="mittre-ai-fab" class="mittre-ai-fab mittre-ai-drag-handle" aria-expanded="false" aria-controls="mittre-ai-panel" title="MITRE AI assistant">
+        <button type="button" id="mittre-ai-fab" class="mittre-ai-fab" aria-expanded="false" aria-controls="mittre-ai-panel" title="MITRE AI assistant">
             <img class="mittre-ai-fab-logo" src="/MD_image/PurplelabIA.png" alt="Purplelab AI" draggable="false">
         </button>
     </div>
@@ -526,8 +526,8 @@ window.onload = function() {
         var $pending = $(
             '<div class="mittre-ai-bubble mittre-ai-bubble-assistant mittre-ai-thinking-bubble">' +
                 '<div class="mittre-ai-thinking">' +
-                    '<i class="fas fa-spinner fa-spin"></i>' +
-                    '<span class="mittre-ai-thinking-text">Thinking...</span>' +
+                    '<div class="mittre-ai-thinking-dots"><span></span><span></span><span></span></div>' +
+                    '<span class="mittre-ai-thinking-text">Thinking…</span>' +
                 '</div>' +
             '</div>'
         );
@@ -561,22 +561,30 @@ window.onload = function() {
         });
     }
 
-    function updatePanelDirection() {
-        if (!$panel.is(':visible')) return;
+    function positionPanel() {
         var margin = 12;
         var fabEl = document.getElementById('mittre-ai-fab');
         if (!fabEl) return;
         var r = fabEl.getBoundingClientRect();
-        var panelH = $panel.outerHeight() || 0;
-        var spaceAbove = r.top - margin;
-        var spaceBelow = window.innerHeight - r.bottom - margin;
-        var openDown = spaceBelow >= spaceAbove;
-        if (spaceAbove >= panelH) openDown = false;
-        if (spaceBelow >= panelH) openDown = true;
-        $widget.toggleClass('mittre-ai-direction-down', !!openDown);
+        var panelW = $panel.outerWidth() || 460;
+        var panelH = $panel.outerHeight() || 540;
 
-        var available = Math.max(180, (openDown ? spaceBelow : spaceAbove));
-        $panel.css({ maxHeight: Math.floor(available) + 'px' });
+        // Horizontal: right-align with FAB, clamped to viewport
+        var left = r.right - panelW;
+        left = Math.max(margin, Math.min(left, window.innerWidth - panelW - margin));
+
+        // Vertical: open below if enough room, otherwise above
+        var spaceBelow = window.innerHeight - r.bottom - 10;
+        var top;
+        if (spaceBelow >= panelH || r.top < panelH + 10 + margin) {
+            top = r.bottom + 10;
+            top = Math.min(top, window.innerHeight - panelH - margin);
+        } else {
+            top = r.top - panelH - 10;
+        }
+        top = Math.max(margin, top);
+
+        $panel.css({ position: 'fixed', left: left + 'px', top: top + 'px', right: 'auto', bottom: 'auto' });
     }
 
     var $widget = $('#mittre-ai-widget');
@@ -638,12 +646,11 @@ window.onload = function() {
         var widgetUi = { position: $widget.position() };
         clampWidgetDrag(widgetUi);
         $widget.css({ left: widgetUi.position.left + 'px', top: widgetUi.position.top + 'px' });
-        updatePanelDirection();
+        if ($panel.is(':visible')) positionPanel();
     });
 
     $widget.draggable({
-        handle: '.mittre-ai-drag-handle, .mittre-ai-panel-head',
-        cancel: 'textarea, input, select, option, button:not(#mittre-ai-fab)',
+        cancel: 'textarea, input, select, option',
         distance: 6,
         scroll: false,
         containment: false,
@@ -652,6 +659,7 @@ window.onload = function() {
         },
         drag: function(event, ui) {
             clampWidgetDrag(ui);
+            if ($panel.is(':visible')) positionPanel();
         },
         stop: function(event, ui) {
             clampWidgetDrag(ui);
@@ -659,7 +667,17 @@ window.onload = function() {
             setTimeout(function() {
                 ignoreNextFabClick = false;
             }, 0);
-            updatePanelDirection();
+        }
+    });
+
+    $panel.draggable({
+        handle: '.mittre-ai-panel-head',
+        cancel: 'textarea, input, select, option, button',
+        scroll: false,
+        drag: function(event, ui) {
+            var margin = 8;
+            ui.position.left = Math.max(margin, Math.min(ui.position.left, window.innerWidth  - $panel.outerWidth()  - margin));
+            ui.position.top  = Math.max(margin, Math.min(ui.position.top,  window.innerHeight - $panel.outerHeight() - margin));
         }
     });
 
@@ -675,7 +693,7 @@ window.onload = function() {
             $p.show().attr('aria-hidden', 'false');
             $(this).attr('aria-expanded', 'true');
             initResizableIfNeeded();
-            updatePanelDirection();
+            positionPanel();
         }
     });
 
