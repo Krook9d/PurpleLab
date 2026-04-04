@@ -142,6 +142,8 @@ def api_mitre_attack_execution():
     technique_id = request.args.get('technique_id')
     if not technique_id:
         return jsonify({"msg": "technique_id is required"}), 400
+    if not re.match(r'^T\d{4}(\.\d{3})?$', technique_id):
+        return jsonify({"msg": "Invalid technique_id format"}), 400
 
   
     powershell_command = f"\"& {{Import-Module 'C:\\\\AtomicRedTeam\\\\invoke-atomicredteam\\\\Invoke-AtomicRedTeam.psd1' -Force; Invoke-AtomicTest {technique_id}}}\""
@@ -169,10 +171,10 @@ def malware_retrieval():
     if not malware_family:
         return jsonify({"error": "Missing malwareFamily parameter"}), 400
 
-    malware_family = malware_family.replace('"', '\"').replace('`', '\`').replace('$', '\$')
+    # Use shlex.quote for proper shell escaping
 
     # Executes the Python script and returns the PID
-    command = f"sudo python3 /var/www/html/scripts/malwareretrieval.py '{malware_family}' > /dev/null 2>&1 & echo $!"
+    command = f"sudo python3 /var/www/html/scripts/malwareretrieval.py {shlex.quote(malware_family)} > /dev/null 2>&1 & echo $!"
     process = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE)
     pid = process.stdout.read().decode('utf-8').strip()
 
