@@ -1,6 +1,6 @@
 import os
 
-os.environ.setdefault("JWT_SECRET", "test-jwt-secret-not-for-prod")
+os.environ.setdefault("JWT_SECRET", "test-jwt-secret-not-for-prod-0123456789")
 os.environ.setdefault("VM_AGENT_TOKEN", "test-vm-agent-token")
 os.environ.setdefault("MASTER_ENCRYPTION_KEY", "test-master-encryption-key-not-for-prod")
 
