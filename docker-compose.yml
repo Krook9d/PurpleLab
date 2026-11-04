@@ -1,0 +1,251 @@
+networks:
+  purplelab_net:
+    driver: bridge
+
+volumes:
+  postgres_data:
+  opensearch_data:
+
+secrets:
+  db_password:
+    file: ./secrets/db_password
+  jwt_secret:
+    file: ./secrets/jwt_secret
+  master_encryption_key:
+    file: ./secrets/master_encryption_key
+  vm_agent_token:
+    file: ./secrets/vm_agent_token
+  malwarebazaar_api_key:
+    file: ./secrets/malwarebazaar_api_key
+
+services:
+  postgres:
+    image: postgres:16
+    restart: unless-stopped
+    networks:
+      - purplelab_net
+    # No published port: it was only temporary, while the not-yet-migrated
+    # legacy PHP (e.g. the old health.php) still did direct pg_connect()
+    # calls. Every page has gone through the FastAPI API since Milestone 5
+    # (removed in Milestone 6) — nothing outside the Docker network
+    # needs direct access to Postgres anymore.
+    environment:
+      POSTGRES_DB: purplelab
+      POSTGRES_USER: purplelab
+      POSTGRES_PASSWORD_FILE: /run/secrets/db_password
+    secrets:
+      - db_password
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U purplelab"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  opensearch:
+    image: opensearchproject/opensearch:2.17.0
+    restart: unless-stopped
+    networks:
+      - purplelab_net
+    environment:
+      discovery.type: single-node
+      DISABLE_SECURITY_PLUGIN: "true"
+      OPENSEARCH_JAVA_OPTS: "-Xms512m -Xmx512m"
+      # Winlogbeat/Beats decide which Elasticsearch client/bulk format to
+      # use by parsing the cluster's own reported version string.
+      # OpenSearch reports its real version ("2.17.0"), which every Beats
+      # release through at least 7.17 misreads as a legacy pre-6.x cluster
+      # and answers with the old client that still sends a "_type" bulk
+      # field — OpenSearch rejects that outright ("unknown parameter
+      # [_type]"), so nothing ever got indexed. This makes OpenSearch
+      # report an ES-7.10.2-compatible version string instead, which is
+      # enough for Beats to pick the modern, typeless client. Confirmed
+      # fix, not a guess: applied live via the cluster settings API first
+      # (events started flowing within seconds), added here so it's not
+      # a manual step on a fresh install too.
+      compatibility.override_main_response_version: "true"
+    volumes:
+      - opensearch_data:/usr/share/opensearch/data
+    ports:
+      # Published so the sandbox VM's Winlogbeat (bridged onto the same
+      # LAN, not part of the Docker network) can ship logs here — this was
+      # missing entirely after moving OpenSearch off bare-metal into
+      # Docker, silently breaking log collection (Winlogbeat events KPI
+      # stuck at 0). Bound to the LAN IP, not 0.0.0.0, for the same reason
+      # as the frontend port below (Docker/UFW NAT bypass).
+      - "192.168.142.132:9200:9200"
+
+  opensearch-dashboards:
+    image: opensearchproject/opensearch-dashboards:2.17.0
+    restart: unless-stopped
+    networks:
+      - purplelab_net
+    environment:
+      OPENSEARCH_HOSTS: '["http://opensearch:9200"]'
+      DISABLE_SECURITY_DASHBOARDS_PLUGIN: "true"
+    volumes:
+      # PurpleLab Hunting branding + /hunting base path (see the file).
+      - ./opensearch-dashboards/opensearch_dashboards.yml:/usr/share/opensearch-dashboards/config/opensearch_dashboards.yml:ro
+    depends_on:
+      - opensearch
+    ports:
+      # Browsers reach the UI through the frontend at /hunting/ (rebranded,
+      # same origin as PurpleLab). This port stays published for the API
+      # calls of the Ansible playbook (VM -> host:5601/api/...), which hit
+      # the server root unchanged.
+      - "192.168.142.132:5601:5601"
+
+  # One-shot: creates the "winlogbeat-*" index pattern (and sets it as the
+  # default) via the Dashboards Saved Objects API, so the Hunting page's
+  # Discover view has something to select on first login instead of "No
+  # items found" — the index itself existing in OpenSearch isn't enough,
+  # Dashboards needs this saved object explicitly. Runs on every `docker
+  # compose up`, not just the first: harmless (the API 409s on a pattern
+  # that already exists, `|| true` swallows that) and self-heals if the
+  # opensearch_data volume is ever recreated.
+  opensearch-dashboards-init:
+    image: curlimages/curl:8.10.1
+    restart: "no"
+    networks:
+      - purplelab_net
+    depends_on:
+      - opensearch-dashboards
+    entrypoint: ["/bin/sh", "-c"]
+    command:
+      - |
+        until curl -sf http://opensearch-dashboards:5601/api/status >/dev/null; do sleep 3; done
+        curl -s -o /dev/null -X POST "http://opensearch-dashboards:5601/api/saved_objects/index-pattern/winlogbeat-*" \
+          -H "osd-xsrf: true" -H "Content-Type: application/json" \
+          -d '{"attributes":{"title":"winlogbeat-*","timeFieldName":"@timestamp"}}' || true
+        curl -s -o /dev/null -X PUT "http://opensearch-dashboards:5601/api/opensearch-dashboards/settings/defaultIndex" \
+          -H "osd-xsrf: true" -H "Content-Type: application/json" \
+          -d '{"value":"winlogbeat-*"}' || true
+        echo "index pattern ready"
+
+  # One-shot: seeds Downloaded/Sigma/rules from the SigmaHQ/sigma repo on
+  # first install, so the Sigma page has rules to browse/search/convert
+  # instead of being empty until someone finds and clicks "Update rules"
+  # (POST /sigma/update, same sparse-clone logic as
+  # app/services/sigma_service.py:update_rules — duplicated here in shell
+  # rather than reused, since this runs before the backend image/network
+  # exist and needs no auth, unlike the JWT-protected API route). Skips
+  # itself if the folder already has .yml files: runs on every `docker
+  # compose up`, not just the first, but only actually clones once.
+  sigma-rules-init:
+    image: alpine/git:2.47.1
+    restart: "no"
+    volumes:
+      - ./Downloaded/Sigma/rules:/data/sigma_rules
+    entrypoint: ["/bin/sh", "-c"]
+    command:
+      - |
+        set -e
+        if [ -n "$(find /data/sigma_rules -iname '*.yml' -print -quit 2>/dev/null)" ]; then
+          echo "sigma rules already present, skipping initial clone"
+          exit 0
+        fi
+        git clone --depth 1 --filter=blob:none --sparse https://github.com/SigmaHQ/sigma.git /tmp/sigma
+        git -C /tmp/sigma sparse-checkout set rules
+        mkdir -p /data/sigma_rules
+        mv /tmp/sigma/rules/* /data/sigma_rules/
+        echo "sigma rules seeded: $(find /data/sigma_rules -iname '*.yml' | wc -l) files"
+
+  backend:
+    build: ./backend
+    restart: unless-stopped
+    networks:
+      - purplelab_net
+    ports:
+      - "127.0.0.1:8000:8000"
+    environment:
+      # Public prefix added by the frontend nginx (/api/ -> backend, stripped):
+      # Swagger UI (/api/docs) then loads /api/openapi.json and "Try it out"
+      # calls the routes under /api. Routing itself is unchanged.
+      UVICORN_ROOT_PATH: /api
+      DB_HOST: postgres
+      DB_PORT: "5432"
+      DB_NAME: purplelab
+      DB_USER: purplelab
+      DB_PASSWORD_FILE: /run/secrets/db_password
+      VM_AGENT_URL: http://host.docker.internal:8088
+      VM_AGENT_TOKEN_FILE: /run/secrets/vm_agent_token
+      JWT_SECRET_FILE: /run/secrets/jwt_secret
+      MASTER_ENCRYPTION_KEY_FILE: /run/secrets/master_encryption_key
+      MALWAREBAZAAR_API_KEY_FILE: /run/secrets/malwarebazaar_api_key
+      MALWARE_UPLOAD_DIR: /data/malware_upload
+      SAMPLES_DIR: /data/samples
+      CSV_DIR: /data/csv
+      JSON_DIR: /data/json
+      SIGMA_RULES_DIR: /data/sigma_rules
+      # Read-only: static Atomic Red Team seed data, only consulted once by
+      # alembic migration 0007 (never written to by the app).
+      ATOMIC_TESTS_CSV: /data/enterprise-attack/index_atomic.csv
+      # Read-only: full MITRE ATT&CK techniques export, only consulted
+      # once by alembic migration 0008 (never written to by the app) —
+      # "Update database" in the UI refreshes from the live STIX feed
+      # instead, see app/services/mitre_service.py.
+      MITRE_TECHNIQUES_XLSX: /data/enterprise-attack/enterprise-attack-techniques.xlsx
+      # React frontend origins: Vite in dev (npm run dev) and the
+      # containerized nginx build — the first consumers of CORS, left
+      # empty since Milestone 1.
+      CORS_ORIGINS: "http://localhost:5173,http://127.0.0.1:5173,http://localhost:8080,http://127.0.0.1:8080"
+    secrets:
+      - db_password
+      - jwt_secret
+      - master_encryption_key
+      - vm_agent_token
+      - malwarebazaar_api_key
+    volumes:
+      # Folders shared with vmbridge-agent on the host (identical bind-mounts
+      # on both sides) — the agent runs natively, so it reads these
+      # same files directly at the host path (see vmbridge-agent's
+      # SAMPLES_DIR in the systemd service).
+      - ./Downloaded/malware_upload:/data/malware_upload
+      - ./Downloaded/samples:/data/samples
+      - ./csv:/data/csv
+      - ./Downloaded/json:/data/json
+      - ./Downloaded/Sigma/rules:/data/sigma_rules
+      - ./enterprise-attack:/data/enterprise-attack:ro
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  frontend:
+    build:
+      context: ./frontend
+      args:
+        # /api: the container's nginx proxies this prefix to `backend:8000`
+        # internally (prefix stripped before relaying, see
+        # frontend/nginx.conf) — avoids any collision between a React route
+        # (/sigma, /malware...) and a backend router with the same name
+        # (latent bug discovered in Milestone 5: without the prefix, a refresh
+        # on /sigma landed on the router's JSON response instead of the
+        # SPA). The browser only ever calls a single origin — no need to
+        # expose/forward port 8000 separately (useful for remote access
+        # like VSCode Remote-SSH).
+        VITE_API_BASE_URL: "/api"
+    restart: unless-stopped
+    depends_on:
+      # Not just documentation: nginx resolves the `backend` upstream at
+      # config-load time and exits immediately if that name doesn't exist
+      # yet (`host not found in upstream "backend"`) — observed for real
+      # after a host reboot, when compose started both containers at once
+      # and frontend lost the race. This ensures the backend container at
+      # least exists first; `restart: unless-stopped` above is what
+      # actually makes frontend recover on its own if it still loses that
+      # race (nginx keeps exiting until backend answers, then stays up).
+      - backend
+    networks:
+      - purplelab_net
+    ports:
+      # Bound to the server's LAN IP (192.168.142.132, interface ens33),
+      # not 0.0.0.0: Docker publishes ports via NAT/DNAT rules that bypass
+      # UFW's INPUT chain, so `ufw allow <port>` alone does NOT restrict a
+      # port published on 0.0.0.0 (a known Docker/UFW pitfall). By binding
+      # explicitly to this IP, the port is only routable from the private
+      # 192.168.142.0/24 subnet (the only network this interface serves),
+      # matching the intended "private network/VPN only" exposure.
+      - "192.168.142.132:8080:80"

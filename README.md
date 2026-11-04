@@ -1,384 +1,456 @@
-<!-- Improved compatibility of back to top link -->
 <a id="readme-top"></a>
 
-<!-- PROJECT LOGO -->
-<br />
 <div align="center">
-  <a href="https://github.com/Krook9d/PurpleLab">
-    <img src="/MD_image/Logotest.png" alt="Logo PurpleLab" width="400" height="400"/>
-  </a>
-  
-  <!-- PROJECT SHIELDS -->
-  [![Issues][issues-shield]][issues-url]
-  [![MIT License][license-shield]][license-url]
-  [![LinkedIn][linkedin-shield]][linkedin-url]
-  [![Forks][forks-shield]][forks-url]
-  [![Stargazers][stars-shield]][stars-url]
 
-  <p align="center">
-    A comprehensive cybersecurity lab for creating and testing detection rules, simulating attacks, and training analysts
-    <br />
-    <a href="#installation"><strong>Get Started »</strong></a>
-    <br />
-    <br />
-    <a href="#usage">View Demo</a>
-    ·
-    <a href="https://github.com/Krook9d/PurpleLab/issues">Report Bug</a>
-    ·
-    <a href="https://github.com/Krook9d/PurpleLab/issues">Request Feature</a>
-  </p>
+<img src="MD_image/Logotest.png" alt="PurpleLab logo" width="220">
+
+# PurpleLab
+
+### Simulate the attack. Catch it. Prove your detection works.
+
+A self-hosted purple team lab to build and validate detection rules, run real attack techniques on a Windows sandbox and train analysts, all from one web interface.
+
+[![Stars][stars-shield]][stars-url]
+[![Forks][forks-shield]][forks-url]
+[![Issues][issues-shield]][issues-url]
+[![License][license-shield]][license-url]
+[![LinkedIn][linkedin-shield]][linkedin-url]
+
+![React](https://img.shields.io/badge/React_19-20232A?style=flat-square&logo=react&logoColor=61DAFB)
+![TypeScript](https://img.shields.io/badge/TypeScript-3178C6?style=flat-square&logo=typescript&logoColor=white)
+![FastAPI](https://img.shields.io/badge/FastAPI-009688?style=flat-square&logo=fastapi&logoColor=white)
+![PostgreSQL](https://img.shields.io/badge/PostgreSQL_16-4169E1?style=flat-square&logo=postgresql&logoColor=white)
+![OpenSearch](https://img.shields.io/badge/OpenSearch_2.17-005EB8?style=flat-square&logo=opensearch&logoColor=white)
+![Docker](https://img.shields.io/badge/Docker_Compose-2496ED?style=flat-square&logo=docker&logoColor=white)
+![VirtualBox](https://img.shields.io/badge/VirtualBox-183A61?style=flat-square&logo=virtualbox&logoColor=white)
+
+**[Quick start](#quick-start)** · **[Features](#features)** · **[Tour](#tour)** · **[Architecture](#architecture)** · **[Report a bug](https://github.com/Krook9d/PurpleLab/issues)**
+
 </div>
 
-<!-- TABLE OF CONTENTS -->
+<br>
+
+<img src="MD_image/mitre.webp" alt="Animated tour of the ATT&CK matrix: Atomic tests, Sigma rules and Executed coverage views, then a technique panel with its runnable Atomic tests" width="100%">
+
+<p align="center"><sub>The ATT&CK matrix switching between what you can <b>simulate</b>, what you <b>detect</b> and what you already <b>ran</b>, then a technique's panel with its runnable Atomic tests.</sub></p>
+
+<br>
+
+<a id="features"></a>
+
+## 🎯 Features
+
+PurpleLab closes the purple team loop on a single server: fire a technique, watch the logs land, and check that your rules catch it.
+
+<table>
+<tr>
+<th width="33%">🔴 Simulate</th>
+<th width="33%">🔵 Detect</th>
+<th width="33%">🟣 Validate</th>
+</tr>
+<tr valign="top">
+<td>
+
+- Run **Atomic Red Team** tests for any ATT&CK technique in one click
+- Detonate **malware** pulled from MalwareBazaar or uploaded by you
+- Execute your own **PowerShell payloads**
+- On a ready-made **Windows Server 2019** sandbox, reset by snapshot
+
+</td>
+<td>
+
+- Browse the **SigmaHQ rules** and convert them to **17 SIEM backends**
+- Hunt through **Sysmon + Winlogbeat** logs in PurpleLab Hunting
+- Read your **ATT&CK coverage**: what you can simulate vs what you detect
+- Ask the **MITRE AI assistant** to map a scenario to techniques
+
+</td>
+<td>
+
+- Sync detections from **Splunk, OpenSearch, Wazuh, Elasticsearch, Graylog**
+- Map each rule to a payload, **fire it** and check the rule triggers
+- Keep the **execution history** with full output and errors
+- Share queries and notes with your team
+
+</td>
+</tr>
+</table>
+
+<a id="quick-start"></a>
+
+## 🚀 Quick start
+
+> [!WARNING]
+> PurpleLab is a deliberately permissive lab: it is not hardened, ships basic credentials and executes malware. Never connect it to a production network.
+
+**You need** a clean **Ubuntu Server 22.04** host ([download](https://ubuntu.com/download/server)) with **8 CPU cores**, **13 GB RAM**, **200 GB disk**, **sudo** access, **hardware virtualization** enabled and a network interface usable in **bridged mode** (wired Ethernet in most cases): the sandbox VM gets its IP this way.
+
 <details>
-  <summary>📋 Table of Contents</summary>
-  <ol>
-    <li><a href="#-what-is-purplelab">What is PurpleLab?</a></li>
-    <li>
-      <a href="#-installation-procedure">Installation</a>
-      <ul>
-        <li><a href="#requirements">Requirements</a></li>
-        <li><a href="#installation">Installation Steps</a></li>
-        <li><a href="#accounts">Accounts Setup</a></li>
-        <li><a href="#elk-configuration">ELK Configuration</a></li>
-        <li><a href="#vm-logs-configuration">VM Logs Configuration</a></li>
-      </ul>
-    </li>
-    <li>
-      <a href="#-usage">Usage</a>
-      <ul>
-        <li><a href="#home-page-">Home Page</a></li>
-        <li><a href="#hunting-page-">Hunting Page</a></li>
-        <li><a href="#mitre-attck-page-️">MITRE ATT&CK Page</a></li>
-        <li><a href="#malware-page-">Malware Page</a></li>
-        <li><a href="#sharing-page-️">Sharing Page</a></li>
-        <li><a href="#sigma-page-️">Sigma Page</a></li>
-        <li><a href="#rule-lifecycle-page-️">Rule Lifecycle Page</a></li>
-        <li><a href="#health-page-">Health Page</a></li>
-        <li><a href="#admin-page-">Admin Page</a></li>
-      </ul>
-    </li>
-    <li><a href="#-splunk-app">Splunk App</a></li>
-    <li><a href="#-cortex-analyzer">Cortex Analyzer</a></li>
-    <li><a href="#-api-documentation">API Documentation</a></li>
-  </ol>
+<summary><b>Enabling nested virtualization</b> (when PurpleLab itself runs in a VM)</summary>
+
+<br>
+
+| Where PurpleLab runs | Setting |
+|---|---|
+| **VMware Workstation** | VM settings → Processors → Virtualization engine → enable *Virtualize Intel VT-x/EPT or AMD-V/RVI* |
+| **VirtualBox** | VM → Settings → System → Processor → check *Enable Nested VT-x/AMD-V* |
+| **Physical machine** | BIOS/UEFI → enable hardware virtualization (VT-x/AMD-V) → save and restart |
+
+> [!NOTE]
+> Ubuntu Server 23.10 may cause issues with Python library installation; stick to 22.04.
+
 </details>
 
-<br />
-
-<!-- ABOUT THE PROJECT -->
-## 🚀 What is PurpleLab ?
-
-**PurpleLab** is a cybersecurity laboratory that enables security professionals to easily deploy an entire testing environment for creating and validating detection rules, simulating realistic attack scenarios, and training security analysts.
-
-### 🏗️ Architecture Components
-
-The lab includes:
-
-- **🌐 Web Interface** - Complete frontend for controlling all features
-- **💻 VirtualBox Environment** - Ready-to-use Windows server 2019 with sysmon and opensearch collector
-- **⚙️ Flask Backend** - Robust API and application logic
-- **🗄️ PostgreSQL Database** - Secure data storage
-- **🔍 Opensearch Server** - Advanced log analysis and search capabilities
-
-<p align="right">(<a href="#readme-top">⬆️ back to top</a>)</p>
-
-<!-- INSTALLATION -->
-## 🔧 Installation procedure
-
-> ⚠️ **Important**: For a completely clean installation, follow ALL chapters of the installation procedure from requirements to accounts configuration.
-
-> ⚠️ **Security Notice**: This lab has not been hardened and runs with basic credentials. Do not connect it to production networks or secure it with proper PKI and authentication systems.
-
-### Requirements
-
-**Minimum Hardware Resources:**
-- **Storage**: 200GB available space
-- **CPU**: 8 cores minimum
-- **RAM**: 13GB minimum
-
-**Software Requirements:**
-- Clean installation of **Ubuntu Server 22.04** - [Download Here](https://ubuntu.com/download/server?ref=linuxhandbook.com)
-
-> ⚠️ **Note**: Ubuntu Server 23.10 may cause issues with Python library installation.
-
-**⚠️ Hardware Virtualization Setup:**
-
-**VMware Workstation:**
-1. Go to VM settings → Processors → Virtualization engine
-2. Enable "Virtualize Intel VT-x/EPT or AMD-V/RVI"
-
-**VirtualBox:**
-1. Select VM → Right-click → Settings → System → Processor
-2. Check "Enable Nested VT-x/AMD-V"
-
-**Physical Machine (Host):**
-1. Access BIOS/UEFI settings
-2. Enable hardware virtualization (VT-x/AMD-V)
-3. Save changes and restart
-
-**Download Repository:**
-```bash
-git clone https://github.com/Krook9d/PurpleLab.git && mv PurpleLab/install.sh .
-```
-
-### Installation
-
-Execute the installation script:
+**0. Host packages**: Docker with the Compose v2 plugin, Ansible and Python 3 (Ansible installs VirtualBox itself in step 4).
 
 ```bash
-sudo bash install.sh
+sudo apt update && sudo apt install -y ansible python3-pip python3-venv
+curl -fsSL https://get.docker.com | sudo sh
+sudo usermod -aG docker "$USER" && newgrp docker   # or log out and back in
+docker compose version && ansible-playbook --version   # both should print a version
 ```
 
-The script will automatically:
-1. **Install all components**: OpenSearch, PostgreSQL, VirtualBox, and web interface
-2. **Configure the Windows Server VM**: Set up monitoring and security tools
-3. **Generate credentials**: Save all login information to `admin.txt`
+**1. Clone and set the secrets**: copy each template, then fill in a real value.
 
-### Accounts
-
-#### 👤 Admin Account
-
-A default admin account is automatically created and stored in `~/admin.txt` with the format:
-```
-admin@local.com:password
-```
-
-#### 👥 User Account Setup
-
-1. **Access the application** using your server's IP address
-2. **Click "Register"** button
-3. **Fill required fields:**
-   - **First Name**: Your first name
-   - **Last Name**: Your last name  
-   - **Analyst Level**: Your analyst level (N1/N2/N3)
-   - **Avatar**: Select an avatar (< 1MB)
-   - **Password**: Must contain at least 8 characters with uppercase, lowercase, number, and special character
-
-<p align="right">(<a href="#readme-top">⬆️ back to top</a>)</p>
-
-<!-- USAGE -->
-## 💡 Usage
-
-**Start the Flask server:**
 ```bash
-sudo /opt/purplelab-venv/bin/python /home/$(logname)/app.py
+git clone https://github.com/Krook9d/PurpleLab.git && cd PurpleLab
+for f in secrets/*.example; do cp "$f" "${f%.example}"; done
+# edit secrets/db_password, jwt_secret, master_encryption_key, vm_agent_token,
+# malwarebazaar_api_key (free key at https://bazaar.abuse.ch/account/api/)
 ```
 
-### 🪟 Windows Server 2019 Sandbox VM 
+**2. Start the stack**: the first start also seeds the [SigmaHQ](https://github.com/SigmaHQ/sigma) rules, the MITRE ATT&CK techniques and the Atomic Red Team index, so every page has data right away.
 
-The automatically configured VM includes:
+```bash
+docker compose up -d --build
+docker compose exec backend alembic upgrade head
+```
+
+**3. Install `vmbridge-agent`**: the native service through which the API drives VirtualBox (idempotent, safe to re-run; details in [`vmbridge-agent/README.md`](vmbridge-agent/README.md)).
+
+```bash
+sudo ./vmbridge-agent/install.sh
+```
+
+**4. Provision the Windows sandbox**: Ansible installs VirtualBox and builds the guest. `--ask-become-pass` prompts for your usual sudo password. The first run downloads a Windows Server 2019 box (a few GB), so expect it to take a while.
+
+```bash
+pip install pywinrm
+cd ansible
+ansible-galaxy collection install -r requirements.yml
+ansible-playbook -i inventory/local/hosts playbook.yml --tags virtualbox --ask-become-pass
+cd ..
+
+# then let the agent pick up the new VM, and check it sees it
+sudo systemctl restart vmbridge-agent
+curl -s http://127.0.0.1:8088/vm/state -H "Authorization: Bearer $(cat /opt/purplelab/vmbridge-agent/secrets/vm_agent_token)"
+# expected: {"name":"sandbox","state":"poweroff",...}
+```
+
+**5. Create the first administrator** (the password is prompted, so it never lands in your shell history):
+
+```bash
+docker compose exec backend python -m app.create_admin admin@local.com
+```
+
+🎉 Open **`http://<server-ip>:8080`** and sign in.
+
+> [!TIP]
+> Add teammates with the same command and `--role analyst` for non-admins. Forgot a password? Running it again on an existing email resets the password and role.
+
+> [!TIP]
+> Empty ATT&CK matrix, no Atomic tests or no Sigma rules on first launch? Click **Update database** at the top of the **MITRE ATT&CK** or **Sigma Rules** page to download the latest data.
+
+<p align="right"><a href="#readme-top">back to top ⬆️</a></p>
+
+<a id="tour"></a>
+
+## 🧭 Tour
+
+A sidebar grouped by purpose, dark and light themes, details that open in side panels so you never lose your place, and a notification for every action, execution output included.
+
+#### 🏠 Dashboard
+
+<img src="MD_image/dashboard.webp" alt="Animated scroll through the dashboard: key figures, Sigma and Atomic charts, AlienVault OTX threat intelligence and threat map" width="100%">
+
+<sub>Key figures, Sigma rules by category, Atomic tests by tactic, then AlienVault OTX threat intelligence: threat types, targeted industries, exploited CVEs, global threat map and latest pulses.</sub>
+
+#### 📜 Sigma Rules
+
+<img src="MD_image/sigma.webp" alt="Animated Sigma workflow: browse categories, filter to a Mimikatz rule, open it and convert it to a Splunk query" width="100%">
+
+<sub>From the SigmaHQ categories down to a Mimikatz detection, converted to a Splunk query in one click (17 backends available).</sub>
+
+#### ⚙️ Rule Lifecycle
+
+<img src="MD_image/rule_lifecycle.webp" alt="Animated Rule Lifecycle workflow: SIEM connectors, synced rules mapped to payloads, payload editor, execution history and a failed run's error" width="100%">
+
+<sub>Connect your SIEM, map each synced detection rule to a payload, then follow every run: success and failure counters, output and errors.</sub>
+
+#### And the rest of the lab
+
+<table>
+<tr valign="top">
+<td width="50%">
+<img src="MD_image/hunting.png" alt="PurpleLab Hunting"><br>
+<b>🎯 Hunting</b><br>
+OpenSearch Dashboards in PurpleLab colors, with every sandbox event ready in Discover.
+</td>
+<td width="50%">
+<img src="MD_image/sharing.png" alt="Sharing feed"><br>
+<b>✏️ Sharing</b><br>
+A team feed for detection queries, rules and scripts, with syntax highlighting.
+</td>
+</tr>
+<tr valign="top">
+<td>
+<img src="MD_image/malware.png" alt="Malware page"><br>
+<b>🦠 Malware</b><br>
+Pull samples from MalwareBazaar or upload your own, then execute them on the sandbox.
+</td>
+<td>
+<img src="MD_image/custom_payload.png" alt="Custom payloads"><br>
+<b>💻 Custom Payloads</b><br>
+A shared library of PowerShell scripts, executable on the sandbox in one click.
+</td>
+</tr>
+<tr valign="top">
+<td>
+<img src="MD_image/health_page.png" alt="Health page"><br>
+<b>🩺 Health</b><br>
+Service status, host resources, sandbox controls and forensic acquisition.
+</td>
+<td>
+<img src="MD_image/mitre_ai.png" alt="MITRE AI assistant"><br>
+<b>🤖 MITRE AI assistant</b><br>
+Describe an attack scenario in plain words, get the matching ATT&CK techniques.
+</td>
+</tr>
+</table>
+
+### 📖 Module details
+
+<details>
+<summary><b>🏠 Dashboard</b>: lab overview and threat intelligence</summary>
+
+<br>
+
+- **Key figures** (animated, clickable): Winlogbeat events collected, users, Sigma rules, MITRE techniques, rule lifecycle payloads
+- **Sigma rules by category** and **Atomic tests by tactic**, colored consistently with the Sigma and MITRE pages
+- **AlienVault OTX** (once an OTX key is set in Administration): summary counters (intrusion sets, malware, reports, indicators), main threat types, most targeted industries, most exploited CVEs (each opens its NVD entry), a global threat map and the latest pulses
+
+</details>
+
+<details>
+<summary><b>🛡️ MITRE ATT&CK</b>: coverage matrix, technique details, AI assistant</summary>
+
+<br>
+
+- **ATT&CK matrix**: every technique by tactic, sub-techniques nested under their parent (badge = covered / total), with three coverage views:
+  - **Atomic tests**: what the lab can simulate
+  - **Sigma rules**: what is detected (rules tagged `attack.tXXXX`)
+  - **Executed**: Atomic tests already run on the sandbox (a red dot flags a failed last run)
+
+  The toolbar adds the overall coverage, a legend, a highlight filter, "Covered only" and "Expand sub-techniques"; the chosen view is kept in the URL.
+- **Technique panel**: coverage counters, description, platforms, data sources, detection advice and the list of [Atomic Red Team](https://www.atomicredteam.io/atomic-red-team/docs) tests, each with an **Execute** button. The **Search** tab finds a technique by name or ID (e.g. "T1070").
+- **MITRE assistant**: describe an attack scenario in plain words and get the matching techniques, each ID clickable. The LLM provider is set in Administration.
+- **Update database** fetches the latest ATT&CK data from MITRE on top of the bundled one.
+
+> [!TIP]
+> Switch the matrix between **Atomic tests** and **Sigma rules**: every technique you can simulate but don't detect is a gap in your defenses, and a ready-made test to write your next rule against.
+
+</details>
+
+<details>
+<summary><b>📜 Sigma Rules</b>: browse, read, convert</summary>
+
+<br>
+
+- **Browse** the SigmaHQ rules by category (with rule counts) and folder, or **search** inside rule content (e.g. "powershell")
+- **Read** a rule with syntax highlighting and copy it
+- **Convert** it in one click to 17 backends: Splunk, Lucene, Kusto, Carbon Black, SentinelOne, OpenSearch, CrowdStrike LogScale, Sumo Logic, Loki, Logpoint, Google SecOps, Quickwit, SQLite, NetWitness, Tanium Signals…
+- **Update database** pulls the latest rules from SigmaHQ
+
+</details>
+
+<details>
+<summary><b>⚙️ Rule Lifecycle</b>: end-to-end detection validation</summary>
+
+<br>
+
+- **Connectors**: Splunk, OpenSearch, Wazuh, Elasticsearch and Graylog. Set host, port, TLS and credentials (stored encrypted), test the connection, save.
+- **Rules & payloads**: sync the detection rules of a connector, assign a payload to each rule (saved immediately) and **Execute** it against the sandbox. Rule lifecycle payloads are created and edited in the same tab.
+- **Execution & results**: history with success/failure counters, filters by connector and status, and the full output or error of each run.
+
+</details>
+
+<details>
+<summary><b>🎯 Hunting</b>: explore the sandbox logs</summary>
+
+<br>
+
+**PurpleLab Hunting** is OpenSearch Dashboards rebranded with the PurpleLab colors, served at `http://<server-ip>:8080/hunting/` (the *Hunting* link in the sidebar opens it in a new tab). In **Discover**, the `winlogbeat-*` index pattern is ready with:
+
+- The logs collected automatically from the Windows sandbox, Sysmon events included (process, network, registry)
+- Every event produced by your Atomic tests, payloads and malware runs, to build and tune detections
+
+</details>
+
+<details>
+<summary><b>🦠 Malware</b> and <b>💻 Custom Payloads</b>: what you run on the sandbox</summary>
+
+<br>
+
+**Malware**
+- **Retrieve from [MalwareBazaar](https://bazaar.abuse.ch)**: enter a family (e.g. "AgentTesla") to download its latest samples; progress is followed live
+- **Upload a sample**: drag and drop your own file (`.exe`, `.dll`, `.bin`, `.py`, `.ps1`, `.xlsx`, `.ods`, `.pdf`, `.docx`, 50 MB max); it is copied to the sandbox VM
+- **Execute** any retrieved or hosted file on the sandbox in one click
+- Files are stored in `Downloaded/malware_upload/` at the repo root (bind-mounted into the `backend` container)
+
+**Custom Payloads**
+- A shared library of PowerShell scripts, in cards or list view, with a filter
+- Create a payload, open it to read the highlighted code, **Execute** it on the sandbox (output shown in the notification), delete your own
+
+</details>
+
+<details>
+<summary><b>✏️ Sharing</b>, <b>🩺 Health</b> and <b>🔐 Administration</b></summary>
+
+<br>
+
+**Sharing**: a team feed to publish notes and snippets (detection queries, rules, scripts) as text or code posts, with syntax highlighting for PowerShell, Python, Bash, SQL, JavaScript, YAML and JSON, filterable by type.
+
+**Health**
+- **Services**: database and VM agent status, checked every 10 seconds
+- **Resources**: RAM, disk and CPU gauges of the host, refreshed every 5 seconds
+- **Sandbox VM**: state, IP and snapshot, with **Start**, **Power off**, **Restore snapshot**, **Disable AV** and **Enable AV**
+- **Forensic acquisition**: memory dump or disk clone of the VM for offline analysis
+
+**Administration** (administrators only)
+- **AlienVault OTX**: API key (validated before saving) and dashboard refresh
+- **MITRE AI assistant**: OpenAI-compatible or Gemini provider, model, API key (connection tested before saving)
+
+<img src="MD_image/admin.png" alt="Administration" width="100%">
+
+</details>
+
+<p align="right"><a href="#readme-top">back to top ⬆️</a></p>
+
+<a id="architecture"></a>
+
+## 🏗️ Architecture
+
+Everything runs in Docker Compose except VirtualBox, which needs nested virtualization that containers cannot provide. A small native agent bridges the two.
+
+```mermaid
+flowchart LR
+    browser([Analyst browser]) -->|":8080"| front
+
+    subgraph compose["Docker Compose"]
+        front["nginx<br/>React UI"]
+        api["FastAPI<br/>JWT auth"]
+        pg[("PostgreSQL")]
+        os[("OpenSearch")]
+        osd["PurpleLab Hunting<br/>OpenSearch Dashboards"]
+        front -->|"/api"| api
+        front -->|"/hunting"| osd
+        api --> pg
+        api --> os
+        osd --> os
+    end
+
+    subgraph host["Ubuntu host"]
+        agent["vmbridge-agent<br/>systemd service"]
+        vm["Windows Server 2019 sandbox<br/>Sysmon · Winlogbeat · Atomic Red Team"]
+        agent -->|VBoxManage| vm
+    end
+
+    api -->|"HTTP + token"| agent
+    vm -->|"Winlogbeat :9200"| os
+    api -.->|"Rule Lifecycle"| siem[("Your SIEM")]
+
+    classDef brand fill:#7c3aed,stroke:#c4b5fd,color:#ffffff
+    class front,vm brand
+```
+
+<details>
+<summary><b>Components</b></summary>
+
+<br>
+
+| Component | Technology | Role |
+|---|---|---|
+| 🌐 **Web interface** | React 19 + TypeScript, MUI, ApexCharts, served by nginx | Controls every feature; dark and light themes |
+| ⚙️ **API** | FastAPI (Python 3.12) | Application logic, JWT authentication, interactive docs |
+| 🗄️ **Database** | PostgreSQL 16 | Users, payloads, connectors, execution history, MITRE data |
+| 🔍 **Log analytics** | OpenSearch + OpenSearch Dashboards ("PurpleLab Hunting") | Stores and explores the sandbox logs |
+| 🔗 **VM bridge** | `vmbridge-agent` (native systemd service) | Lets the containerized API drive VirtualBox on the host |
+| 💻 **Sandbox** | VirtualBox, Windows Server 2019 | Sysmon, Winlogbeat and Atomic Red Team, ready to be attacked |
+
+</details>
+
+<details>
+<summary><b>What's inside the Windows sandbox</b></summary>
+
+<br>
+
 - **Windows Server 2019** with admin user `oem/oem`
-- **Sysmon** with SwiftOnSecurity configuration for advanced logging
-- **Winlogbeat OSS 7.12.1** automatically sending logs to OpenSearch
-- **Atomic Red Team** with full test suite for attack simulation
-- **Python environment** and **Chocolatey** package manager
-- **PowerShell-YAML module** for YAML file processing
-- **Pre-configured directories**: samples, malware_upload, and upload folders
+- **Sysmon** with the SwiftOnSecurity configuration for advanced logging
+- **Winlogbeat OSS 7.12.1** shipping logs to OpenSearch automatically
+- **Atomic Red Team** with the full test suite for attack simulation
+- **Python** and the **Chocolatey** package manager
+- Pre-created **samples**, **malware_upload** and **upload** folders
 - **Windows Defender exclusions** for testing scenarios
 
-### Home Page 🏠
+</details>
 
-The dashboard displays key performance indicators from OpenSearch:
-- **Event Count** from Windows Server VM
-- **Unique IP Addresses** detected in logs
-- **MITRE ATT&CK** techniques and sub-techniques count
-- **Log Distribution** from VM collection
+## 🔌 Integrations and API
 
-<img src="/MD_image/home_page.png" width="800" alt="Home Page Dashboard">
+| | |
+|---|---|
+| 📚 **REST API** | FastAPI serves interactive, always up-to-date docs at **`http://<server-ip>:8080/api/docs`** (Swagger UI). Call `POST /auth/login`, then **Authorize** with the returned token to try the routes. |
+| 🟢 **[Splunk App](https://github.com/Krook9d/TA-Purplelab-Splunk)** | Run Atomic Red Team tests directly from Splunk, with a dedicated threat hunting dashboard. |
+| 🐝 **[Cortex Analyzer](https://github.com/Krook9d/PurpleLab-Cortex-Analyzer)** | Send executables from TheHive to PurpleLab for automated detonation and analysis. |
 
-### Hunting Page 🎯
+<details>
+<summary><b>▶️ Watch the demos</b></summary>
 
-Direct access to **OpenSearch Dashboards** for log analysis. Navigate to **Discover** to examine:
-- **Automatically collected VM logs** from Windows Server sandbox
-- Simulated log data and security events
-- Real-time monitoring of system activities
-- **Sysmon events** with detailed process and network information
+<br>
 
-### Mitre Att&ck Page 🛡️
-
-Interactive MITRE ATT&CK framework interface for:
-
-**🔍 Technique Discovery:**
-- Search using technique IDs (e.g., "T1070")
-- Browse sub-techniques and detailed information
-- Access comprehensive technique documentation
-
-**⚡ Payload Execution:**
-- Execute Atomic Red Team payloads
-- Simulate real attack scenarios
-- Generate detection-worthy events
-
-**📊 Database Management:**
-- Update MITRE ATT&CK database with latest data
-- Maintain current threat intelligence
-
-> **Reference**: [Atomic Red Team Tests](https://www.atomicredteam.io/atomic-red-team/docs)
-
-<img src="/MD_image/mitre.png" width="800" alt="MITRE ATT&CK Interface">
-
-### Malware Page 🦠
-
-Comprehensive malware management platform with dual functionality:
-
-#### 📥 Malware Downloader
-- **Search & Download**: Enter malware types (e.g., "Trojan")
-- **Auto-Integration**: Automatically uploads to Windows VM
-- **Batch Processing**: Downloads 10 latest samples from [Malware Bazaar](https://bazaar.abuse.ch)
-- **Execution Control**: Run malware with single-click execution
-
-#### 📤 Malware Uploader
-- **Custom Uploads**: Upload your own executables and scripts
-- **Supported Formats**: `.exe`, `.dll`, `.bin`, `.py`, `.ps1`
-- **Inventory Management**: List and manage uploaded malware
-
-> **Storage Location**: `/var/www/html/Downloaded/malware_upload/`
-
-<img src="/MD_image/malware.png" width="800" alt="Malware Management Interface">
-
-### Sharing Page ✏️
-
-Collaborative knowledge sharing platform:
-
-- **Query Sharing**: Publish effective detection queries
-- **Rule Exchange**: Share custom detection rules
-- **Community Benefit**: Learn from other analysts' discoveries
-
-<img src="/MD_image/sharing.png" width="800" alt="Knowledge Sharing Platform">
-
-### Sigma Page 🛡️
-
-Advanced Sigma rule management:
-
-#### 🔍 Search Capabilities
-- **Keyword Search**: Find rules by technique IDs or keywords (e.g., "powershell")
-- **Rule Display**: View complete Sigma rule details
-- **Format Conversion**: Convert rules to Splunk or Lucene syntax
-
-#### 🔄 Conversion Features
-- **Splunk Format**: One-click conversion to Splunk queries
-- **Lucene Format**: Transform to Elasticsearch-compatible syntax
-
-<img src="/MD_image/sigma.png" width="800" alt="Sigma Rule Management">
-
-### Rule Lifecycle Page ⚙️
-
-Advanced rule lifecycle management system for connecting and managing security rules across multiple SIEM platforms:
-
-#### 🔌 Connectors Management
-- **Splunk Integration**: Configure connections to Splunk instances with SSL support
-- **OpenSearch Integration**: Connect to OpenSearch clusters for rule synchronization
-- **Connection Testing**: Validate configurations before deployment
-- **Status Monitoring**: Real-time connector health and connectivity status
-
-#### 📋 Rules & Payloads
-- **Rule Synchronization**: Automatically fetch detection rules from connected SIEM platforms
-- **Payload Association**: Link PowerShell payloads to specific detection rules
-- **Custom Payload Creation**: Build and edit PowerShell scripts for rule testing
-- **Rule Filtering**: Filter rules by payload status and connector type
-- **Last Sync Tracking**: Monitor synchronization timestamps and rule freshness
-
-#### ⚡ Execution & Results
-- **Payload Execution**: Run individual or batch payloads against associated rules
-- **Result Analysis**: View detailed execution outputs and error messages
-- **Status Filtering**: Filter results by triggered/not triggered/error states
-- **Time-based Filtering**: Analyze executions over different time periods
-- **Batch Operations**: Execute all payloads for displayed rules simultaneously
-
-<img src="/MD_image/rule_lifecycle.png" width="800" alt="Rule Lifecycle Management">
-
-<p align="right">(<a href="#readme-top">⬆️ back to top</a>)</p>
-
-### Health Page 🩺
-
-Comprehensive system monitoring dashboard:
-
-#### 🖥️ Component Status
-- **Opensearch Dashboard** - Web interface status
-- **Postgres** - Database
-- **Opensearch** - Search engine status
-- **VirtualBox** - Virtualization platform
-- **Flask Backend** - Application server
-
-#### 📊 Resource Monitoring
-- **RAM Usage** - Memory utilization
-- **Disk Usage** - Storage consumption
-
-#### 🔧 VM Management
-- **Status Monitoring** - Current VM state
-- **IP Information** - Network configuration
-- **Snapshot Control** - Restore points management
-
-> **Note**: Snapshot restoration may show errors even when successful - verify by connecting to the VM.
-
-<img src="/MD_image/health_page.png" width="800" alt="System Health Dashboard">
-
-### Admin Page 🔐
-
-Administrative control center for system configuration:
-
-#### 🔑 Key Features
-- **LDAP Configuration**: Centralized authentication setup
-- **API Key Generation**: Secure API access management
-- **AlienVault OTX API Key**: Configure threat intelligence integration for enhanced KPIs
-- **System Settings**: Core configuration management
-
-#### 🔐 Access Requirements
-Login with administrator account: `admin@local.com`
-
-<img src="/MD_image/admin.png" width="800" alt="Administration Panel">
-
-<p align="right">(<a href="#readme-top">⬆️ back to top</a>)</p>
-
-<!-- INTEGRATIONS -->
-## 🔌 Splunk App
-
-**Repository**: [TA-Purplelab-Splunk](https://github.com/Krook9d/TA-Purplelab-Splunk)
-
-### Features
-- **🚀 Atomic Red Team Integration**: Execute tests directly from Splunk
-- **🔍 Threat Hunting Dashboard**: Dedicated hunting interface
-- **🔗 Seamless Integration**: Easy PurpleLab-Splunk connectivity
-
-### Demo
-
+**Splunk App**
 
 https://github.com/Krook9d/TA-Purplelab-Splunk/assets/40600995/eb5d0c27-06e5-416d-b707-af806c02323e
 
-## 🔍 Cortex Analyzer
-
-**Repository**: [PurpleLab-Cortex-Analyzer](https://github.com/Krook9d/PurpleLab-Cortex-Analyzer)
-
-### Capabilities
-- **📤 Automated Uploads**: Seamless executable transfer to PurpleLab
-- **💥 Detonation Analysis**: Automated malware execution and analysis
-- **🔗 TheHive Integration**: Enhanced incident response workflows
-
-### Demo
-
+**Cortex Analyzer**
 
 https://github.com/Krook9d/PurpleLab-Cortex-Analyzer/assets/40600995/690a8728-4ba7-4fda-a12e-48708e9b7d1d
 
-<p align="right">(<a href="#readme-top">⬆️ back to top</a>)</p>
+</details>
 
-<!-- API DOCUMENTATION -->
-## 📚 API documentation
+## 📝 Credits and license
 
-For comprehensive API usage and integration details, see our complete documentation:
+Parts of the web interface (theme, layout, components, charts) are adapted from the Community Edition of [OpenCTI](https://github.com/OpenCTI-Platform/opencti) under the Apache License 2.0; see [`CREDITS.md`](CREDITS.md) and [`LICENSES/`](LICENSES/). The rest of PurpleLab is released under the [GNU AGPL v3.0](LICENSE).
 
-**[📖 API Documentation](/Documentation/flask_app_documentation.md)**
+<div align="center">
 
-<p align="right">(<a href="#readme-top">⬆️ back to top</a>)</p>
+<br>
+
+**If PurpleLab helps your team, a ⭐ on the repo is the best way to say thanks.**
+
+<sub>Made with 💜 by <a href="https://github.com/Krook9d">Krook9d</a></sub>
+
+<p align="right"><a href="#readme-top">back to top ⬆️</a></p>
+
+</div>
 
 <!-- MARKDOWN LINKS & IMAGES -->
-[issues-shield]: https://img.shields.io/github/issues/Krook9d/PurpleLab.svg?style=for-the-badge
+[stars-shield]: https://img.shields.io/github/stars/Krook9d/PurpleLab.svg?style=for-the-badge&color=8b5cf6
+[stars-url]: https://github.com/Krook9d/PurpleLab/stargazers
+[forks-shield]: https://img.shields.io/github/forks/Krook9d/PurpleLab.svg?style=for-the-badge&color=8b5cf6
+[forks-url]: https://github.com/Krook9d/PurpleLab/network/members
+[issues-shield]: https://img.shields.io/github/issues/Krook9d/PurpleLab.svg?style=for-the-badge&color=8b5cf6
 [issues-url]: https://github.com/Krook9d/PurpleLab/issues
-[license-shield]: https://img.shields.io/github/license/Krook9d/PurpleLab.svg?style=for-the-badge
-[license-url]: https://github.com/Krook9d/PurpleLab/blob/master/LICENSE
+[license-shield]: https://img.shields.io/github/license/Krook9d/PurpleLab.svg?style=for-the-badge&color=8b5cf6
+[license-url]: LICENSE
 [linkedin-shield]: https://img.shields.io/badge/-LinkedIn-black.svg?style=for-the-badge&logo=linkedin&colorB=555
 [linkedin-url]: https://www.linkedin.com/in/martin-cayrol-47669a1a2/
-[forks-shield]: https://img.shields.io/github/forks/Krook9d/PurpleLab.svg?style=for-the-badge
-[forks-url]: https://github.com/Krook9d/PurpleLab/network/members
-[stars-shield]: https://img.shields.io/github/stars/Krook9d/PurpleLab.svg?style=for-the-badge
-[stars-url]: https://github.com/Krook9d/PurpleLab/stargazers
-

@@ -1,58 +1,22 @@
 ---
-- name: Installation de PurpleLab
-  hosts: all
-  become: yes
-  vars:
-    db_user: "toor"
-    db_pass: "root"
-    db_name: "purplelab"
-    encryption_key: "{{ lookup('password', '/dev/null chars=ascii_letters,digits,hexdigits length=32') }}"
-    admin_password: "{{ lookup('password', '/dev/null chars=ascii_letters,digits,special length=12') }}"
-    ansible_user: "{{ lookup('env', 'SUDO_USER') | default('user', true) }}"
-
-  roles:
-    - { role: common, tags: ['common'] }
-    - { role: webserver, tags: ['webserver'] }
-    - { role: database, tags: ['database'] }
-
-- name: Installation d'OpenSearch
-  hosts: opensearch_nodes
-  become: true
-  gather_facts: true
-  roles:
-    - role: roles/opensearch/opensearch
-  tags: [opensearch]
-
-- name: Installation d'OpenSearch Dashboards
-  hosts: opensearch_dashboards_nodes
-  become: true
-  gather_facts: true
-  roles:
-    - role: roles/opensearch_dashboards
-  tags: [opensearch]
-
-- name: Suite de l'installation PurpleLab (VirtualBox)
+# Backend/frontend/DB/OpenSearch: provisioned by docker-compose.yml, no
+# longer by Ansible (see README.md — removed in Milestone 6: the
+# common/webserver/database/opensearch/opensearch_dashboards roles used
+# to provision the old Apache+PHP+native Postgres+native OpenSearch
+# stack, entirely replaced now). Only provisioning the Windows sandbox VM
+# (out of scope for the V4 migration) remains here.
+- name: Provision VirtualBox / Windows sandbox VM
   hosts: all
   become: yes
   roles:
     - { role: virtualbox, tags: ['virtualbox'] }
 
   post_tasks:
-    - name: Configuration de la VM Windows
+    - name: Configure the Windows VM
       import_tasks: roles/virtualbox/tasks/configure_vm_playbook.yml
-      tags: 
+      tags:
         - configure_vm
         - vm_config
         - virtualbox
       vars:
         ansible_become: no
-
-    - name: Correction des permissions pour composer
-      file:
-        path: /var/www/html
-        state: directory
-        owner: www-data
-        group: www-data
-        mode: '0775'
-        recurse: yes
-      tags: [webserver]

@@ -1,14 +1,2 @@
 [local]
 localhost ansible_connection=local
-
-[opensearch_nodes]
-localhost ansible_connection=local
-
-[opensearch_dashboards_nodes]
-localhost ansible_connection=local
-
-[oscluster]
-localhost ansible_connection=local
-
-[dashboards]
-localhost ansible_connection=local

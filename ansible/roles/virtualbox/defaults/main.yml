@@ -1,0 +1,11 @@
+---
+# Human user who ran ansible-playbook. Lookups run on the controller, so
+# independently of become — unlike ansible_user_id, which reflects the
+# become user when fact gathering itself runs with "become: yes" (the case
+# here, at play level), then silently resolving to "root" instead of the
+# human user.
+# Defined here rather than with a set_fact at the top of tasks/main.yml: a
+# default is evaluated on demand, so it is always present — a set_fact is
+# skipped by --start-at-task, and every task using target_user then failed
+# with "'target_user' is undefined".
+target_user: "{{ lookup('env', 'SUDO_USER') | default(lookup('env', 'USER'), true) }}"

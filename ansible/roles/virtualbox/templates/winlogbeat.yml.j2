@@ -1,6 +1,6 @@
 # ============================== Winlogbeat Configuration ================================
 
-# Collecte des journaux d'événements Windows et journaux spécifiques (Sysmon, RDP, PowerShell)
+# Collects the Windows event logs and specific logs (Sysmon, RDP, PowerShell)
 winlogbeat.event_logs:
   - name: Application
     ignore_older: 72h
@@ -19,24 +19,26 @@ winlogbeat.event_logs:
 
 # ============================== Output OpenSearch ======================================
 
-# OpenSearch OSS output (via Elasticsearch output plugin)
+# OpenSearch OSS output (via Elasticsearch output plugin). Plain HTTP, no
+# auth: the Dockerized OpenSearch (V4, docker-compose.yml) runs with
+# DISABLE_SECURITY_PLUGIN=true, unlike the old bare-metal OpenSearch this
+# template originally targeted (TLS + admin/admin123). Port 9200 is
+# published on the Docker host's own LAN IP (docker-compose.yml) — this
+# VM reaches it directly since it's bridged onto that same LAN.
 output.elasticsearch:
-  hosts: ["https://{{ opensearch_host }}:9200"]
-  username: "admin"
-  password: "admin123"
-  ssl.verification_mode: none
+  hosts: ["http://{{ opensearch_host }}:9200"]
   allow_older_versions: true
   index: "winlogbeat-%{+yyyy.MM.dd}"
 
 # ============================== Setup Section ==========================================
 
-# Ne pas envoyer de templates (on les gère nous-mêmes si besoin)
+# Do not ship templates (we manage them ourselves if needed)
 setup.template.enabled: false
 
-# Désactiver ILM (Index Lifecycle Management)
+# Disable ILM (Index Lifecycle Management)
 setup.ilm.enabled: false
 
-# Ne pas configurer Kibana
+# Do not configure Kibana
 setup.kibana.host: ""
 setup.dashboards.enabled: false
 

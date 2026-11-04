@@ -1,0 +1,48 @@
+[Unit]
+Description=PurpleLab vmbridge-agent (local HTTP bridge to VBoxManage)
+After=network.target vboxdrv.service
+
+[Service]
+Type=simple
+User=purplelab-vm
+Group=vboxusers
+WorkingDirectory=/opt/purplelab/vmbridge-agent
+Environment=VM_AGENT_TOKEN_FILE=/opt/purplelab/vmbridge-agent/secrets/vm_agent_token
+# Required for VBoxManage to find the shared VM registry (see
+# ansible/roles/virtualbox: VBOX_USER_HOME=/var/lib/virtualbox, made
+# readable/writable by the vboxusers group). Without this variable,
+# VBoxManage falls back to an empty default profile where "sandbox"
+# doesn't exist — validated empirically at Milestone 0.
+Environment=VBOX_USER_HOME=/var/lib/virtualbox
+# Windows guest account credentials (artifact of the existing
+# Vagrant/Ansible provisioning, out of scope for this plan) — needed by
+# /vm/disable-av, /vm/enable-av, /vm/restart-winlogbeat (guestcontrol
+# run). NEVER commit the real values: set them only in the deployed copy
+# of this file (/etc/systemd/system/vmbridge-agent.service), never in
+# the repo.
+Environment=VM_GUEST_USERNAME=CHANGE_ME
+Environment=VM_GUEST_PASSWORD=CHANGE_ME
+# Folders shared with the backend container (identical bind-mounts on
+# both sides, see docker-compose.yml) — host paths, since
+# the agent runs natively (not in Docker).
+Environment=SAMPLES_DIR=/opt/purplelab/data/samples
+Environment=MALWARE_UPLOAD_DIR=/opt/purplelab/data/malware_upload
+# host.docker.internal (extra_hosts: host-gateway on the backend side)
+# resolves to the Docker bridge's IP (typically 172.17.0.1), not
+# 127.0.0.1 — validated empirically at Milestone 0. The agent must therefore
+# listen on 0.0.0.0: access is restricted via UFW (see the folder's
+# README), not by the bind.
+ExecStart=/opt/purplelab/vmbridge-agent/.venv/bin/uvicorn app.main:app --host 0.0.0.0 --port 8088
+Restart=on-failure
+RestartSec=2
+
+# NoNewPrivileges=true removed at Milestone 2: incompatible with sudo (needed
+# for poweroff/restore/start-headless, /dev/vboxdrv being root:root 0600
+# on this system — see the comment on run_vboxmanage(privileged=...) in
+# app/vbox.py). The real security barrier is
+# /etc/sudoers.d/purplelab-vm, scoped to the 3 exact VBoxManage
+# commands — not this systemd flag.
+PrivateTmp=true
+
+[Install]
+WantedBy=multi-user.target

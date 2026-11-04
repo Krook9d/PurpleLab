@@ -1,0 +1,49 @@
+# Replaces the line from install.sh (l.85):
+#   purplelab ALL=(ALL) NOPASSWD: /opt/purplelab-venv/bin/python *
+# which allowed running any Python script as root.
+#
+# STATUS (Milestone 2): this file is NO LONGER INSTALLED by default. VM
+# control (poweroff/restore/startvm) now works WITHOUT sudo at all —
+# validated empirically: the real blocker wasn't "needs root" but
+# /dev/vboxdrv being locked to root:root 0600 by Ubuntu's
+# virtualbox-dkms package's 60-virtualbox-dkms.rules udev rule. Fixed on
+# the machine side with a local udev rule (outside the repo, specific to
+# each host):
+#
+#   echo 'KERNEL=="vboxdrv", GROUP="vboxusers", MODE="0660"' | \
+#     sudo tee /etc/udev/rules.d/70-vboxdrv-vboxusers.rules
+#   sudo udevadm control --reload-rules
+#   sudo chgrp vboxusers /dev/vboxdrv && sudo chmod 0660 /dev/vboxdrv
+#
+# We tried the sudo route first (this file) before discovering that
+# alternating root/group access on the same .vbox file makes its
+# permissions "flap" (VirtualBox rewrites it with the identity of the
+# current process on every state change), breaking unprivileged reads
+# right afterward. The udev rule avoids this problem by keeping a single
+# identity (purplelab-vm) for all VBoxManage operations.
+#
+# This file remains useful for FUTURE operations that genuinely touch
+# root resources (raw memory dump, low-level disk cloning — Milestone 3+,
+# forensic_acquisition). If one of them turns out to need root, install
+# it with:
+#   sudo cp purplelab-vm.example /etc/sudoers.d/purplelab-vm
+#   sudo chmod 0440 /etc/sudoers.d/purplelab-vm
+#   sudo visudo -cf /etc/sudoers.d/purplelab-vm
+
+# dumpvmcore REMOVED from this list (Milestone 6): it never needed root, as
+# confirmed by the fact that the old forensic_acquisition.py itself
+# didn't use sudo for this command (only for clonemedium disk below).
+# Tested as root it even fails: a separate root process doesn't share
+# purplelab-vm's "live" VBoxSVC session (VBoxManage list runningvms
+# returns empty there even with the VM running), even with an identical
+# VBOX_USER_HOME — a VirtualBox multi-user session/IPC issue, not a file
+# permissions one. dump_memory() therefore runs as regular purplelab-vm,
+# like poweroff/restore/startvm.
+#
+# clonemedium disk stays here: it accesses the VM's disk file directly
+# at the filesystem level, not just through VBoxSVC.
+#
+# SETENV: needed for --preserve-env=VBOX_USER_HOME (on the agent side,
+# app/vbox.py run_vboxmanage) to be honored — sudo otherwise resets the
+# environment by default (env_reset).
+purplelab-vm ALL=(root) NOPASSWD:SETENV: /usr/bin/VBoxManage clonemedium disk *

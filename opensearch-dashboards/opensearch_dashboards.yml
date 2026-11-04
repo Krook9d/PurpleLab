@@ -1,0 +1,34 @@
+# OpenSearch Dashboards config, mounted over the image default. Rebrands the
+# UI as "PurpleLab Hunting" (Hunting page of PurpleLab).
+#
+# The UI is served by the frontend nginx under /hunting/ (prefix stripped
+# before relaying, see frontend/nginx.conf), so links are generated with that
+# base path while the server itself still answers at the root: the API calls
+# of opensearch-dashboards-init and of the Ansible playbook on :5601 keep
+# working unchanged.
+server.host: "0.0.0.0"
+server.basePath: "/hunting"
+server.rewriteBasePath: false
+
+opensearch.ssl.verificationMode: none
+
+# Assets are served by the frontend (frontend/public/brand/), same origin as
+# the proxied UI.
+opensearchDashboards.branding:
+  logo:
+    defaultUrl: "/brand/hunting/logo-light.svg"
+    darkModeUrl: "/brand/hunting/logo-dark.svg"
+  mark:
+    defaultUrl: "/brand/hunting/mark-light.svg"
+    darkModeUrl: "/brand/hunting/mark-dark.svg"
+  loadingLogo:
+    defaultUrl: "/brand/hunting/mark-light.svg"
+    darkModeUrl: "/brand/hunting/mark-dark.svg"
+  faviconUrl: "/brand/favicon.png"
+  applicationTitle: "PurpleLab Hunting"
+
+# Dark theme by default, matching PurpleLab (colors themselves are recolored
+# by /brand/hunting/theme.css, injected by the frontend nginx).
+uiSettings:
+  overrides:
+    "theme:darkMode": true

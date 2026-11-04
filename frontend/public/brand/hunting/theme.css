@@ -1,0 +1,212 @@
+/*
+ * PurpleLab Hunting theme: recolors OpenSearch Dashboards (dark mode, forced
+ * in opensearch-dashboards/opensearch_dashboards.yml) with the PurpleLab
+ * palette. Injected by the frontend nginx (location /hunting/).
+ *
+ * OSD has no theming hook for colors: these are overrides of its compiled
+ * OUI classes (2.17, "Next" theme), hence !important (plugin styles are
+ * loaded after the page head). Unknown classes after an OSD upgrade simply
+ * fall back to the stock colors. Canvas charts (Discover histogram, Lens)
+ * keep their own palette.
+ */
+:root {
+  --pl-bg: #070d19;
+  --pl-bg-end: #0b0f22;
+  --pl-paper: #09101e;
+  --pl-input: #0c1524;
+  --pl-elevated: #0f1d34;
+  --pl-border: rgba(124, 108, 240, 0.22);
+  --pl-primary: #7c6cf0;
+  --pl-primary-hover: #8f80ff;
+  --pl-primary-dark: #5546c4;
+  --pl-primary-text: #b4abff;
+  --pl-primary-soft: rgba(124, 108, 240, 0.16);
+}
+
+/* Surfaces ---------------------------------------------------------------- */
+body,
+#opensearch-dashboards-body,
+.app-wrapper,
+.euiPage,
+.euiPageBody,
+.osdOverviewPageHeader,
+.deLayout {
+  background: linear-gradient(100deg, var(--pl-bg) 0%, var(--pl-bg-end) 100%) fixed !important;
+}
+
+.euiHeader,
+.euiHeader--dark,
+.euiHeader--default {
+  background: var(--pl-bg) !important;
+  border-bottom: 1px solid var(--pl-border) !important;
+  box-shadow: none !important;
+}
+
+.euiPanel--plain,
+.euiPanel:not(.euiPanel--transparent),
+.euiCollapsibleNav,
+.euiFlyout {
+  background-color: var(--pl-paper) !important;
+}
+
+.euiPopover__panel,
+.euiModal,
+.euiToolTip,
+.euiContextMenuPanel,
+.euiComboBoxOptionsList {
+  background-color: var(--pl-elevated) !important;
+}
+
+.euiHorizontalRule {
+  background-color: var(--pl-border) !important;
+}
+
+/* Inputs ------------------------------------------------------------------ */
+.euiFieldText,
+.euiFieldSearch,
+.euiFieldNumber,
+.euiFieldPassword,
+.euiTextArea,
+.euiSelect,
+.euiComboBox__inputWrap,
+.euiFormControlLayout--group,
+.euiSuperDatePicker,
+.euiDatePickerRange,
+.osdQueryBar__wrap,
+.euiFilterButton {
+  background-color: var(--pl-input) !important;
+}
+
+.euiFieldText:focus,
+.euiFieldSearch:focus,
+.euiTextArea:focus,
+.euiComboBox__inputWrap.euiComboBox__inputWrap-isFocused,
+.euiFormControlLayout--group:focus-within {
+  background-image: linear-gradient(to top, var(--pl-primary), var(--pl-primary) 2px, transparent 2px, transparent 100%) !important;
+  background-size: 100% 100% !important;
+}
+
+/* Primary accent (stock teal) ---------------------------------------------- */
+.euiButton--primary.euiButton--fill,
+.euiButton--primary.euiButton-isDisabled.euiButton--fill:not(:disabled),
+.euiSuperUpdateButton.euiButton--fill {
+  background-color: var(--pl-primary) !important;
+  border-color: var(--pl-primary) !important;
+  color: #ffffff !important;
+}
+.euiButton--primary.euiButton--fill:hover:not(:disabled),
+.euiButton--primary.euiButton--fill:focus:not(:disabled) {
+  background-color: var(--pl-primary-hover) !important;
+  border-color: var(--pl-primary-hover) !important;
+}
+.euiButton--primary.euiButton--fill .euiIcon,
+.euiButton--primary.euiButton--fill .euiButton__text {
+  color: #ffffff !important;
+  fill: #ffffff !important;
+}
+
+.euiButton--primary:not(.euiButton--fill),
+.euiButtonEmpty--primary,
+.euiButtonIcon--primary,
+.euiHeaderLink.euiHeaderLink--primary,
+.euiLink.euiLink--primary,
+.euiTab-isSelected,
+.euiFacetButton__text,
+.euiSideNavItemButton-isSelected,
+.euiListGroupItem-isActive .euiListGroupItem__label {
+  color: var(--pl-primary-text) !important;
+}
+.euiButton--primary:not(.euiButton--fill) {
+  border-color: var(--pl-primary) !important;
+}
+.euiButton--primary:not(.euiButton--fill):hover:not(:disabled),
+.euiButtonEmpty--primary:hover:not(:disabled),
+.euiButtonIcon--primary:hover:not(:disabled) {
+  background-color: var(--pl-primary-soft) !important;
+}
+.euiButtonIcon--primary .euiIcon,
+.euiButtonEmpty--primary .euiIcon,
+.euiButton--primary:not(.euiButton--fill) .euiIcon {
+  fill: var(--pl-primary-text) !important;
+}
+
+.euiTab-isSelected,
+.euiTab-isSelected:hover {
+  box-shadow: inset 0 -2px 0 var(--pl-primary) !important;
+}
+
+/* Header breadcrumbs: the app-name chip is drawn by the wall's background
+   gradient (left cap) and the wrapper's ::before (body). */
+.euiHeaderBreadcrumbs .euiBreadcrumbWall {
+  background-image: linear-gradient(to right, var(--pl-primary-dark) 0px, var(--pl-primary-dark) 12px, transparent 12px) !important;
+}
+.euiHeaderBreadcrumbs .euiBreadcrumbWrapper::before {
+  background-color: var(--pl-primary-dark) !important;
+}
+.euiHeaderBreadcrumbs .euiBreadcrumb,
+.euiHeaderBreadcrumbs .euiBreadcrumb--last {
+  background-color: transparent !important;
+  color: #ffffff !important;
+}
+
+/* Home page solution panel (stock teal block) */
+.homSolutionPanel__header {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+}
+.homSolutionPanel__header,
+.homSolutionPanel__header * {
+  color: #ffffff !important;
+}
+
+/* Date picker "Show dates" link, loading spinner */
+.euiSuperDatePicker__prettyFormatLink {
+  color: var(--pl-primary-text) !important;
+}
+.euiLoadingSpinner {
+  border-top-color: var(--pl-primary) !important;
+}
+
+/* Controls */
+.euiSwitch .euiSwitch__button[aria-checked="true"] .euiSwitch__body {
+  background-color: var(--pl-primary) !important;
+}
+.euiCheckbox .euiCheckbox__input:checked + .euiCheckbox__square,
+.euiRadio .euiRadio__input:checked + .euiRadio__circle {
+  background-color: var(--pl-primary) !important;
+  border-color: var(--pl-primary) !important;
+}
+.euiProgress--primary,
+.euiProgress--primary::before,
+.osdLoadingIndicator__bar {
+  background-color: var(--pl-primary) !important;
+}
+.euiBadge--primary,
+.euiNotificationBadge {
+  background-color: var(--pl-primary) !important;
+  color: #ffffff !important;
+}
+.euiListGroupItem-isActive,
+.euiSideNavItemButton-isSelected {
+  background-color: var(--pl-primary-soft) !important;
+}
+
+/* Discover: field names in documents (stock dark teal chips) */
+.osdDescriptionListFieldTitle {
+  background-color: var(--pl-primary-soft) !important;
+  border-color: var(--pl-border) !important;
+  color: #e3dfff !important;
+}
+
+/* Focus & selection */
+*:focus-visible {
+  outline-color: var(--pl-primary) !important;
+}
+::selection {
+  background-color: rgba(124, 108, 240, 0.4);
+}
+
+/* Thin violet-tinted scrollbars, as in PurpleLab */
+* {
+  scrollbar-color: #1f2a4a var(--pl-bg);
+  scrollbar-width: thin;
+}

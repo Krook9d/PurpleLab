@@ -1,7 +1,32 @@
-install.sh
+# V4 — local secrets (committed .example templates, real values never versioned)
+secrets/*
+!secrets/*.example
+
+# V4 — local Python venv used for backend/vmbridge-agent tests
+.venv/
+__pycache__/
+*.pyc
+
 ansible/roles/virtualbox/files/.terraform.lock.hcl
 ansible/roles/virtualbox/files/terraform.log
 ansible/roles/virtualbox/files/terraform.tfstate
 ansible/roles/virtualbox/files/terraform.tfvars
-ansible/roles/virtualbox/files/.terraform/providers/registry.terraform.io/hashicorp/null/3.2.4/linux_amd64/LICENSE.txt
-ansible/roles/virtualbox/files/.terraform/providers/registry.terraform.io/hashicorp/null/3.2.4/linux_amd64/terraform-provider-null_v3.2.4_x5
+ansible/roles/virtualbox/files/.terraform/
+
+# V4 — runtime-generated/uploaded content, bind-mounted into the backend
+# container (docker-compose.yml) — real samples/uploads must never land in
+# git history. Only the placeholder .md kept per folder.
+Downloaded/Sigma/rules/*
+!Downloaded/Sigma/rules/sigma_rules.md
+
+Downloaded/samples/*
+!Downloaded/samples/samples.md
+
+Downloaded/malware_upload/*
+!Downloaded/malware_upload/upload.md
+
+Downloaded/json/*
+!Downloaded/json/json.md
+
+csv/*
+!csv/csv.md

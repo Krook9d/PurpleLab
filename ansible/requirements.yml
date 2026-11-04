@@ -1,4 +1,31 @@
 ---
+# ansible.windows: every win_* module used in
+# roles/virtualbox/tasks/configure_vm_playbook.yml (win_shell, win_command,
+# win_file, win_get_url, win_reboot, win_service, win_stat, win_template...).
+# chocolatey.chocolatey: win_chocolatey specifically (moved out of
+# ansible.windows into its own collection), used twice in the same file.
+# community.windows: win_unzip specifically (never in ansible.windows) —
+# was undeclared here and only worked by accident, resolving to whatever
+# copy `apt install ansible` happens to bundle system-wide.
+# (community.postgresql/community.general, previously listed here, were
+# leftovers from the removed native-Postgres Ansible role — nothing in
+# roles/virtualbox/ uses them; every other module (apt, user, file,
+# lineinfile, service, get_url, unarchive, command, shell, copy, template,
+# stat, pause, wait_for) is ansible.builtin, no collection needed.)
+#
+# Versions pinned to what Ubuntu 22.04's `apt install ansible` (ansible-base
+# 2.10.8) actually bundles/supports, not "latest": ansible.windows >= 2.0
+# requires ansible-core >= 2.16 (`meta/runtime.yml: requires_ansible`) and
+# crashes win_template with `generate_ansible_template_vars() got an
+# unexpected keyword argument 'fullpath'` on 2.10.8 — an internal API that
+# changed between core versions. Unpinned, `ansible-galaxy collection
+# install` grabs the latest release regardless, and it silently shadows the
+# older, compatible copy ansible-base already bundles under
+# /usr/lib/python3/dist-packages/ansible_collections.
 collections:
-  - name: community.postgresql
-  - name: community.general 
+  - name: ansible.windows
+    version: "1.4.0"
+  - name: chocolatey.chocolatey
+    version: "1.0.2"
+  - name: community.windows
+    version: "1.3.0"

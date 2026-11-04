@@ -1,14 +1,17 @@
 ---
-- name: Définir le nom de la VM
+- name: Set the VM name
   set_fact:
     vm_name: "sandbox"
 
-- name: Configuration de la licence virtualbox-ext-pack
+# target_user: defined in ../defaults/main.yml (always available,
+# including with --start-at-task, unlike a set_fact).
+
+- name: Accept the virtualbox-ext-pack license
   shell: |
     echo "virtualbox-ext-pack virtualbox-ext-pack/license select true" | debconf-set-selections
     echo "virtualbox-ext-pack virtualbox-ext-pack/license/accepted boolean true" | debconf-set-selections
 
-- name: Installation de VirtualBox et ses dépendances de base
+- name: Install VirtualBox and its base dependencies
   apt:
     name:
       - virtualbox
@@ -17,137 +20,137 @@
     state: present
     update_cache: yes
 
-- name: Installation de virtualbox-ext-pack
+- name: Install virtualbox-ext-pack
   apt:
     name: virtualbox-ext-pack
     state: present
 
-- name: Ajout de l'utilisateur au groupe vboxusers
+- name: Add the user to the vboxusers group
   user:
-    name: "{{ lookup('env', 'SUDO_USER') | default(ansible_user, true) }}"
+    name: "{{ target_user }}"
     groups: vboxusers
     append: yes
 
-- name: Création du répertoire pour les VMs
+- name: Create the VirtualBox directory
   file:
     path: /var/lib/virtualbox
     state: directory
     mode: '0755'
 
-- name: Créer le dossier de stockage persistant des VMs
+- name: Create the persistent VM storage folder
   file:
-    path: "/home/{{ lookup('env', 'SUDO_USER') | default(ansible_user, true) }}/VirtualBox VMs"
+    path: "/home/{{ target_user }}/VirtualBox VMs"
     state: directory
     mode: '0755'
-    owner: "{{ lookup('env', 'SUDO_USER') | default(ansible_user, true) }}"
-    group: "{{ lookup('env', 'SUDO_USER') | default(ansible_user, true) }}"
+    owner: "{{ target_user }}"
+    group: "{{ target_user }}"
 
-- name: Configuration de VBOX_USER_HOME
+- name: Set VBOX_USER_HOME
   lineinfile:
     path: /etc/environment
     line: 'VBOX_USER_HOME=/var/lib/virtualbox'
     state: present
 
-- name: Redémarrage du service VirtualBox
+- name: Restart the VirtualBox service
   service:
     name: virtualbox
     state: restarted
 
-- name: Installation de wget
+- name: Install wget
   apt:
     name: wget
     state: present
 
-- name: Installation de unzip
+- name: Install unzip
   apt:
     name: unzip
     state: present
 
-- name: Installation de Vagrant
+- name: Install Vagrant
   block:
-    - name: Téléchargement de Vagrant
+    - name: Download Vagrant
       get_url:
         url: https://releases.hashicorp.com/vagrant/2.4.1/vagrant_2.4.1-1_amd64.deb
         dest: /tmp/vagrant.deb
         mode: '0644'
-    
-    - name: Installation de Vagrant depuis le paquet .deb
+
+    - name: Install Vagrant from the .deb package
       apt:
         deb: /tmp/vagrant.deb
         state: present
-    
-    - name: Nettoyage du fichier temporaire
+
+    - name: Remove the temporary file
       file:
         path: /tmp/vagrant.deb
         state: absent
 
-- name: Création du répertoire Vagrant
+- name: Create the Vagrant directory
   file:
-    path: "/home/{{ lookup('env', 'SUDO_USER') | default(ansible_user, true) }}/.vagrant.d"
+    path: "/home/{{ target_user }}/.vagrant.d"
     state: directory
-    owner: "{{ lookup('env', 'SUDO_USER') | default(ansible_user, true) }}"
-    group: "{{ lookup('env', 'SUDO_USER') | default(ansible_user, true) }}"
+    owner: "{{ target_user }}"
+    group: "{{ target_user }}"
     mode: '0755'
 
-- name: Vérification de l'existence de l'image Vagrant
+- name: Check whether the Vagrant box exists
   stat:
-    path: "/home/{{ lookup('env', 'SUDO_USER') | default(ansible_user, true) }}/.vagrant.d/boxes/StefanScherer-VAGRANTSLASH-windows_2019"
+    path: "/home/{{ target_user }}/.vagrant.d/boxes/StefanScherer-VAGRANTSLASH-windows_2019"
   register: vagrant_box
 
-- name: Suppression de l'image si elle existe mais est corrompue
+- name: Remove the box if it exists but is corrupted
   file:
-    path: "/home/{{ lookup('env', 'SUDO_USER') | default(ansible_user, true) }}/.vagrant.d/boxes/StefanScherer-VAGRANTSLASH-windows_2019"
+    path: "/home/{{ target_user }}/.vagrant.d/boxes/StefanScherer-VAGRANTSLASH-windows_2019"
     state: absent
   when: vagrant_box.stat.exists
 
-- name: Téléchargement de l'image Windows Server 2019
+- name: Download the Windows Server 2019 box
   command: vagrant box add StefanScherer/windows_2019 --provider virtualbox --force
   environment:
-    VAGRANT_HOME: "/home/{{ lookup('env', 'SUDO_USER') | default(ansible_user, true) }}/.vagrant.d"
+    VAGRANT_HOME: "/home/{{ target_user }}/.vagrant.d"
   become: yes
-  become_user: "{{ lookup('env', 'SUDO_USER') | default(ansible_user, true) }}"
+  become_user: "{{ target_user }}"
   register: vagrant_box_add
   changed_when: "'Successfully added box' in vagrant_box_add.stdout"
-  failed_when: 
+  failed_when:
     - vagrant_box_add.rc != 0
     - "'box already exists' not in vagrant_box_add.stderr"
 
-- name: Vérification du téléchargement de l'image
+- name: Check the box download
   stat:
-    path: "/home/{{ lookup('env', 'SUDO_USER') | default(ansible_user, true) }}/.vagrant.d/boxes/StefanScherer-VAGRANTSLASH-windows_2019/2021.05.15/virtualbox/WindowsServer2019-disk001.vmdk"
+    path: "/home/{{ target_user }}/.vagrant.d/boxes/StefanScherer-VAGRANTSLASH-windows_2019/2021.05.15/virtualbox/WindowsServer2019-disk001.vmdk"
   register: box_file
   failed_when: not box_file.stat.exists
 
-- name: Obtenir la liste des interfaces réseau disponibles
+- name: List the available network interfaces
   command: VBoxManage list bridgedifs
   register: bridged_interfaces
   changed_when: false
 
-- name: Extraire la première interface active
+- name: Pick the first active interface
   set_fact:
     network_interface: "{{ bridged_interfaces.stdout_lines | select('match', '^Name:.*') | first | regex_replace('^Name:\\s+', '') }}"
   when: bridged_interfaces.stdout_lines | select('match', '^Name:.*') | list | length > 0
 
-- name: Téléchargement de Terraform
+- name: Download Terraform
   get_url:
     url: https://releases.hashicorp.com/terraform/1.5.7/terraform_1.5.7_linux_amd64.zip
     dest: /tmp/terraform.zip
     mode: '0644'
 
-- name: Décompression de Terraform
+- name: Unzip Terraform
   unarchive:
     src: /tmp/terraform.zip
     dest: /usr/local/bin
     remote_src: yes
     mode: '0755'
 
-- name: Création du répertoire de travail Terraform
+- name: Create the Terraform working directory
   file:
     path: "{{ playbook_dir }}/roles/virtualbox/files"
     state: directory
     mode: '0755'
 
-- name: Copie des fichiers de configuration Terraform
+- name: Copy the Terraform configuration files
   copy:
     src: "{{ item.src }}"
     dest: "{{ playbook_dir }}/roles/virtualbox/files/{{ item.dest }}"
@@ -155,7 +158,7 @@
   with_items:
     - { src: 'main.tf', dest: 'main.tf' }
 
-- name: Copie des variables Terraform avec l'interface réseau détectée
+- name: Write the Terraform variables with the detected network interface
   template:
     src: terraform.tfvars.j2
     dest: "{{ playbook_dir }}/roles/virtualbox/files/terraform.tfvars"
@@ -163,33 +166,71 @@
   vars:
     vm_network_interface: "{{ network_interface }}"
 
-- name: Initialisation de Terraform
+- name: Initialize Terraform
   command: terraform init
   args:
     chdir: "{{ playbook_dir }}/roles/virtualbox/files"
     creates: "{{ playbook_dir }}/roles/virtualbox/files/.terraform"
 
-- name: Application de la configuration Terraform
-  command: terraform apply -auto-approve -var="user={{ lookup('env', 'SUDO_USER') | default('user', true) }}"
+- name: Apply the Terraform configuration
+  command: terraform apply -auto-approve -var="user={{ target_user }}"
   args:
     chdir: "{{ playbook_dir }}/roles/virtualbox/files"
   environment:
     TF_VAR_vm_network_interface: "{{ network_interface }}"
 
-- name: Attendre que la VM démarre
+- name: Wait for the VM to boot
   pause:
     seconds: 30
 
-- name: Obtenir l'IP de la VM Windows
+# The "|| true" below used to silently swallow any VBoxManage error
+# (e.g. COM/VBoxSVC) across all 30 attempts: a delay that is too short and
+# a VBoxManage that fails every time produce exactly the same symptom
+# (empty stdout), so there is no telling them apart without looking at
+# stderr. Raw output + stderr of the last attempt are captured separately
+# to diagnose without changing the loop budget (30 x 10s, confirmed
+# sufficient in item 24).
+- name: Get the Windows VM IP
   shell: |
-    VBoxManage guestproperty enumerate "{{ vm_name }}" | grep "IP" | grep -oE "\b([0-9]{1,3}\.){3}[0-9]{1,3}\b" || true
+    VBoxManage guestproperty enumerate "{{ vm_name }}" > /tmp/purplelab_vm_guestprops.out 2> /tmp/purplelab_vm_guestprops.err
+    grep "IP" /tmp/purplelab_vm_guestprops.out | grep -oE "\b([0-9]{1,3}\.){3}[0-9]{1,3}\b" || true
   register: vm_ip_result
   until: vm_ip_result.stdout != ""
   retries: 30
   delay: 10
   changed_when: false
+  # Without this, running out of retries fails this task directly and the
+  # diagnostic task right below never runs — the final "fail" task is the
+  # one that must fail the play, once the diagnostic has been shown.
+  failed_when: false
 
-- name: Attente que la VM soit accessible
+- name: Diagnose when no IP was found after 300s
+  shell: |
+    echo "=== stdout: VBoxManage guestproperty enumerate ==="
+    cat /tmp/purplelab_vm_guestprops.out 2>/dev/null || echo "(empty)"
+    echo "=== stderr: VBoxManage guestproperty enumerate ==="
+    cat /tmp/purplelab_vm_guestprops.err 2>/dev/null || echo "(empty)"
+  args:
+    executable: /bin/bash
+  register: vm_ip_diag
+  when: vm_ip_result.stdout == ""
+  changed_when: false
+  failed_when: false
+
+- name: Show the IP lookup diagnostic
+  debug:
+    msg: "{{ vm_ip_diag.stdout_lines }}"
+  when: vm_ip_result.stdout == ""
+
+- name: Fail explicitly when no IP was found
+  fail:
+    msg: >-
+      No IP found for VM "{{ vm_name }}" after 300s (30 x 10s).
+      See the diagnostic above (stdout/stderr of VBoxManage guestproperty
+      enumerate) for the actual cause.
+  when: vm_ip_result.stdout == ""
+
+- name: Wait for the VM to be reachable
   wait_for:
     host: "{{ vm_ip_result.stdout }}"
     port: 3389

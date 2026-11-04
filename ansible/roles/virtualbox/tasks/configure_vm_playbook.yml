@@ -1,23 +1,12 @@
 ---
-- name: Définir le nom de la VM
-  set_fact:
-    vm_name: "sandbox"
+# vm_name and vm_ip_result are already available here: this file runs as
+# post_tasks of the same play as roles/virtualbox/tasks/main.yml, which
+# already defined them (register is play-scoped, not task-scoped).
+# Re-computing them here duplicated the same wait loop (up to 300s more)
+# with a different budget than main.yml — exactly the kind of variant
+# that already caused a deployment bug.
 
-- name: Obtenir l'IP de la VM Windows
-  shell: |
-    sudo VBoxManage guestproperty enumerate "{{ vm_name }}" | grep "IP" | grep -oE "\b([0-9]{1,3}\.){3}[0-9]{1,3}\b" || true
-  register: vm_ip_result
-  until: vm_ip_result.stdout != ""
-  retries: 30
-  delay: 10
-  changed_when: false
-
-- name: Afficher l'adresse IP de la VM
-  debug:
-    msg: "L'adresse IP de la VM {{ vm_name }} est {{ vm_ip_result.stdout }}"
-  when: vm_ip_result.stdout != ""
-
-- name: Attente que la VM soit accessible
+- name: Wait for the VM to be reachable
   wait_for:
     host: "{{ vm_ip_result.stdout }}"
     port: 5985
@@ -25,7 +14,7 @@
     delay: 10
   when: vm_ip_result.stdout != ""
 
-- name: Configurer les règles de pare-feu pour WinRM
+- name: Configure the firewall rules for WinRM
   win_shell: |
     netsh advfirewall firewall add rule name="WinRM-HTTP" dir=in localport=5985 protocol=TCP action=allow
     netsh advfirewall firewall add rule name="WinRM-HTTPS" dir=in localport=5986 protocol=TCP action=allow
@@ -39,17 +28,17 @@
     ansible_winrm_server_cert_validation: ignore
     ansible_port: 5985
 
-- name: Désactiver la politique de complexité des mots de passe
+- name: Disable the password complexity policy
   win_shell: |
     try {
-      # Désactiver la politique de complexité des mots de passe
+      # Disable the password complexity policy
       secedit /export /cfg C:\secpol.cfg
       (Get-Content C:\secpol.cfg) -replace "PasswordComplexity = 1", "PasswordComplexity = 0" | Out-File C:\secpol.cfg
       secedit /configure /db C:\Windows\security\local.sdb /cfg C:\secpol.cfg /areas SECURITYPOLICY
       Remove-Item -Path C:\secpol.cfg -Force
-      Write-Output "Politique de complexité des mots de passe désactivée"
+      Write-Output "Password complexity policy disabled"
     } catch {
-      Write-Output "Erreur lors de la désactivation de la politique de complexité: $_"
+      Write-Output "Error while disabling the complexity policy: $_"
       exit 1
     }
   delegate_to: "{{ vm_ip_result.stdout }}"
@@ -63,22 +52,23 @@
     ansible_winrm_server_cert_validation: ignore
     ansible_port: 5985
 
-- name: Afficher le résultat de la désactivation de la politique
+- name: Show the policy change result
   debug:
     var: disable_policy_result.stdout_lines
   when: disable_policy_result is defined
 
-- name: Création de l'utilisateur administrateur OEM via PowerShell
+- name: Create the OEM administrator user via PowerShell
   win_shell: |
     try {
       $password = ConvertTo-SecureString "oem" -AsPlainText -Force
       New-LocalUser -Name "oem" -Password $password -FullName "OEM Admin" -Description "OEM Administrator" -ErrorAction Stop
       Add-LocalGroupMember -Group "Administrators" -Member "oem" -ErrorAction Stop
-      Write-Output "Utilisateur oem créé avec succès"
+      Write-Output "User oem created successfully"
     } catch {
-      Write-Output "Erreur lors de la création de l'utilisateur: $_"
-      if ($_.Exception.Message -like "*nom d'utilisateur existe déjà*" -or $_.Exception.Message -like "*already exists*") {
-        Write-Output "L'utilisateur oem existe déjà"
+      Write-Output "Error while creating the user: $_"
+      # Matched on the exception type, not its (localized) message
+      if ($_.Exception.GetType().Name -eq "UserExistsException" -or $_.Exception.Message -like "*already exists*") {
+        Write-Output "User oem already exists"
         exit 0
       } else {
         exit 1
@@ -95,7 +85,7 @@
     ansible_winrm_server_cert_validation: ignore
     ansible_port: 5985
 
-- name: Afficher le résultat de la création de l'utilisateur
+- name: Show the user creation result
   debug:
     var: create_user_result.stdout_lines
   when: create_user_result is defined
@@ -104,7 +94,7 @@
 # Software installation
 # -------------------------------------
 
-- name: Vérifier si .NET Framework 4.8 est présent
+- name: Check whether .NET Framework 4.8 is present
   win_stat:
     path: 'C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.8'
   register: dotnet48
@@ -117,7 +107,7 @@
     ansible_winrm_server_cert_validation: ignore
     ansible_port: 5985
 
-- name: Télécharger le .NET Framework 4.8 si manquant
+- name: Download .NET Framework 4.8 if missing
   win_get_url:
     url: https://go.microsoft.com/fwlink/?linkid=2088631
     dest: C:\Windows\Temp\ndp48-x86-x64-allos-enu.exe
@@ -131,7 +121,7 @@
     ansible_winrm_server_cert_validation: ignore
     ansible_port: 5985
 
-- name: Installer le .NET Framework 4.8
+- name: Install .NET Framework 4.8
   win_command: C:\Windows\Temp\ndp48-x86-x64-allos-enu.exe /q /norestart
   when: not dotnet48.stat.exists
   register: install_dotnet
@@ -146,7 +136,7 @@
   ignore_errors: yes
   failed_when: install_dotnet.rc != 0 and install_dotnet.rc != 3010
 
-- name: Redémarrer la VM si .NET Framework a été installé
+- name: Reboot the VM if .NET Framework was installed
   win_reboot:
   when: install_dotnet is defined and install_dotnet.rc == 3010
   delegate_to: "{{ vm_ip_result.stdout }}"
@@ -158,7 +148,7 @@
     ansible_winrm_server_cert_validation: ignore
     ansible_port: 5985
 
-- name: Installer Chocolatey
+- name: Install Chocolatey
   win_chocolatey:
     name: chocolatey
     state: present
@@ -171,7 +161,7 @@
     ansible_winrm_server_cert_validation: ignore
     ansible_port: 5985
 
-- name: Installer Python avec Chocolatey
+- name: Install Python with Chocolatey
   win_chocolatey:
     name: python
     state: present
@@ -184,7 +174,7 @@
     ansible_winrm_server_cert_validation: ignore
     ansible_port: 5985
 
-- name: Vérifier la version de Python
+- name: Check the Python version
   win_command: python --version
   register: python_version
   delegate_to: "{{ vm_ip_result.stdout }}"
@@ -196,12 +186,12 @@
     ansible_winrm_server_cert_validation: ignore
     ansible_port: 5985
 
-- name: Afficher la version de Python installée
+- name: Show the installed Python version
   debug:
     var: python_version.stdout
   when: python_version is defined
 
-- name: Télécharger Sysmon
+- name: Download Sysmon
   win_get_url:
     url: https://download.sysinternals.com/files/Sysmon.zip
     dest: C:\Windows\Temp\Sysmon.zip
@@ -214,7 +204,7 @@
     ansible_winrm_server_cert_validation: ignore
     ansible_port: 5985
 
-- name: Extraire Sysmon
+- name: Extract Sysmon
   win_unzip:
     src: C:\Windows\Temp\Sysmon.zip
     dest: C:\Windows\Temp\Sysmon
@@ -228,7 +218,7 @@
     ansible_winrm_server_cert_validation: ignore
     ansible_port: 5985
 
-- name: Télécharger la configuration Sysmon de SwiftOnSecurity
+- name: Download the SwiftOnSecurity Sysmon configuration
   win_get_url:
     url: https://raw.githubusercontent.com/SwiftOnSecurity/sysmon-config/master/sysmonconfig-export.xml
     dest: C:\Windows\Temp\Sysmon\sysmonconfig-export.xml
@@ -241,7 +231,7 @@
     ansible_winrm_server_cert_validation: ignore
     ansible_port: 5985
 
-- name: Installer Sysmon avec la configuration
+- name: Install Sysmon with the configuration
   win_command: C:\Windows\Temp\Sysmon\Sysmon64.exe -accepteula -i C:\Windows\Temp\Sysmon\sysmonconfig-export.xml
   delegate_to: "{{ vm_ip_result.stdout }}"
   vars:
@@ -254,7 +244,7 @@
   register: sysmon_install
   ignore_errors: yes
 
-- name: Vérifier l'installation de Sysmon
+- name: Check the Sysmon installation
   win_command: C:\Windows\Temp\Sysmon\Sysmon64.exe -c
   delegate_to: "{{ vm_ip_result.stdout }}"
   vars:
@@ -267,26 +257,67 @@
   register: sysmon_check
   when: sysmon_install is defined
 
-- name: Afficher le statut de Sysmon
+- name: Show the Sysmon status
   debug:
     var: sysmon_check.stdout_lines
   when: sysmon_check is defined
 
 # -------------------------------------
-# Installation et configuration de Winlogbeat OSS 7.12.1
+# Winlogbeat OSS 7.12.1 installation and configuration
 # -------------------------------------
+# Pinned to 7.12.1, the last Beats release OpenSearch supports. 7.13+
+# (OSS builds included) check on connect that the cluster is a genuine,
+# Elastic-licensed Elasticsearch by calling GET /_license, which OpenSearch
+# rejects ("Invalid index name [_license], must not start with '_'"): the
+# output never connects and nothing is ever indexed. 7.17.29 was tried
+# (V4 migration) and broke log collection on every fresh install — it had
+# only been "validated" on a VM still running the previously installed
+# 7.12.1. The "_type" bulk error 7.12.1 used to hit is fixed server-side
+# by compatibility.override_main_response_version (docker-compose.yml),
+# not by the Beats version. Confirmed live: 7.17.29 -> _license 400,
+# 7.12.1 -> connection established and events indexed. See
+# winlogbeat_upgrade tag below for applying this to an already-provisioned
+# VM without a full VM rebuild.
 
-- name: Obtenir l'adresse IP du serveur hôte
+- name: Get the host server IP address
   shell: hostname -I | awk '{print $1}'
   register: host_ip
   changed_when: false
   delegate_to: 127.0.0.1
+  tags: [winlogbeat_config, winlogbeat_upgrade]
 
-- name: Télécharger Winlogbeat OSS 7.12.1 (compatible avec OpenSearch)
-  win_get_url:
-    url: https://artifacts.elastic.co/downloads/beats/winlogbeat/winlogbeat-oss-7.12.1-windows-x86_64.zip
-    dest: C:\Windows\Temp\winlogbeat.zip
+# Idempotent re-run entry point: `ansible-playbook ... --tags
+# winlogbeat_upgrade` cleanly replaces an already-installed Winlogbeat
+# with a different version (stop + uninstall the old service first, since
+# install-service-winlogbeat.ps1 doesn't handle "service already exists
+# with different binaries" on its own) — safe no-op on a fresh VM where
+# the service doesn't exist yet.
+- name: Stop and uninstall the previous Winlogbeat OSS service (if present)
+  win_shell: |
+    if (Get-Service winlogbeat -ErrorAction SilentlyContinue) {
+      Stop-Service winlogbeat -Force
+      cd "C:\Program Files\Winlogbeat"
+      .\uninstall-service-winlogbeat.ps1
+    } else {
+      Write-Output "no existing service"
+    }
   delegate_to: "{{ vm_ip_result.stdout }}"
+  tags: [winlogbeat_upgrade]
+  vars:
+    ansible_user: oem
+    ansible_password: oem
+    ansible_connection: winrm
+    ansible_winrm_transport: basic
+    ansible_winrm_server_cert_validation: ignore
+    ansible_port: 5985
+  ignore_errors: true
+
+- name: Empty the Winlogbeat install directory before reinstalling
+  win_file:
+    path: C:\Program Files\Winlogbeat
+    state: absent
+  delegate_to: "{{ vm_ip_result.stdout }}"
+  tags: [winlogbeat_upgrade]
   vars:
     ansible_user: oem
     ansible_password: oem
@@ -295,11 +326,27 @@
     ansible_winrm_server_cert_validation: ignore
     ansible_port: 5985
 
-- name: Créer le répertoire pour Winlogbeat
+- name: Download Winlogbeat OSS 7.12.1 (last version compatible with OpenSearch)
+  win_get_url:
+    url: https://artifacts.elastic.co/downloads/beats/winlogbeat/winlogbeat-oss-7.12.1-windows-x86_64.zip
+    dest: C:\Windows\Temp\winlogbeat.zip
+    force: true
+  delegate_to: "{{ vm_ip_result.stdout }}"
+  tags: [winlogbeat_upgrade]
+  vars:
+    ansible_user: oem
+    ansible_password: oem
+    ansible_connection: winrm
+    ansible_winrm_transport: basic
+    ansible_winrm_server_cert_validation: ignore
+    ansible_port: 5985
+
+- name: Create the Winlogbeat directory
   win_file:
     path: C:\Program Files\Winlogbeat
     state: directory
   delegate_to: "{{ vm_ip_result.stdout }}"
+  tags: [winlogbeat_upgrade]
   vars:
     ansible_user: oem
     ansible_password: oem
@@ -308,12 +355,13 @@
     ansible_winrm_server_cert_validation: ignore
     ansible_port: 5985
 
-- name: Extraire Winlogbeat OSS
+- name: Extract Winlogbeat OSS
   win_unzip:
     src: C:\Windows\Temp\winlogbeat.zip
     dest: C:\Windows\Temp\
-    creates: C:\Windows\Temp\winlogbeat-oss-7.12.1-windows-x86_64
+    creates: C:\Windows\Temp\winlogbeat-7.12.1-windows-x86_64
   delegate_to: "{{ vm_ip_result.stdout }}"
+  tags: [winlogbeat_upgrade]
   vars:
     ansible_user: oem
     ansible_password: oem
@@ -322,7 +370,7 @@
     ansible_winrm_server_cert_validation: ignore
     ansible_port: 5985
 
-- name: Lister le contenu du répertoire temporaire (pour le débogage)
+- name: List the temporary directory contents (for debugging)
   win_shell: |
     Get-ChildItem C:\Windows\Temp\*winlogbeat* -Recurse | Select-Object FullName
   register: temp_dir_listing
@@ -335,21 +383,25 @@
     ansible_winrm_server_cert_validation: ignore
     ansible_port: 5985
 
-- name: Afficher le contenu du répertoire temporaire
+- name: Show the temporary directory contents
   debug:
     var: temp_dir_listing.stdout_lines
 
-- name: Copier les fichiers Winlogbeat OSS dans le répertoire d'installation
+- name: Copy the Winlogbeat OSS files into the install directory
   win_shell: |
-    $source = Get-ChildItem C:\Windows\Temp\*winlogbeat* -Directory | Select-Object -First 1 -ExpandProperty FullName
-    if ($source) {
+    # Explicit folder (the OSS zip extracts without "-oss" in its name)
+    # rather than the first *winlogbeat* folder found: a leftover folder
+    # from another version in C:\Windows\Temp would otherwise be picked.
+    $source = "C:\Windows\Temp\winlogbeat-7.12.1-windows-x86_64"
+    if (Test-Path $source) {
       Copy-Item -Path "$source\*" -Destination "C:\Program Files\Winlogbeat" -Recurse -Force
-      Write-Output "Fichiers copiés depuis $source"
+      Write-Output "Files copied from $source"
     } else {
-      Write-Error "Aucun répertoire Winlogbeat trouvé dans C:\Windows\Temp"
+      Write-Error "No Winlogbeat directory found in C:\Windows\Temp"
       exit 1
     }
   delegate_to: "{{ vm_ip_result.stdout }}"
+  tags: [winlogbeat_upgrade]
   vars:
     ansible_user: oem
     ansible_password: oem
@@ -358,11 +410,12 @@
     ansible_winrm_server_cert_validation: ignore
     ansible_port: 5985
 
-- name: Configurer Winlogbeat OSS pour envoyer les logs à OpenSearch
+- name: Configure Winlogbeat OSS to ship logs to OpenSearch
   win_template:
     src: "{{ playbook_dir }}/roles/virtualbox/templates/winlogbeat.yml.j2"
     dest: C:\Program Files\Winlogbeat\winlogbeat.yml
   delegate_to: "{{ vm_ip_result.stdout }}"
+  tags: [winlogbeat_config, winlogbeat_upgrade]
   vars:
     opensearch_host: "{{ host_ip.stdout }}"
     ansible_user: oem
@@ -372,11 +425,38 @@
     ansible_winrm_server_cert_validation: ignore
     ansible_port: 5985
 
-- name: Installer Winlogbeat OSS en tant que service Windows
+# Idempotent re-run entry point: `ansible-playbook ... --tags winlogbeat_config`
+# pushes a corrected winlogbeat.yml.j2 (e.g. after moving OpenSearch, see V4
+# migration) into an already-provisioned VM and restarts the service to pick
+# it up, without re-downloading/reinstalling Winlogbeat. Necessary because
+# vmbridge-agent's guestcontrol-based guest exec runs oem under a UAC-filtered
+# non-admin token and cannot write to C:\Program Files\... at all (confirmed:
+# "Access is denied") — unlike this WinRM path, which does get an elevated
+# token for the same account. This restart is also safe to run unconditionally
+# as part of a fresh install (right after the service is first started below):
+# a few extra seconds, and it removes any assumption that win_service's
+# state:started alone is enough to pick up a freshly written config.
+- name: Restart Winlogbeat OSS (applies a modified winlogbeat.yml)
+  win_service:
+    name: winlogbeat
+    state: restarted
+  delegate_to: "{{ vm_ip_result.stdout }}"
+  tags: [winlogbeat_config, winlogbeat_upgrade]
+  vars:
+    ansible_user: oem
+    ansible_password: oem
+    ansible_connection: winrm
+    ansible_winrm_transport: basic
+    ansible_winrm_server_cert_validation: ignore
+    ansible_port: 5985
+  ignore_errors: true  # service may not exist yet on a first install/right after the upgrade tag's uninstall step above — the win_service "started" task further down handles that case
+
+- name: Install Winlogbeat OSS as a Windows service
   win_shell: |
     cd "C:\Program Files\Winlogbeat"
     .\install-service-winlogbeat.ps1
   delegate_to: "{{ vm_ip_result.stdout }}"
+  tags: [winlogbeat_upgrade]
   vars:
     ansible_user: oem
     ansible_password: oem
@@ -385,12 +465,13 @@
     ansible_winrm_server_cert_validation: ignore
     ansible_port: 5985
 
-- name: Démarrer le service Winlogbeat OSS
+- name: Start the Winlogbeat OSS service
   win_service:
     name: winlogbeat
     state: started
     start_mode: auto
   delegate_to: "{{ vm_ip_result.stdout }}"
+  tags: [winlogbeat_upgrade]
   vars:
     ansible_user: oem
     ansible_password: oem
@@ -399,11 +480,12 @@
     ansible_winrm_server_cert_validation: ignore
     ansible_port: 5985
 
-- name: Vérifier l'état du service Winlogbeat OSS
+- name: Check the Winlogbeat OSS service state
   win_service:
     name: winlogbeat
   register: winlogbeat_status
   delegate_to: "{{ vm_ip_result.stdout }}"
+  tags: [winlogbeat_upgrade]
   vars:
     ansible_user: oem
     ansible_password: oem
@@ -412,24 +494,57 @@
     ansible_winrm_server_cert_validation: ignore
     ansible_port: 5985
 
-- name: Afficher l'état du service Winlogbeat OSS
+- name: Show the Winlogbeat OSS service state
   debug:
     var: winlogbeat_status
   when: winlogbeat_status is defined
 
+# The opensearch-dashboards-init container (docker-compose.yml) creates the
+# winlogbeat-* index pattern long before the VM ships anything. Dashboards
+# caches the pattern's field list the first time it's opened: opened
+# before any winlogbeat-* index exists, it's saved with 0 fields and never
+# refreshed on its own, so Discover crashes on the missing @timestamp
+# ("SavedObjectNotFound" from createHistogramConfigs). Once events are
+# flowing, refresh that list the same way Dashboards' "Refresh field list"
+# button does (fetch _fields_for_wildcard, write it back into the saved
+# object). Also a working end-to-end check of log collection: the wait
+# fails the play if no event ever reaches OpenSearch.
+- name: Wait for the first Winlogbeat events in OpenSearch
+  uri:
+    url: "http://{{ host_ip.stdout }}:9200/winlogbeat-*/_count"
+    return_content: yes
+  register: winlogbeat_event_count
+  until: winlogbeat_event_count.status == 200 and (winlogbeat_event_count.json.count | int) > 0
+  retries: 30
+  delay: 10
+  delegate_to: 127.0.0.1
+  tags: [winlogbeat_config, winlogbeat_upgrade]
+
+- name: Refresh the field list of the winlogbeat-* index pattern (OpenSearch Dashboards)
+  shell: |
+    set -o pipefail
+    curl -sf "http://{{ host_ip.stdout }}:5601/api/index_patterns/_fields_for_wildcard?pattern=winlogbeat-*&meta_fields=_source&meta_fields=_id&meta_fields=_type&meta_fields=_index&meta_fields=_score" \
+      | python3 -c 'import json, sys; print(json.dumps({"attributes": {"title": "winlogbeat-*", "timeFieldName": "@timestamp", "fields": json.dumps(json.load(sys.stdin)["fields"])} }))' \
+      | curl -sf -X PUT "http://{{ host_ip.stdout }}:5601/api/saved_objects/index-pattern/winlogbeat-*" \
+          -H "osd-xsrf: true" -H "Content-Type: application/json" -d @-
+  args:
+    executable: /bin/bash
+  delegate_to: 127.0.0.1
+  tags: [winlogbeat_config, winlogbeat_upgrade]
+
 # -------------------------------------
-# Configuration des exclusions Windows Defender et installation d'Invoke-AtomicRedTeam
+# Windows Defender exclusions and Invoke-AtomicRedTeam installation
 # -------------------------------------
 
-- name: Ajouter des exclusions Windows Defender pour AtomicRedTeam et dossiers utilisateur
+- name: Add Windows Defender exclusions for AtomicRedTeam and user folders
   win_shell: |
     try {
       Add-MpPreference -ExclusionPath "C:\AtomicRedTeam" -ErrorAction Stop
       Add-MpPreference -ExclusionPath "C:\Users\oem\Documents" -ErrorAction Stop
       Add-MpPreference -ExclusionPath "C:\Windows\Temp\atomic-red-team-master" -ErrorAction Stop
-      Write-Output "Exclusions Windows Defender ajoutées avec succès"
+      Write-Output "Windows Defender exclusions added successfully"
     } catch {
-      Write-Output "Erreur lors de l'ajout des exclusions Windows Defender: $_"
+      Write-Output "Error while adding the Windows Defender exclusions: $_"
       exit 1
     }
   delegate_to: "{{ vm_ip_result.stdout }}"
@@ -442,12 +557,12 @@
     ansible_port: 5985
   register: defender_exclusions_result
 
-- name: Afficher le résultat des exclusions Windows Defender
+- name: Show the Windows Defender exclusions result
   debug:
     var: defender_exclusions_result.stdout_lines
   when: defender_exclusions_result is defined
 
-- name: Créer le dossier samples dans Documents
+- name: Create the samples folder in Documents
   win_file:
     path: C:\Users\oem\Documents\samples
     state: directory
@@ -460,7 +575,7 @@
     ansible_winrm_server_cert_validation: ignore
     ansible_port: 5985
 
-- name: Créer le dossier malware_upload dans Documents
+- name: Create the malware_upload folder in Documents
   win_file:
     path: C:\Users\oem\Documents\malware_upload
     state: directory
@@ -473,7 +588,7 @@
     ansible_winrm_server_cert_validation: ignore
     ansible_port: 5985
 
-- name: Créer le dossier upload dans Documents
+- name: Create the upload folder in Documents
   win_file:
     path: C:\Users\oem\Documents\upload
     state: directory
@@ -486,7 +601,7 @@
     ansible_winrm_server_cert_validation: ignore
     ansible_port: 5985
 
-- name: Créer le dossier AtomicRedTeam
+- name: Create the AtomicRedTeam folder
   win_file:
     path: C:\AtomicRedTeam
     state: directory
@@ -499,7 +614,7 @@
     ansible_winrm_server_cert_validation: ignore
     ansible_port: 5985
 
-- name: Créer les sous-dossiers pour AtomicRedTeam
+- name: Create the AtomicRedTeam subfolders
   win_file:
     path: "C:\\AtomicRedTeam\\{{ item }}"
     state: directory
@@ -516,7 +631,7 @@
     ansible_winrm_server_cert_validation: ignore
     ansible_port: 5985
 
-- name: Télécharger module PowerShell-YAML
+- name: Download the PowerShell-YAML module
   win_get_url:
     url: https://github.com/cloudbase/powershell-yaml/archive/refs/heads/master.zip
     dest: C:\Windows\Temp\powershell-yaml.zip
@@ -529,7 +644,7 @@
     ansible_winrm_server_cert_validation: ignore
     ansible_port: 5985
 
-- name: Créer dossier pour modules PowerShell
+- name: Create the PowerShell modules folder
   win_shell: |
     $modulePath = "$HOME\Documents\WindowsPowerShell\Modules"
     if (-not (Test-Path $modulePath)) {
@@ -544,7 +659,7 @@
     ansible_winrm_server_cert_validation: ignore
     ansible_port: 5985
 
-- name: Extraire et installer PowerShell-YAML
+- name: Extract and install PowerShell-YAML
   win_shell: |
     Expand-Archive -Path C:\Windows\Temp\powershell-yaml.zip -DestinationPath C:\Windows\Temp\ -Force
     $source = "C:\Windows\Temp\powershell-yaml-master"
@@ -556,7 +671,7 @@
     
     New-Item -Path $destination -ItemType Directory -Force
     Copy-Item -Path "$source\*" -Destination $destination -Recurse -Force
-    Write-Output "Module PowerShell-YAML installé"
+    Write-Output "PowerShell-YAML module installed"
   delegate_to: "{{ vm_ip_result.stdout }}"
   vars:
     ansible_user: oem
@@ -567,12 +682,12 @@
     ansible_port: 5985
   register: yaml_module_result
 
-- name: Afficher le résultat de l'installation de PowerShell-YAML
+- name: Show the PowerShell-YAML installation result
   debug:
     var: yaml_module_result.stdout_lines
   when: yaml_module_result is defined
 
-- name: Télécharger Invoke-AtomicRedTeam
+- name: Download Invoke-AtomicRedTeam
   win_get_url:
     url: https://github.com/redcanaryco/invoke-atomicredteam/archive/refs/heads/master.zip
     dest: C:\Windows\Temp\invoke-atomicredteam.zip
@@ -585,13 +700,13 @@
     ansible_winrm_server_cert_validation: ignore
     ansible_port: 5985
 
-- name: Extraire Invoke-AtomicRedTeam
+- name: Extract Invoke-AtomicRedTeam
   win_shell: |
     Expand-Archive -Path C:\Windows\Temp\invoke-atomicredteam.zip -DestinationPath C:\Windows\Temp\ -Force
     $source = "C:\Windows\Temp\invoke-atomicredteam-master"
     
     Copy-Item -Path "$source\*" -Destination "C:\AtomicRedTeam\invoke-atomicredteam" -Recurse -Force
-    Write-Output "Invoke-AtomicRedTeam extrait et copié"
+    Write-Output "Invoke-AtomicRedTeam extracted and copied"
   delegate_to: "{{ vm_ip_result.stdout }}"
   vars:
     ansible_user: oem
@@ -602,7 +717,7 @@
     ansible_port: 5985
   register: invoke_atomic_extract_result
 
-- name: Télécharger les Atomic tests
+- name: Download the Atomic tests
   win_get_url:
     url: https://github.com/redcanaryco/atomic-red-team/archive/refs/heads/master.zip
     dest: C:\Windows\Temp\atomic-red-team.zip
@@ -615,13 +730,13 @@
     ansible_winrm_server_cert_validation: ignore
     ansible_port: 5985
 
-- name: Désactiver temporairement Windows Defender
+- name: Temporarily disable Windows Defender
   win_shell: |
     try {
       Set-MpPreference -DisableRealtimeMonitoring $true
-      Write-Output "Protection en temps réel de Windows Defender désactivée temporairement"
+      Write-Output "Windows Defender real-time protection temporarily disabled"
     } catch {
-      Write-Output "Erreur lors de la désactivation de Windows Defender: $_"
+      Write-Output "Error while disabling Windows Defender: $_"
       exit 1
     }
   delegate_to: "{{ vm_ip_result.stdout }}"
@@ -634,12 +749,12 @@
     ansible_port: 5985
   register: defender_disable_result
 
-- name: Afficher le résultat de la désactivation de Windows Defender
+- name: Show the Windows Defender disable result
   debug:
     var: defender_disable_result.stdout_lines
   when: defender_disable_result is defined
 
-- name: Extraire et configurer les Atomic tests
+- name: Extract and set up the Atomic tests
   win_command: powershell.exe -Command "Expand-Archive -Path C:\Windows\Temp\atomic-red-team.zip -DestinationPath C:\Windows\Temp\ -Force"
   delegate_to: "{{ vm_ip_result.stdout }}"
   vars:
@@ -651,7 +766,7 @@
     ansible_port: 5985
   register: atomic_extract_result
 
-- name: Copier les tests atomiques vers le dossier final
+- name: Copy the Atomic tests to their final folder
   win_command: powershell.exe -Command "Copy-Item -Path 'C:\Windows\Temp\atomic-red-team-master\atomics' -Destination 'C:\AtomicRedTeam\' -Recurse -Force"
   delegate_to: "{{ vm_ip_result.stdout }}"
   vars:
@@ -664,13 +779,13 @@
   register: atomic_tests_result
   ignore_errors: yes
 
-- name: Réactiver Windows Defender après copie (si nécessaire pour la sécurité)
+- name: Re-enable Windows Defender after the copy (if needed for security)
   win_shell: |
     try {
       Set-MpPreference -DisableRealtimeMonitoring $false
-      Write-Output "Protection en temps réel de Windows Defender réactivée"
+      Write-Output "Windows Defender real-time protection re-enabled"
     } catch {
-      Write-Output "Erreur lors de la réactivation de Windows Defender: $_"
+      Write-Output "Error while re-enabling Windows Defender: $_"
       exit 0
     }
   delegate_to: "{{ vm_ip_result.stdout }}"
@@ -684,13 +799,13 @@
   register: defender_enable_result
   when: atomic_tests_result is defined
 
-- name: Importer le module Invoke-AtomicRedTeam
+- name: Import the Invoke-AtomicRedTeam module
   win_shell: |
     try {
       Import-Module "C:\AtomicRedTeam\invoke-atomicredteam\Invoke-AtomicRedTeam.psd1" -Force
-      Write-Output "Module Invoke-AtomicRedTeam importé avec succès"
+      Write-Output "Invoke-AtomicRedTeam module imported successfully"
     } catch {
-      Write-Output "Erreur lors de l'importation du module: $_"
+      Write-Output "Error while importing the module: $_"
       exit 1
     }
   delegate_to: "{{ vm_ip_result.stdout }}"
@@ -703,17 +818,17 @@
     ansible_port: 5985
   register: import_module_result
 
-- name: Afficher le résultat de l'importation du module
+- name: Show the module import result
   debug:
     var: import_module_result.stdout_lines
   when: import_module_result is defined
 
-- name: Créer un snapshot de la VM avant de l'éteindre
+- name: Take a VM snapshot before powering it off
   shell: sudo VBoxManage snapshot "sandbox" take "Snapshot1" --description "snapshot before the mess"
   become: yes
   changed_when: true
 
-- name: Éteindre la VM proprement (si elle est allumée)
+- name: Power off the VM cleanly (if it is running)
   shell: |
     VM_STATE=$(sudo VBoxManage showvminfo "sandbox" --machinereadable | grep -i VMState= | cut -d'=' -f2 | tr -d '"')
     if [ "$VM_STATE" = "running" ]; then
@@ -722,14 +837,14 @@
   changed_when: true
   become: yes
 
-- name: Attente pour stabiliser les fichiers .vbox
+- name: Wait for the .vbox files to settle
   pause:
     seconds: 5
 
-- name: Enregistrer la VM si elle n'est pas déjà enregistrée
+- name: Register the VM if it is not registered yet
   shell: |
     if ! sudo VBoxManage list vms | grep -q '"sandbox"'; then
-      sudo VBoxManage registervm "/home/{{ lookup('env', 'SUDO_USER') | default('user', true) }}/VirtualBox VMs/sandbox/sandbox.vbox"
+      sudo VBoxManage registervm "/home/{{ target_user }}/VirtualBox VMs/sandbox/sandbox.vbox"
     fi
   register: vm_register_result
   retries: 3
@@ -737,3 +852,75 @@
   until: vm_register_result.rc == 0
   ignore_errors: yes
   become: yes
+
+- name: Make the shared VirtualBox registry (VBOX_USER_HOME) accessible to vboxusers
+  # VBOX_USER_HOME=/var/lib/virtualbox (see main.yml) is shared between
+  # root (these Ansible tasks) and purplelab-vm (vmbridge-agent, which
+  # drives the VM day to day) — but VirtualBox forces its own registry
+  # files (VirtualBox.xml, compreg.dat, ...) to root:root 0600 on every
+  # write, whatever the umask. Without this task, vmbridge-agent (running
+  # as purplelab-vm, a member of vboxusers but not root) cannot read them
+  # and every VBoxManage command times out.
+  ansible.builtin.file:
+    path: /var/lib/virtualbox
+    state: directory
+    recurse: yes
+    group: vboxusers
+    mode: u=rwX,g=rwX,o=
+  become: yes
+  # "become: yes" alone is not enough: the "ansible_become: no" set on
+  # the import in playbook.yml wins over the keyword — only a task-level
+  # variable overrides it.
+  vars:
+    ansible_become: yes
+
+- name: Install acl (setfacl, for the next task)
+  ansible.builtin.apt:
+    name: acl
+    state: present
+  become: yes
+  vars:
+    ansible_become: yes
+
+- name: Let vboxusers traverse the home directory (access to VirtualBox VMs)
+  # Ubuntu 22.04 creates home directories as 0750: purplelab-vm
+  # (vmbridge-agent) then cannot reach /home/{{ target_user }}/VirtualBox VMs,
+  # whatever permissions are set on that folder below — and VBoxManage
+  # answers "Could not find a registered machine named 'sandbox'" even
+  # though the VM is in the registry. --x ACL only: traverse, without
+  # being able to list or read the home (narrower than a chmod o+x,
+  # which would open it to every account).
+  ansible.builtin.shell: |
+    if getfacl -p "/home/{{ target_user }}" | grep -qx 'group:vboxusers:--x'; then
+      echo unchanged
+    else
+      setfacl -m g:vboxusers:--x "/home/{{ target_user }}"
+    fi
+  register: home_acl_result
+  changed_when: "'unchanged' not in home_acl_result.stdout"
+  become: yes
+  vars:
+    ansible_become: yes
+
+- name: Make the VM folder (disks, snapshots) accessible to vboxusers
+  # Same problem as above, on a second resource: the folder created by
+  # VBoxManage import/startvm/snapshot under
+  # /home/{{ target_user }}/VirtualBox VMs/sandbox is left as
+  # root:root 0700 (VirtualBox also locks its VM files to the owner
+  # only). The shared registry references this folder, but a
+  # purplelab-vm process that can read the registry still cannot open
+  # the VM's own files without this fix — VBoxSVC then treats the
+  # machine as "not found" instead of reporting a permission error,
+  # which is misleading when diagnosing.
+  ansible.builtin.file:
+    path: "/home/{{ target_user }}/VirtualBox VMs"
+    state: directory
+    recurse: yes
+    group: vboxusers
+    mode: u=rwX,g=rwX,o=
+  become: yes
+  # "become: yes" alone is not enough: the "ansible_become: no" set on
+  # the import in playbook.yml wins over the keyword — only a task-level
+  # variable overrides it.
+  vars:
+    ansible_become: yes

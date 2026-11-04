@@ -1,0 +1,20 @@
+# Restores VirtualBox's standard security model (members of the
+# vboxusers group can drive VMs without root) on hosts where the
+# virtualbox-dkms package locks /dev/vboxdrv to root:root 0600 by
+# default (/lib/udev/rules.d/60-virtualbox-dkms.rules rule) — the case on
+# Ubuntu 22.04, validated empirically during the V4 migration.
+#
+# Without this rule, vmbridge-agent (which runs under the dedicated
+# purplelab-vm account, a member of vboxusers, never root) can neither
+# start nor stop the sandbox VM — only pure read operations (showvminfo,
+# guestproperty get) work without it.
+#
+# Installation:
+#   sudo cp vmbridge-agent/udev/70-vboxdrv-vboxusers.rules /etc/udev/rules.d/
+#   sudo udevadm control --reload-rules
+#   sudo chgrp vboxusers /dev/vboxdrv && sudo chmod 0660 /dev/vboxdrv
+#
+# The final chgrp/chmod is only needed once, for the device already
+# loaded at install time — subsequent loads of the vboxdrv module
+# (reboot, dkms update) will apply this rule automatically.
+KERNEL=="vboxdrv", GROUP="vboxusers", MODE="0660"
